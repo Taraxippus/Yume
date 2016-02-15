@@ -1,7 +1,8 @@
-package com.taraxippus.yume.game;
-import com.taraxippus.yume.render.*;
+package com.taraxippus.yume.game.gameobject;
+
 import android.opengl.*;
-import java.nio.*;
+import com.taraxippus.yume.game.*;
+import com.taraxippus.yume.render.*;
 
 public class FullscreenQuad extends GameObject
 {

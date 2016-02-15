@@ -1,11 +1,16 @@
-package com.taraxippus.yume.game;
+package com.taraxippus.yume.game.gameobject;
+
 import android.opengl.*;
+import com.taraxippus.yume.game.*;
+import com.taraxippus.yume.game.gameobject.*;
 import com.taraxippus.yume.render.*;
 
 public class Box extends SceneObject
 {
 	final boolean hasReflection;
 	final boolean inverted;
+	
+	private ReflectionObject reflection;
 	
 	public Box(World world)
 	{
@@ -29,11 +34,26 @@ public class Box extends SceneObject
 	public void init()
 	{
 		if (hasReflection)
-			world.add(new MirrorObject(this));
+			world.add(this.reflection = new ReflectionObject(this));
 		
 		super.init();
 	}
 
+	@Override
+	public void delete()
+	{
+		if (hasReflection)
+			world.remove(this.reflection);
+		
+		super.delete();
+	}
+	
+	
+	public float getRadius()
+	{
+		return (float) Math.sqrt(scale.x * scale.x * 0.5 * 0.5 + scale.y * scale.y * 0.5 * 0.5 + scale.z * scale.z * 0.5 * 0.5);
+	}
+	
 	public static final float[] vertices = new float[]
 	{
 		-0.5F, -0.5F, -0.5F,

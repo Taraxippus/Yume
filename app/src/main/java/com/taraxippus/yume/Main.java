@@ -6,13 +6,14 @@ import android.os.*;
 import android.support.v4.view.*;
 import android.view.*;
 import com.taraxippus.yume.game.*;
+import com.taraxippus.yume.game.gameobject.*;
 import com.taraxippus.yume.render.*;
 import com.taraxippus.yume.util.*;
 
 public class Main extends Activity implements View.OnTouchListener
 {
 	public static final float FIXED_DELTA = 1 / 60F;
-	public final float timeFactor = 1;
+	public float timeFactor = 1;
 	
 	public final ResourceHelper resourceHelper = new ResourceHelper(this);
 	public final Renderer renderer = new Renderer(this);
@@ -23,6 +24,7 @@ public class Main extends Activity implements View.OnTouchListener
 	public GLSurfaceView view;
 	
 	private ScaleGestureDetector scaleDetector;
+	private GestureDetector gestureDetector;
 	
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -30,6 +32,7 @@ public class Main extends Activity implements View.OnTouchListener
         super.onCreate(savedInstanceState);
 		
 		scaleDetector = new ScaleGestureDetector(this, new ScaleListener());
+		gestureDetector = new GestureDetector(this, new GestureListener());
 		
 		view = new GLSurfaceView(this);
 		view.setOnTouchListener(this);
@@ -78,6 +81,7 @@ public class Main extends Activity implements View.OnTouchListener
 	public boolean onTouch(View view, MotionEvent ev)
 	{
 		scaleDetector.onTouchEvent(ev);
+		gestureDetector.onTouchEvent(ev);
 
 		final int action = MotionEventCompat.getActionMasked(ev); 
 
@@ -107,13 +111,11 @@ public class Main extends Activity implements View.OnTouchListener
 					final float dx = x - lastTouchX;
 					final float dy = y - lastTouchY;
 
-					camera.rotY -= dx * 0.1F;
-					camera.rotX -= dy * 0.1F;
+					camera.rotation.y -= dx * 0.1F;
+					camera.rotation.x -= dy * 0.1F;
 
-					camera.rotX = Math.min(-5, Math.max(camera.rotX, -90));
+					camera.rotation.x = Math.min(-5, Math.max(camera.rotation.x, -90 + 0.0001F));
 					
-					camera.updateView();
-
 					lastTouchX = x;
 					lastTouchY = y;
 
@@ -159,9 +161,32 @@ public class Main extends Activity implements View.OnTouchListener
 			camera.zoom /= detector.getScaleFactor();
 			camera.zoom = Math.max(1F, Math.min(camera.zoom, 2.5F));
 
-			camera.updateView();
+			return true;
+		}
+	}
+	
+	private class GestureListener extends GestureDetector.SimpleOnGestureListener
+	{
+
+		@Override
+		public boolean onSingleTapUp(MotionEvent e)
+		{
+			final Ray viewRay = camera.unProject(e.getX(), e.getY());
+			final VectorF result = new VectorF();
+			
+			SceneObject touched = viewRay.intersectsFirst(world.sceneObjects, result);
+			
+			if (touched != null)
+			{
+				touched.onTouch();
+			}
+			else if (viewRay.intersects(game.floor, result))
+			{
+				game.onFloorTouched(result);
+			}
 			
 			return true;
 		}
+		
 	}
 }

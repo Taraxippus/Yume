@@ -1,4 +1,5 @@
 #version 100
+precision mediump float;
 
 attribute vec4 a_Position;
 attribute vec3 a_Normal;

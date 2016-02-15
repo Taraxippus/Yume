@@ -77,23 +77,33 @@ public enum Pass
 		{
 			case SCENE_PRE:
 				this.getFramebuffer().bind();
-				GLES20.glUniform3fv(getProgram().getUniform("u_Eye"), 1, renderer.main.camera.eye, 0);
+				GLES20.glUniform3fv(getProgram().getUniform("u_Eye"), 1, renderer.main.camera.eye.getVec40(), 0);
+				GLES20.glUniform3fv(getProgram().getUniform("u_Light"), 1, renderer.main.game.light.getVec40(), 0);
+				
 				break;
 			
 			case SCENE_POST:
 				GLES20.glDepthMask(false);
-				GLES20.glUniform3fv(getProgram().getUniform("u_Eye"), 1, renderer.main.camera.eye, 0);
+				GLES20.glUniform3fv(getProgram().getUniform("u_Eye"), 1, renderer.main.camera.eye.getVec40(), 0);
+				GLES20.glUniform3fv(getProgram().getUniform("u_Light"), 1, renderer.main.game.light.getVec40(), 0);
+				
 				break;
 				
 			case REFLECTION:
 				GLES20.glDepthMask(true);
-				GLES20.glUniform3fv(getProgram().getUniform("u_Eye"), 1, renderer.main.camera.eye, 0);
+				GLES20.glCullFace(GLES20.GL_FRONT);
+				GLES20.glUniform3fv(getProgram().getUniform("u_Eye"), 1, renderer.main.camera.eye.getVec40(), 0);
+				GLES20.glUniform3fv(getProgram().getUniform("u_Light"), 1, renderer.main.game.light.getVec40(), 0);
+				
 				break;
 				
 			case POST:
-				GLES20.glDisable(GLES20.GL_STREAM_DRAW);
+				GLES20.glCullFace(GLES20.GL_BACK);
 				Framebuffer.release(renderer);
 				SCENE_PRE.getFramebuffer().bindTexture(0);
+				GLES20.glUniform2f(getProgram().getUniform("u_InvResolution"), 1F / SCENE_PRE.getFramebuffer().width, 1F / SCENE_PRE.getFramebuffer().height);
+				GLES20.glUniform1f(getProgram().getUniform("u_VignetteFactor"), 0.6F + 0.2F / renderer.main.timeFactor);
+				
 				break;
 		}
 	}

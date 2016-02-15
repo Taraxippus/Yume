@@ -2,11 +2,12 @@ package com.taraxippus.yume.render;
 
 
 import android.opengl.*;
+import android.util.*;
+import com.taraxippus.yume.*;
 import javax.microedition.khronos.egl.*;
 import javax.microedition.khronos.opengles.*;
 
 import javax.microedition.khronos.egl.EGLConfig;
-import com.taraxippus.yume.*;
 
 public class Renderer implements GLSurfaceView.Renderer
 {
@@ -31,6 +32,8 @@ public class Renderer implements GLSurfaceView.Renderer
 		GLES20.glCullFace(GLES20.GL_BACK);
 		GLES20.glEnable(GLES20.GL_BLEND);
 		GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
+		
+		GLES20.glLineWidth(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10F, main.getResources().getDisplayMetrics()));
 		
 		Pass.init(main);
 		main.game.init();
@@ -66,7 +69,7 @@ public class Renderer implements GLSurfaceView.Renderer
 		accumulator += delta;
 		while (accumulator >= Main.FIXED_DELTA)
 		{
-			main.world.update();
+			main.game.update();
 			accumulator -= Main.FIXED_DELTA;
 		}
 		
@@ -84,7 +87,7 @@ public class Renderer implements GLSurfaceView.Renderer
 	
 	public void uniform(float[] modelMatrix, Pass pass)
 	{
-		Matrix.multiplyMM(mvpMatrix, 0, main.camera.viewProjectionMatrix, 0, modelMatrix, 0);
+		Matrix.multiplyMM(mvpMatrix, 0, main.camera.projectionViewMatrix, 0, modelMatrix, 0);
 		GLES20.glUniformMatrix4fv(pass.getProgram().getUniform("u_MVP"), 1, false, mvpMatrix, 0);
 		
 		Matrix.invertM(normalMatrix, 0, modelMatrix, 0);

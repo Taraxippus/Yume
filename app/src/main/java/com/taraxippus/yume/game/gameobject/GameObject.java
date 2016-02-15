@@ -1,9 +1,9 @@
-package com.taraxippus.yume.game;
+package com.taraxippus.yume.game.gameobject;
 
-import com.taraxippus.yume.*;
+import com.taraxippus.yume.game.*;
 import com.taraxippus.yume.render.*;
 
-public class GameObject
+public class GameObject implements Comparable<GameObject>
 {
 	public final World world;
 	public Shape shape;
@@ -51,5 +51,16 @@ public class GameObject
 	{
 		if (shape != null)
 			shape.delete();
+	}
+
+	public float getDepth()
+	{
+		return 0;
+	}
+	
+	@Override
+	public int compareTo(GameObject o)
+	{
+		return (int) (this.getDepth() - o.getDepth());
 	}
 }

@@ -1,31 +1,67 @@
 package com.taraxippus.yume.game;
 
 import com.taraxippus.yume.*;
+import com.taraxippus.yume.game.gameobject.*;
+import com.taraxippus.yume.game.level.*;
 import com.taraxippus.yume.render.*;
+import com.taraxippus.yume.util.*;
+import com.taraxippus.yume.game.path.*;
 
 public class Game
 {
+	public static final int HEIGHT = 24;
+	
 	public final Main main;
+	public final Level level;
+	
+	public final PathFinder pathFinder;
+	
+	public final Plane floor = new Plane(new VectorF(0, 1, 0), new VectorF());
+	public final VectorF light = new VectorF();
+	
+	public Grid grid;
+	public Player player;
 	
 	public Game(Main main)
 	{
 		this.main = main;
+		
+		this.level = new Level(this);
+		this.pathFinder = new PathFinder(level, 100, false);
+		this.light.set(level.getWidth() / 2F, HEIGHT / 2F, level.getLength() / 2F);
 	}
 	
 	public void init()
 	{
 		main.camera.init();
 		
-		main.world.add(new Box(main.world, true, true).translate(0, 7.5F, 0).scale(25, 15, 25).setPass(Pass.SCENE_POST));
-		main.world.add(new Box(main.world, true).setColor(0xFF8800).translate(0, 0.5F, 0).rotate(0, 45F, 0));
-		main.world.add(new FloatingBox(main.world).setColor(0x00CCFF).translate(10, 1.5F, 10).rotate(0, 45F, 0));
+		main.world.add(new Box(main.world, true, true).translate(level.getWidth() / 2F - 0.5F, HEIGHT / 2F, level.getLength() / 2F - 0.5F).scale(level.getWidth(), HEIGHT, level.getLength()).setPass(Pass.SCENE_POST));
+		
+		main.world.add(this.player = (Player) new Player(main.world).translate(level.getWidth() / 2F, 0, level.getLength() / 2F));
+		main.world.add(this.grid = (Grid) new Grid(main.world, new VectorF(level.getWidth(), HEIGHT, level.getLength())).setColor(0x00CCFF).translate(level.getWidth() / 2F - 0.5F, HEIGHT / 2F, level.getLength() / 2F - 0.5F).setPass(Pass.SCENE_POST));
+		
+		main.world.add(new FloatingBox(main.world).translate(1, 1.5F, 1).rotate(0, 45F, 0));
 		
 		main.world.add(new FullscreenQuad(main.world, Pass.POST));
+		
+		main.camera.setTarget(player);
 	}
 	
 	public void update()
 	{
-		
+		main.camera.update();
+		main.world.update();
+	}
+	
+	public void onFloorTouched(VectorF intersection)
+	{
+		if (player.selected && intersection.x < level.getWidth() && intersection.x >= 0 && intersection.z < level.getLength() && intersection.z >= 0)
+		{
+			player.setPath(pathFinder.findPath(player, player.position.x, player.position.z, intersection.x, intersection.z));
+			
+			player.selected = false;
+			grid.toggleVisibility();
+		}
 	}
 	
 	public void delete()
