@@ -52,6 +52,7 @@ public class Renderer implements GLSurfaceView.Renderer
 
 	private long lastTime;
 	private float accumulator;
+	private float accumulatorReal;
 	
 	public float partial;
 	
@@ -63,6 +64,13 @@ public class Renderer implements GLSurfaceView.Renderer
 			
 		float delta = (System.currentTimeMillis() - lastTime) / 1000F;
 		lastTime = System.currentTimeMillis();
+		
+		accumulatorReal += delta;
+		while (accumulatorReal >= Main.FIXED_DELTA)
+		{
+			main.game.updateReal();
+			accumulatorReal -= Main.FIXED_DELTA;
+		}
 		
 		delta *= main.timeFactor;
 		

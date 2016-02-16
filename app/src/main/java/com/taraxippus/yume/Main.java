@@ -12,7 +12,7 @@ import com.taraxippus.yume.util.*;
 
 public class Main extends Activity implements View.OnTouchListener
 {
-	public static final float FIXED_DELTA = 1 / 60F;
+	public static final float FIXED_DELTA = 1 / 240F;
 	public float timeFactor = 1;
 	
 	public final ResourceHelper resourceHelper = new ResourceHelper(this);

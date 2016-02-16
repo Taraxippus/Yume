@@ -46,6 +46,10 @@ public class ReflectionObject extends GameObject
 	@Override
 	public float getDepth()
 	{
-		return parent.getDepth();
+		float f = position.set(parent.position.x, -parent.position.y, parent.position.z).subtract(world.main.camera.eye).length();
+	
+		System.out.println(f + "; " + parent.position);
+		
+		return f;
 	}
 }

@@ -6,6 +6,7 @@ import com.taraxippus.yume.game.path.*;
 public class Level
 {
 	final Game game;
+	final boolean[] blocked = new boolean[getWidth() * getLength()];
 	
 	public Level(Game game)
 	{
@@ -24,7 +25,12 @@ public class Level
 	
     public boolean isBlocked(IMover mover, int x, int z)
 	{
-		return false;
+		return blocked[x * getLength() + z];
+	}
+	
+	public boolean setBlocked(int x, int z)
+	{
+		return blocked[x * getLength() + z] = true;
 	}
 	
     public float getCost(IMover mover, int sX, int sZ, int tX, int tY)

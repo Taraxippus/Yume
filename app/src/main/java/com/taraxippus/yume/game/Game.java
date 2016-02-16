@@ -27,7 +27,7 @@ public class Game
 		this.main = main;
 		
 		this.level = new Level(this);
-		this.pathFinder = new PathFinder(level, 100, false);
+		this.pathFinder = new PathFinder(level, 1000, false);
 		this.light.set(level.getWidth() / 2F, HEIGHT / 2F, level.getLength() / 2F);
 	}
 	
@@ -49,18 +49,37 @@ public class Game
 	
 	public void update()
 	{
-		main.camera.update();
 		main.world.update();
+	}
+	
+	public void updateReal()
+	{
+		main.camera.update();
 	}
 	
 	public void onFloorTouched(VectorF intersection)
 	{
-		if (player.selected && intersection.x < level.getWidth() && intersection.x >= 0 && intersection.z < level.getLength() && intersection.z >= 0)
+		if (intersection.x < level.getWidth() && intersection.x >= 0 && intersection.z < level.getLength() && intersection.z >= 0)
 		{
-			player.setPath(pathFinder.findPath(player, player.position.x, player.position.z, intersection.x, intersection.z));
+			if (player.selected)
+			{
+				player.setPath(pathFinder.findPath(player, player.position.x, player.position.z, intersection.x, intersection.z));
+
+				player.selected = false;
+				grid.toggleVisibility();
+			}
+			else
+			{
+				main.world.addLater(new Box(main.world)
+				{
+					public void onTouch()
+					{
+						world.removeLater(this);
+					}
+				}.setTouchable(true).setColor(0xFFCC00).translate(Math.round(intersection.x), 0.5F, Math.round(intersection.z)));
 			
-			player.selected = false;
-			grid.toggleVisibility();
+				level.setBlocked(Math.round(intersection.x), Math.round(intersection.z));
+			}
 		}
 	}
 	

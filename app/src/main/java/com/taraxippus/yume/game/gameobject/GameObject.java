@@ -61,6 +61,6 @@ public class GameObject implements Comparable<GameObject>
 	@Override
 	public int compareTo(GameObject o)
 	{
-		return (int) (this.getDepth() - o.getDepth());
+		return (int) Math.signum(this.getDepth() - o.getDepth());
 	}
 }
