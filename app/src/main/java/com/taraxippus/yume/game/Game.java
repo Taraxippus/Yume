@@ -41,6 +41,9 @@ public class Game
 		main.world.add(this.grid = (Grid) new Grid(main.world, new VectorF(level.getWidth(), HEIGHT, level.getLength())).setColor(0x00CCFF).translate(level.getWidth() / 2F - 0.5F, HEIGHT / 2F, level.getLength() / 2F - 0.5F).setPass(Pass.SCENE_POST));
 		
 		main.world.add(new FloatingBox(main.world).translate(1, 1.5F, 1).rotate(0, 45F, 0));
+		main.world.add(new Jumper(main.world).translate(level.getWidth() - 1, 0, level.getLength() - 1));
+		main.world.add(new Jumper(main.world).translate(level.getWidth() - 2, 0, level.getLength() - 2));
+		main.world.add(new Jumper(main.world).translate(level.getWidth() - 3, 0, level.getLength() - 3));
 		
 		main.world.add(new FullscreenQuad(main.world, Pass.POST));
 		
@@ -59,14 +62,13 @@ public class Game
 	
 	public void onFloorTouched(VectorF intersection)
 	{
+		intersection.roundInt();
+		
 		if (intersection.x < level.getWidth() && intersection.x >= 0 && intersection.z < level.getLength() && intersection.z >= 0)
 		{
 			if (player.selected)
 			{
-				player.setPath(pathFinder.findPath(player, player.position.x, player.position.z, intersection.x, intersection.z));
-
-				player.selected = false;
-				grid.toggleVisibility();
+				player.setPath(pathFinder.findPath(player, player.position.x, player.position.z, intersection.x, intersection.z, true));
 			}
 			else
 			{
@@ -75,10 +77,11 @@ public class Game
 					public void onTouch()
 					{
 						world.removeLater(this);
+						level.setBlocked(Math.round(position.x), Math.round(position.z), false);
 					}
-				}.setTouchable(true).setColor(0xFFCC00).translate(Math.round(intersection.x), 0.5F, Math.round(intersection.z)));
+				}.setTouchable(true).setColor(0xFFCC00).translate(intersection.x, 0.5F, intersection.z));
 			
-				level.setBlocked(Math.round(intersection.x), Math.round(intersection.z));
+				level.setBlocked((int)intersection.x, (int)intersection.z, true);
 			}
 		}
 	}

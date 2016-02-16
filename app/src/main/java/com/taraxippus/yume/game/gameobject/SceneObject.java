@@ -14,7 +14,7 @@ public class SceneObject extends GameObject
 	public final float[] invModelMatrix = new float[16];
 	
 	public final VectorF color = new VectorF(0xCC / 255F, 0xCC / 255F, 0xCC / 255F);
-	public float alpha = 1;
+	public float alpha = 1F;
 	public float specularity = 20F;
 	
 	public final VectorF position = new VectorF();
@@ -24,7 +24,6 @@ public class SceneObject extends GameObject
 	public final VectorF tmp = new VectorF();
 	
 	public float radius;
-	public float depth;
 	
 	public boolean touchable;
 	public boolean enabled = true;
@@ -93,15 +92,14 @@ public class SceneObject extends GameObject
 	{
 		Matrix.setIdentityM(modelMatrix, 0);
 		Matrix.translateM(modelMatrix, 0, position.x, position.y, position.z);
+		Matrix.scaleM(modelMatrix, 0, scale.x, scale.y, scale.z);
 		Matrix.rotateM(modelMatrix, 0, rotation.y, 0, 1, 0);
 		Matrix.rotateM(modelMatrix, 0, rotation.x, 1, 0, 0);
 		Matrix.rotateM(modelMatrix, 0, rotation.z, 0, 0, 1);
-		Matrix.scaleM(modelMatrix, 0, scale.x, scale.y, scale.z);
 		
 		Matrix.invertM(invModelMatrix, 0, modelMatrix, 0);
 		
 		this.radius = getRadius();
-		this.depth = tmp.set(position).subtract(world.main.camera.eye).length();
 	}
 	
 	public float getRadius()
@@ -125,6 +123,6 @@ public class SceneObject extends GameObject
 	@Override
 	public float getDepth()
 	{
-		return depth;
+		return tmp.set(position).subtract(world.main.camera.eye).length();
 	}
 }

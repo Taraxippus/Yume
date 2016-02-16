@@ -3,13 +3,14 @@ import java.util.*;
 
 public class Path
 {
-	public ArrayList<Step> steps = new ArrayList<>();
+	public final ArrayList<Step> steps = new ArrayList<>();
 	
 	public int currentStep = 0;
+	public boolean finished;
 	
 	public boolean hasNext()
 	{
-		return currentStep < steps.size();
+		return !finished && currentStep < steps.size();
 	}
 	
 	public Step nextStep()
@@ -17,10 +18,20 @@ public class Path
 		return steps.get(currentStep++);
 	}
 	
+	public Step getTarget()
+	{
+		return steps.get(steps.size() - 1);
+	}
+	
 	public void addStep(int x, int z)
 	{
 		steps.add(0, new Step(x, z));
 		currentStep = 0;
+	}
+	
+	public void finish()
+	{
+		this.finished = true;
 	}
 	
 	public static class Step

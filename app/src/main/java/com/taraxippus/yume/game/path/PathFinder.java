@@ -22,16 +22,17 @@ public class PathFinder
 		this.allowDiagonalMovement = allowDiagonalMovement;
 		
 		this.nodes = new Node[level.getWidth() * level.getLength()];
+		
 		for (int i = 0; i < this.nodes.length; ++i)
 			this.nodes[i] = new Node(i / level.getLength(), i % level.getLength());
 	}
 	
-	public Path findPath(IMover mover, float sX, float sZ, float tX, float tZ)
+	public Path findPath(IMover mover, float sX, float sZ, float tX, float tZ, boolean addFirst)
 	{
-		return findPath(mover, Math.round(sX), Math.round(sZ), Math.round(tX), Math.round(tZ));
+		return findPath(mover, Math.round(sX), Math.round(sZ), Math.round(tX), Math.round(tZ), addFirst);
 	}
 	
-	public Path findPath(IMover mover, int sX, int sZ, int tX, int tZ)
+	public Path findPath(IMover mover, int sX, int sZ, int tX, int tZ, boolean addFirst)
 	{
 		if (sX == tX && sZ == tZ || level.isBlocked(mover, tX, tZ))
 			return null;
@@ -117,7 +118,8 @@ public class PathFinder
 			path.addStep(target.x, target.z);
 			target = target.parent;
 		}
-		path.addStep(sX, sZ);
+		if (addFirst)
+			path.addStep(sX, sZ);
 
 		return path;
 	}

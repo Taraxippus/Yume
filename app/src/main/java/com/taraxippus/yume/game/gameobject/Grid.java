@@ -38,7 +38,7 @@ public class Grid extends SceneObject
 	public void init()
 	{
 		if (hasReflection)
-			world.add(this.reflection = new ReflectionObject(this));
+			world.add(this.reflection = new GridReflectionObject(this));
 
 		super.init();
 	}
@@ -339,5 +339,19 @@ public class Grid extends SceneObject
 	public float getDepth()
 	{
 		return 1000;
+	}
+	
+	private class GridReflectionObject extends ReflectionObject
+	{
+		public GridReflectionObject(Grid parent)
+		{
+			super(parent);
+		}
+		
+		@Override
+		public float getDepth()
+		{
+			return 1000;
+		}
 	}
 }

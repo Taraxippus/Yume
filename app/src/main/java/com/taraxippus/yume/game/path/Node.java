@@ -26,6 +26,6 @@ public class Node implements Comparable<Node>
 	
 	public int compareTo(Node o) 
 	{
-		return (int) (heuristic + cost - (o.heuristic + o.cost));
+		return (int) Math.signum(heuristic + cost - (o.heuristic + o.cost));
 	}
 }

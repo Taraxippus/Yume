@@ -2,6 +2,7 @@ package com.taraxippus.yume.game.level;
 
 import com.taraxippus.yume.game.*;
 import com.taraxippus.yume.game.path.*;
+import com.taraxippus.yume.game.gameobject.*;
 
 public class Level
 {
@@ -28,9 +29,12 @@ public class Level
 		return blocked[x * getLength() + z];
 	}
 	
-	public boolean setBlocked(int x, int z)
+	public void setBlocked(int x, int z, boolean block)
 	{
-		return blocked[x * getLength() + z] = true;
+		blocked[x * getLength() + z] = block;
+		
+		for (MovingObject gameObject : game.main.world.movingObjects)
+			gameObject.checkPath();
 	}
 	
     public float getCost(IMover mover, int sX, int sZ, int tX, int tY)

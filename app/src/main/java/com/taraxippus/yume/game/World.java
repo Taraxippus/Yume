@@ -13,6 +13,7 @@ public class World
 	public final Main main;
 	public final ArrayList<GameObject>[] gameObjects = new ArrayList[Pass.values().length];
 	public final ArrayList<SceneObject> sceneObjects = new ArrayList<>();
+	public final ArrayList<MovingObject> movingObjects = new ArrayList<>();
 	
 	public final List<GameObject> gameObjects_add = Collections.synchronizedList(new ArrayList<GameObject>());
 	public final List<GameObject> gameObjects_remove = Collections.synchronizedList(new ArrayList<GameObject>());
@@ -39,6 +40,9 @@ public class World
 		
 		if (gameObject instanceof SceneObject)
 			sceneObjects.add((SceneObject) gameObject);
+			
+		if (gameObject instanceof MovingObject)
+			movingObjects.add((MovingObject) gameObject);
 	}
 	
 	public void removeLater(GameObject gameObject)
@@ -53,6 +57,9 @@ public class World
 		
 		if (gameObject instanceof SceneObject)
 			sceneObjects.remove(gameObject);
+			
+		if (gameObject instanceof MovingObject)
+			movingObjects.remove(gameObject);
 	}
 	
 	public void update()

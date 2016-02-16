@@ -242,6 +242,15 @@ public class VectorF
 
         return this;
     }
+	
+	public VectorF roundInt()
+    {
+        this.x = Math.round(this.x);
+        this.y = Math.round(this.y);
+        this.z = Math.round(this.z);
+
+        return this;
+    }
 
     public VectorF floor()
     {

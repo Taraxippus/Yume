@@ -11,6 +11,8 @@ public class Camera
 	public static final float Z_FAR = 100;
 	public static final float FOV = 60;
 	
+	public static final float FOLLOW_SMOOTHNESS = 10;
+	
 	public final Main main;
 	
 	final float[] viewMatrix = new float[16];
@@ -39,7 +41,7 @@ public class Camera
 	public void update()
 	{
 		if (target != null)
-			this.position.multiplyBy(2).add(target.position).divideBy(3);
+			this.position.multiplyBy(FOLLOW_SMOOTHNESS).add(target.position).divideBy(FOLLOW_SMOOTHNESS + 1);
 		
 		updateView();
 	}
@@ -58,9 +60,9 @@ public class Camera
 
 	public void updateView()
 	{
-		this.eye.set(0, 0, 5).rotateX(rotation.x).rotateY(rotation.y).rotateZ(rotation.z).multiplyBy(zoom);
+		this.eye.set(0, 0, 5).rotateX(rotation.x).rotateY(rotation.y).rotateZ(rotation.z).multiplyBy(zoom).add(position);
 		
-		Matrix.setLookAtM(viewMatrix, 0, position.x + eye.x, position.y + eye.y, position.z + eye.z, position.x, position.y, position.z, 0, 1, 0);
+		Matrix.setLookAtM(viewMatrix, 0, eye.x, eye.y, eye.z, position.x, position.y, position.z, 0, 1, 0);
 		this.updateViewProjection();
 	}
 	
