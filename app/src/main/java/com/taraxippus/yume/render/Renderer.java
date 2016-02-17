@@ -2,6 +2,7 @@ package com.taraxippus.yume.render;
 
 
 import android.opengl.*;
+import android.os.*;
 import android.util.*;
 import com.taraxippus.yume.*;
 import javax.microedition.khronos.egl.*;
@@ -50,7 +51,7 @@ public class Renderer implements GLSurfaceView.Renderer
 		main.camera.onResize(width, height);
 	}
 
-	private long lastTime;
+	public long lastTime;
 	private float accumulator;
 	private float accumulatorReal;
 	
@@ -60,10 +61,10 @@ public class Renderer implements GLSurfaceView.Renderer
 	public void onDrawFrame(GL10 p1)
 	{
 		if (lastTime == 0)
-			lastTime = System.currentTimeMillis();
+			lastTime = SystemClock.elapsedRealtime();
 			
-		float delta = (System.currentTimeMillis() - lastTime) / 1000F;
-		lastTime = System.currentTimeMillis();
+		float delta = (SystemClock.elapsedRealtime() - lastTime) / 1000F;
+		lastTime = SystemClock.elapsedRealtime();
 		
 		accumulatorReal += delta;
 		while (accumulatorReal >= Main.FIXED_DELTA)

@@ -23,9 +23,9 @@ public class Path
 		return steps.get(steps.size() - 1);
 	}
 	
-	public void addStep(int x, int z)
+	public void addStep(int x, int y, int z)
 	{
-		steps.add(0, new Step(x, z));
+		steps.add(0, new Step(x, y, z));
 		currentStep = 0;
 	}
 	
@@ -37,11 +37,13 @@ public class Path
 	public static class Step
 	{
 		public final int x;
+		public final int y;
 		public final int z;
 		
-		public Step(int x, int z)
+		public Step(int x, int y, int z)
 		{
 			this.x = x;
+			this.y = y;
 			this.z = z;
 		}
 	}

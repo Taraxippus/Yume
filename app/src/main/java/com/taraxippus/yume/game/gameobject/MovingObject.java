@@ -11,6 +11,7 @@ public class MovingObject extends Box implements IMover
 	public static final float JUMP_DURATION = 0.5F;
 	public static final float JUMP_PAUSE = 0.15F;
 	
+	public final PathFinder pathFinder;
 	public Path path;
 	public Path.Step lastStep, nextStep;
 
@@ -22,6 +23,8 @@ public class MovingObject extends Box implements IMover
 		this.scale(0.75F, 0.75F, 0.75F);
 
 		this.specularity = 50F;
+		
+		this.pathFinder = new PathFinder(world.main.game.level, 1000, false);
 	}
 
 	float jumpTick;
@@ -41,7 +44,7 @@ public class MovingObject extends Box implements IMover
 
 			this.position.set(
 				nextStep.x * delta + lastStep.x * (1 - delta), 
-				0.5F * scale.y + (0.5F * World.GRAVITY * delta * delta + -World.GRAVITY * 0.5F * delta),
+				nextStep.y * delta + lastStep.y * (1 - delta) + 0.5F * scale.y + (0.5F * World.GRAVITY * delta * delta + -World.GRAVITY * 0.5F * delta),
 				nextStep.z * delta + lastStep.z * (1 - delta));
 
 			this.rotation.x = delta * 90F;
@@ -50,7 +53,7 @@ public class MovingObject extends Box implements IMover
 
 			if (jumpTick <= 0)
 			{
-				this.position.set(nextStep.x, 0.5F * scale.y, nextStep.z);
+				this.position.set(nextStep.x, nextStep.y + 0.5F * scale.y, nextStep.z);
 				this.rotation.x = 0;
 				this.updateMatrix();
 				
@@ -155,9 +158,14 @@ public class MovingObject extends Box implements IMover
 			nextStep();
 	}
 	
+	public void findPath(float tX, float tY, float tZ)
+	{
+		setPath(pathFinder.findPath(this, position.x, position.y, position.z, tX, tY, tZ, jumpTick == 0));
+	}
+	
 	public void checkPath()
 	{
 		if (path != null && !path.finished)
-			setPath(world.main.game.pathFinder.findPath(this, nextStep.x, nextStep.z, path.getTarget().x, path.getTarget().z, false));
+			setPath(pathFinder.findPath(this, nextStep.x, nextStep.y, nextStep.z, path.getTarget().x, path.getTarget().y, path.getTarget().z, false));
 	}
 }

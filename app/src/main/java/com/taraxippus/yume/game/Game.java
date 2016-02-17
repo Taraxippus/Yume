@@ -9,15 +9,12 @@ import com.taraxippus.yume.game.path.*;
 
 public class Game
 {
-	public static final int HEIGHT = 24;
-	
 	public final Main main;
 	public final Level level;
 	
-	public final PathFinder pathFinder;
-	
-	public final Plane floor = new Plane(new VectorF(0, 1, 0), new VectorF());
 	public final VectorF light = new VectorF();
+	
+	public Box room;
 	
 	public Grid grid;
 	public Player player;
@@ -27,18 +24,17 @@ public class Game
 		this.main = main;
 		
 		this.level = new Level(this);
-		this.pathFinder = new PathFinder(level, 1000, false);
-		this.light.set(level.getWidth() / 2F, HEIGHT / 2F, level.getLength() / 2F);
+		this.light.set(level.getWidth() / 2F, level.getHeight() / 2F, level.getLength() / 2F);
 	}
 	
 	public void init()
 	{
 		main.camera.init();
 		
-		main.world.add(new Box(main.world, true, true).translate(level.getWidth() / 2F - 0.5F, HEIGHT / 2F, level.getLength() / 2F - 0.5F).scale(level.getWidth(), HEIGHT, level.getLength()).setPass(Pass.SCENE_POST));
+		main.world.add(this.room = (Box) new Box(main.world, true, true).translate(level.getWidth() / 2F - 0.5F, level.getHeight() / 2F, level.getLength() / 2F - 0.5F).scale(level.getWidth(), level.getHeight(), level.getLength()).setPass(Pass.SCENE_POST));
 		
 		main.world.add(this.player = (Player) new Player(main.world).translate(level.getWidth() / 2F, 0, level.getLength() / 2F));
-		main.world.add(this.grid = (Grid) new Grid(main.world, new VectorF(level.getWidth(), HEIGHT, level.getLength())).setColor(0x00CCFF).translate(level.getWidth() / 2F - 0.5F, HEIGHT / 2F, level.getLength() / 2F - 0.5F).setPass(Pass.SCENE_POST));
+		main.world.add(this.grid = (Grid) new Grid(main.world, new VectorF(level.getWidth(), level.getHeight(), level.getLength())).setColor(0x00CCFF).translate(level.getWidth() / 2F - 0.5F, level.getHeight() / 2F, level.getLength() / 2F - 0.5F).setPass(Pass.SCENE_POST));
 		
 		main.world.add(new FloatingBox(main.world).translate(1, 1.5F, 1).rotate(0, 45F, 0));
 		main.world.add(new Jumper(main.world).translate(level.getWidth() - 1, 0, level.getLength() - 1));
@@ -60,31 +56,44 @@ public class Game
 		main.camera.update();
 	}
 	
-	public void onFloorTouched(VectorF intersection)
+	public void onWallTouched(VectorF intersection, VectorF normal)
 	{
 		intersection.roundInt();
 		
-		if (intersection.x < level.getWidth() && intersection.x >= 0 && intersection.z < level.getLength() && intersection.z >= 0)
+		//if (intersection.x < level.getWidth() && intersection.x >= 0 && intersection.y < level.getHeight() && intersection.y >= 0 && intersection.z < level.getLength() && intersection.z >= 0)
 		{
 			if (player.selected)
 			{
-				player.setPath(pathFinder.findPath(player, player.position.x, player.position.z, intersection.x, intersection.z, true));
+				player.findPath(intersection.x, intersection.y, intersection.z);
 			}
 			else
 			{
 				main.world.addLater(new Box(main.world)
 				{
-					public void onTouch()
-					{
-						if (!player.selected)
-						{
-							world.removeLater(this);
-							level.setBlocked(Math.round(position.x), Math.round(position.z), false);
-						}
-					}
-				}.setTouchable(true).setColor(0xFFCC00).translate(intersection.x, 0.5F, intersection.z));
+//					@Override
+//					public void onTouch(VectorF intersection, VectorF normal)
+//					{
+//						if (!player.selected)
+//							onWallTouched(new VectorF(this.position.x, this.position.y + 0.5F, this.position.z), normal);
+//							
+//						else
+//							player.findPath(position.x + normal.x, position.y - 0.5F + normal.y, position.z + normal.z);
+//					}
+//					
+//					@Override
+//					public void onDoubleTouch(VectorF intersection, VectorF normal)
+//					{
+//						if (!player.selected)
+//						{
+//							world.removeLater(this);
+//
+//							level.setBlocked(Math.round(position.x), Math.round(position.y - 0.5F), Math.round(position.z), false);
+//						}
+//					}
+					
+				}.setTouchable(true).setColor(0xAAAAAA).translate(intersection.x, intersection.y + 0.5F, intersection.z));
 			
-				level.setBlocked((int)intersection.x, (int)intersection.z, true);
+				//level.setBlocked((int) (intersection.x + normal.x), (int) (intersection.y + normal.y), (int) (intersection.z + normal.z), true);
 			}
 		}
 	}

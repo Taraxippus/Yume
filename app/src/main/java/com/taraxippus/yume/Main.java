@@ -5,6 +5,7 @@ import android.opengl.*;
 import android.os.*;
 import android.support.v4.view.*;
 import android.view.*;
+import android.widget.*;
 import com.taraxippus.yume.game.*;
 import com.taraxippus.yume.game.gameobject.*;
 import com.taraxippus.yume.render.*;
@@ -62,6 +63,14 @@ public class Main extends Activity implements View.OnTouchListener
                 | View.SYSTEM_UI_FLAG_FULLSCREEN
                 | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
 			}
+	}
+
+	@Override
+	protected void onResume()
+	{
+		super.onResume();
+		
+		renderer.lastTime = 0;
 	}
 	
 	@Override
@@ -172,21 +181,46 @@ public class Main extends Activity implements View.OnTouchListener
 		public boolean onSingleTapUp(MotionEvent e)
 		{
 			final Ray viewRay = camera.unProject(e.getX(), e.getY());
-			final VectorF result = new VectorF();
 			
-			SceneObject touched = viewRay.intersectsFirst(world.sceneObjects, result);
+			SceneObject touched = viewRay.intersectsFirst(world.sceneObjects);
 			
 			if (touched != null)
-			{
-				touched.onTouch();
-			}
-			else if (viewRay.intersects(game.floor, result))
-			{
-				game.onFloorTouched(result);
-			}
-			
+				touched.onTouch(viewRay.intersection, viewRay.normal);
+
+			else if (viewRay.intersects(game.room.modelMatrix, game.room.invModelMatrix, true))
+				game.onWallTouched(viewRay.getPoint(viewRay.distance).copy(), viewRay.normal);
+				
+			Toast.makeText(Main.this, viewRay.normal.toString(), Toast.LENGTH_SHORT).show();
+				
 			return true;
 		}
+
+		@Override
+		public boolean onSingleTapConfirmed(MotionEvent e)
+		{
+			final Ray viewRay = camera.unProject(e.getX(), e.getY());
+		
+			SceneObject touched = viewRay.intersectsFirst(world.sceneObjects);
+
+			if (touched != null)
+				touched.onSingleTouch(viewRay.intersection, viewRay.normal);
+				
+			return touched != null;
+		}
+
+		@Override
+		public boolean onDoubleTap(MotionEvent e)
+		{
+			final Ray viewRay = camera.unProject(e.getX(), e.getY());
+			
+			SceneObject touched = viewRay.intersectsFirst(world.sceneObjects);
+
+			if (touched != null)
+				touched.onDoubleTouch(viewRay.intersection, viewRay.normal);
+
+			return touched != null;
+		}
+
 		
 	}
 }

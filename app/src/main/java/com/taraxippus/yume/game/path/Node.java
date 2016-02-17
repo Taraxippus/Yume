@@ -3,6 +3,7 @@ package com.taraxippus.yume.game.path;
 public class Node implements Comparable<Node>
 {
 	final int x;
+	final int y;
 	final int z;
 	
 	Node parent;
@@ -10,9 +11,10 @@ public class Node implements Comparable<Node>
 	float cost;
 	float heuristic;
 	
-	public Node(int x, int z)
+	public Node(int x, int y, int z)
 	{
 		this.x = x;
+		this.y = y;
 		this.z = z;
 	}
 	

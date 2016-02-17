@@ -49,9 +49,19 @@ public class SceneObject extends GameObject
 		return this;
 	}
 	
-	public void onTouch()
+	public void onTouch(VectorF intersection, VectorF normal)
 	{
 		
+	}
+	
+	public void onSingleTouch(VectorF intersection, VectorF normal)
+	{
+
+	}
+	
+	public void onDoubleTouch(VectorF intersection, VectorF normal)
+	{
+
 	}
 	
 	public SceneObject setEnabled(boolean enabled)

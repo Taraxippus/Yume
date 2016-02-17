@@ -68,7 +68,7 @@ public class FloatingBox extends Box
 	boolean activated;
 	
 	@Override
-	public void onTouch()
+	public void onTouch(VectorF intersection, VectorF normal)
 	{
 		activated = !activated;
 		

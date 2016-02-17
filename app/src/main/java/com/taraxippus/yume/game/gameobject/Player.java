@@ -1,9 +1,8 @@
 package com.taraxippus.yume.game.gameobject;
 
-import com.taraxippus.yume.*;
 import com.taraxippus.yume.game.*;
 import com.taraxippus.yume.game.path.*;
-import android.view.*;
+import com.taraxippus.yume.util.*;
 
 public class Player extends MovingObject implements IMover
 {
@@ -23,7 +22,7 @@ public class Player extends MovingObject implements IMover
 	float jumpTick;
 	
 	@Override
-	public void onTouch()
+	public void onTouch(VectorF intersection, VectorF normal)
 	{
 		this.selected = !this.selected;
 		this.world.main.game.grid.toggleVisibility();

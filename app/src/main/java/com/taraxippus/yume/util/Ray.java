@@ -14,6 +14,8 @@ public class Ray
 	public static final VectorF MAX = new VectorF(0.5F, 0.5F, 0.5F);
 	
 	public float distance;
+	public final VectorF normal = new VectorF();
+	public final VectorF intersection = new VectorF();
 	
     public Ray() {}
 
@@ -48,30 +50,44 @@ public class Ray
         }
 
         result.set(getPoint(distance));
+		normal.set(p.normal);
         return true;
     }
 
-    public SceneObject intersectsFirst(ArrayList<SceneObject> entities, VectorF intersection)
+    public SceneObject intersectsFirst(ArrayList<SceneObject> entities)
     {
-        float distance = this.distance = -10000;
+        float distance = this.distance = 10000;
+		final VectorF normal = new VectorF();
         SceneObject first = null;
 
         for (SceneObject entity : entities)
         {
-            if (entity.touchable && this.intersects(entity.invModelMatrix, MIN, MAX) && this.distance > distance)
+            if (entity.touchable && this.intersects(entity.modelMatrix, entity.invModelMatrix) && this.distance < distance)
             {
                 distance = this.distance;
+				normal.set(this.normal);
                 first = entity;
             }
         }
 
         this.distance = distance;
+		this.normal.set(normal);
 
-        intersection.set(getPoint(-distance));
+        intersection.set(getPoint(distance));
         return first;
     }
+	
+	public boolean intersects(float[] matrix, float[] invMatrix)
+    {
+		return intersects(matrix, invMatrix, MIN, MAX, false);
+	}
+	
+	public boolean intersects(float[] matrix, float[] invMatrix, boolean inverse)
+    {
+		return intersects(matrix, invMatrix, MIN, MAX, inverse);
+	}
 
-    public boolean intersects(float[] matrix, VectorF min, VectorF max)
+    public boolean intersects(float[] matrix, float[] invMatrix, VectorF min, VectorF max, boolean inverse)
     {
         float t1, t2;
         float tMin = -10000;
@@ -88,16 +104,21 @@ public class Ray
         }
         else
         {
-            point = this.point.copy().multiplyBy(matrix);
-            point2 = this.point.copy().add(this.direction).multiplyBy(matrix);
+            point = this.point.copy().multiplyBy(invMatrix);
+            point2 = this.point.copy().add(this.direction).multiplyBy(invMatrix);
             direction = point.copy().subtract(point2).normalize();
         }
+		
+		normal.set(VectorF.zero);
 
         if (direction.x != 0.0)
         {
             t1 = (min.x - point.x) / direction.x;
             t2 = (max.x - point.x) / direction.x;
 
+			if (tMin < Math.min(t1, t2))
+                normal.set(t1 < t2 ? -1 : 1, 0, 0);
+			
             tMin = Math.max(tMin, Math.min(t1, t2));
             tMax = Math.min(tMax, Math.max(t1, t2));
         }
@@ -107,6 +128,9 @@ public class Ray
             t1 = (min.y - point.y) / direction.y;
             t2 = (max.y - point.y) / direction.y;
 
+			if (tMin < Math.min(t1, t2))
+                normal.set(0, t1 < t2 ? -1 : 1, 0);
+			
             tMin = Math.max(tMin, Math.min(t1, t2));
             tMax = Math.min(tMax, Math.max(t1, t2));
         }
@@ -116,12 +140,34 @@ public class Ray
             t1 = (min.z - point.z) / direction.z;
             t2 = (max.z - point.z) / direction.z;
 
+			if (tMin < Math.min(t1, t2))
+                normal.set(0, 0, t1 < t2 ? -1 : 1);
+			
             tMin = Math.max(tMin, Math.min(t1, t2));
             tMax = Math.min(tMax, Math.max(t1, t2));
         }
 
         distance = tMin;
-
+		
+		if (matrix != null)
+		{
+			tmp1.set(direction).multiplyBy(distance).add(point);
+			tmp1.multiplyBy(matrix);
+			intersection.set(tmp1);
+			
+			tmp1.subtract(this.point);
+			distance = tmp1.length();
+		}
+		else
+		{
+			intersection.set(getPoint(distance));
+		}
+		
+		normal.roundInt();
+		
+		if (inverse)
+			normal.negate();
+		
         return tMax >= tMin;
     }
 
