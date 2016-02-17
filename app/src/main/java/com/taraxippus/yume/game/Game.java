@@ -76,8 +76,11 @@ public class Game
 				{
 					public void onTouch()
 					{
-						world.removeLater(this);
-						level.setBlocked(Math.round(position.x), Math.round(position.z), false);
+						if (!player.selected)
+						{
+							world.removeLater(this);
+							level.setBlocked(Math.round(position.x), Math.round(position.z), false);
+						}
 					}
 				}.setTouchable(true).setColor(0xFFCC00).translate(intersection.x, 0.5F, intersection.z));
 			
