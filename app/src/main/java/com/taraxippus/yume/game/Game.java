@@ -9,12 +9,8 @@ import com.taraxippus.yume.game.path.*;
 
 public class Game
 {
-	public static final int HEIGHT = 24;
-	
 	public final Main main;
 	public final Level level;
-	
-	public final PathFinder pathFinder;
 	
 	public final Plane floor = new Plane(new VectorF(0, 1, 0), new VectorF());
 	public final VectorF light = new VectorF();
@@ -27,18 +23,17 @@ public class Game
 		this.main = main;
 		
 		this.level = new Level(this);
-		this.pathFinder = new PathFinder(level, 1000, false);
-		this.light.set(level.getWidth() / 2F, HEIGHT / 2F, level.getLength() / 2F);
+		this.light.set(level.getWidth() / 2F, level.getHeight() / 2F, level.getLength() / 2F);
 	}
 	
 	public void init()
 	{
 		main.camera.init();
 		
-		main.world.add(new Box(main.world, true, true).translate(level.getWidth() / 2F - 0.5F, HEIGHT / 2F, level.getLength() / 2F - 0.5F).scale(level.getWidth(), HEIGHT, level.getLength()).setPass(Pass.SCENE_POST));
+		main.world.add(new Box(main.world, true, true).translate(level.getWidth() / 2F - 0.5F, level.getHeight() / 2F, level.getLength() / 2F - 0.5F).scale(level.getWidth(), level.getHeight(), level.getLength()).setPass(Pass.SCENE_POST));
 		
 		main.world.add(this.player = (Player) new Player(main.world).translate(level.getWidth() / 2F, 0, level.getLength() / 2F));
-		main.world.add(this.grid = (Grid) new Grid(main.world, new VectorF(level.getWidth(), HEIGHT, level.getLength())).setColor(0x00CCFF).translate(level.getWidth() / 2F - 0.5F, HEIGHT / 2F, level.getLength() / 2F - 0.5F).setPass(Pass.SCENE_POST));
+		main.world.add(this.grid = (Grid) new Grid(main.world, new VectorF(level.getWidth(), level.getHeight(), level.getLength())).setColor(0x00CCFF).translate(level.getWidth() / 2F - 0.5F, level.getHeight() / 2F, level.getLength() / 2F - 0.5F).setPass(Pass.SCENE_POST));
 		
 		main.world.add(new FloatingBox(main.world).translate(1, 1.5F, 1).rotate(0, 45F, 0));
 		main.world.add(new Jumper(main.world).translate(level.getWidth() - 1, 0, level.getLength() - 1));
@@ -68,7 +63,7 @@ public class Game
 		{
 			if (player.selected)
 			{
-				player.setPath(pathFinder.findPath(player, player.position.x, player.position.z, intersection.x, intersection.z, true));
+				player.findPath(intersection.x, intersection.y, intersection.z);
 			}
 			else
 			{
@@ -76,12 +71,19 @@ public class Game
 				{
 					public void onTouch()
 					{
-						world.removeLater(this);
-						level.setBlocked(Math.round(position.x), Math.round(position.z), false);
+						if (!player.selected)
+						{
+							world.removeLater(this);
+							level.setBlocked(Math.round(position.x), 0, Math.round(position.z), false);
+						}
+						else
+						{
+							player.findPath(Math.round(position.x), 1, Math.round(position.z));
+						}
 					}
 				}.setTouchable(true).setColor(0xFFCC00).translate(intersection.x, 0.5F, intersection.z));
 			
-				level.setBlocked((int)intersection.x, (int)intersection.z, true);
+				level.setBlocked((int)intersection.x, (int)intersection.y, (int)intersection.z, true);
 			}
 		}
 	}

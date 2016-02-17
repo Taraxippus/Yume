@@ -45,7 +45,7 @@ public class Jumper extends MovingObject
 		
 		for (int i = 0; i < 10 && path == null; ++i)
 		{
-			path = world.main.game.pathFinder.findPath(this, this.position.x, this.position.z, random.nextInt(world.main.game.level.getWidth()), random.nextInt(world.main.game.level.getLength()), true);
+			path = pathFinder.findPath(this, this.position.x, this.position.y, this.position.z, random.nextInt(world.main.game.level.getWidth()), 0, random.nextInt(world.main.game.level.getLength()), true);
 		}
 		
 		setPath(path);
