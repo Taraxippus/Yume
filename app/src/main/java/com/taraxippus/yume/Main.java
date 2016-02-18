@@ -188,9 +188,7 @@ public class Main extends Activity implements View.OnTouchListener
 				touched.onTouch(viewRay.intersection, viewRay.normal);
 
 			else if (viewRay.intersects(game.room.modelMatrix, game.room.invModelMatrix, true))
-				game.onWallTouched(viewRay.getPoint(viewRay.distance).copy(), viewRay.normal);
-				
-			Toast.makeText(Main.this, viewRay.normal.toString(), Toast.LENGTH_SHORT).show();
+				game.onWallTouched(viewRay.intersection.set(viewRay.normal).multiplyBy(-0.5F).add(viewRay.getPoint(viewRay.distance)), viewRay.normal);
 				
 			return true;
 		}

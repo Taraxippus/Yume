@@ -58,9 +58,10 @@ public class Game
 	
 	public void onWallTouched(VectorF intersection, VectorF normal)
 	{
+		intersection.add(normal);
 		intersection.roundInt();
 		
-		//if (intersection.x < level.getWidth() && intersection.x >= 0 && intersection.y < level.getHeight() && intersection.y >= 0 && intersection.z < level.getLength() && intersection.z >= 0)
+		if (intersection.x < level.getWidth() && intersection.x >= 0 && intersection.y < level.getHeight() && intersection.y >= 0 && intersection.z < level.getLength() && intersection.z >= 0)
 		{
 			if (player.selected)
 			{
@@ -70,15 +71,15 @@ public class Game
 			{
 				main.world.addLater(new Box(main.world)
 				{
-//					@Override
-//					public void onTouch(VectorF intersection, VectorF normal)
-//					{
-//						if (!player.selected)
-//							onWallTouched(new VectorF(this.position.x, this.position.y + 0.5F, this.position.z), normal);
-//							
-//						else
-//							player.findPath(position.x + normal.x, position.y - 0.5F + normal.y, position.z + normal.z);
-//					}
+					@Override
+					public void onTouch(VectorF intersection, VectorF normal)
+					{
+						if (!player.selected)
+							onWallTouched(new VectorF(this.position.x, this.position.y - 0.5F, this.position.z), normal);
+							
+						else
+							player.findPath(position.x + normal.x, position.y - 0.5F + normal.y, position.z + normal.z);
+					}
 //					
 //					@Override
 //					public void onDoubleTouch(VectorF intersection, VectorF normal)
@@ -93,7 +94,7 @@ public class Game
 					
 				}.setTouchable(true).setColor(0xAAAAAA).translate(intersection.x, intersection.y + 0.5F, intersection.z));
 			
-				//level.setBlocked((int) (intersection.x + normal.x), (int) (intersection.y + normal.y), (int) (intersection.z + normal.z), true);
+				level.setBlocked((int) (intersection.x), (int) (intersection.y), (int) (intersection.z), true);
 			}
 		}
 	}

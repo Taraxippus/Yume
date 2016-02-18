@@ -116,8 +116,10 @@ public class Ray
             t1 = (min.x - point.x) / direction.x;
             t2 = (max.x - point.x) / direction.x;
 
-			if (tMin < Math.min(t1, t2))
-                normal.set(t1 < t2 ? -1 : 1, 0, 0);
+			if (inverse && tMin < Math.min(t1, t2))
+                normal.set(t1 < t2 ? 1 : -1, 0, 0);
+			else if (!inverse && tMax > Math.max(t1, t2))
+				normal.set(t1 < t2 ? 1 : -1, 0, 0);
 			
             tMin = Math.max(tMin, Math.min(t1, t2));
             tMax = Math.min(tMax, Math.max(t1, t2));
@@ -128,8 +130,10 @@ public class Ray
             t1 = (min.y - point.y) / direction.y;
             t2 = (max.y - point.y) / direction.y;
 
-			if (tMin < Math.min(t1, t2))
-                normal.set(0, t1 < t2 ? -1 : 1, 0);
+			if (inverse && tMin < Math.min(t1, t2))
+                normal.set(0, t1 < t2 ? 1 : -1, 0);
+			else if (!inverse && tMax > Math.max(t1, t2))
+				normal.set(0, t1 < t2 ? 1 : -1, 0);
 			
             tMin = Math.max(tMin, Math.min(t1, t2));
             tMax = Math.min(tMax, Math.max(t1, t2));
@@ -140,9 +144,11 @@ public class Ray
             t1 = (min.z - point.z) / direction.z;
             t2 = (max.z - point.z) / direction.z;
 
-			if (tMin < Math.min(t1, t2))
-                normal.set(0, 0, t1 < t2 ? -1 : 1);
-			
+			if (inverse && tMin < Math.min(t1, t2))
+                normal.set(0, 0, t1 < t2 ? 1 : -1);
+			else if (!inverse && tMax > Math.max(t1, t2))
+				normal.set(0, 0, t1 < t2 ? 1 : -1);
+				
             tMin = Math.max(tMin, Math.min(t1, t2));
             tMax = Math.min(tMax, Math.max(t1, t2));
         }
@@ -164,9 +170,6 @@ public class Ray
 		}
 		
 		normal.roundInt();
-		
-		if (inverse)
-			normal.negate();
 		
         return tMax >= tMin;
     }
