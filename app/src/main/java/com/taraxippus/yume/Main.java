@@ -124,7 +124,7 @@ public class Main extends Activity implements View.OnTouchListener
 					camera.rotation.y -= dx * 0.1F;
 					camera.rotation.x -= dy * 0.1F;
 
-					camera.rotation.x = Math.min(90 - 0.0001F, Math.max(camera.rotation.x, -90 + 0.0001F));
+					camera.rotation.x = Math.min(180 - 1F, Math.max(camera.rotation.x, 1F));
 					
 					lastTouchX = x;
 					lastTouchY = y;

@@ -18,7 +18,7 @@ public class MovingObject extends Box implements IMover
 	{
 		super(world);
 
-		this.translate(0, 0.5F - 0.75F * 0.5F, 0);
+		this.translate(0, -(0.5F - 0.75F * 0.5F), 0);
 		this.scale(0.75F, 0.75F, 0.75F);
 
 		this.specularity = 50F;

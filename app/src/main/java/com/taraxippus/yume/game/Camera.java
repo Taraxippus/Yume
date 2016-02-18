@@ -26,6 +26,7 @@ public class Camera
 	public final VectorF rotationPre = new VectorF();
 	public final VectorF rotation = new VectorF(-5, 0, 0);
 	public final VectorF eye = new VectorF();
+	public final VectorF up = new VectorF();
 	
 	public SceneObject target;
 	
@@ -59,23 +60,26 @@ public class Camera
 	
 	public void onResize(int width, int height)
 	{
-		//Matrix.perspectiveM(projectionMatrix, 0, FOV, (float) width / height, Z_NEAR, Z_FAR);
-		Matrix.frustumM(projectionMatrix, 0, (float) -width / height, (float) width / height, -1, 1, Z_NEAR, Z_FAR);
+		Matrix.perspectiveM(projectionMatrix, 0, FOV, (float) width / height, Z_NEAR, Z_FAR);
+		//Matrix.frustumM(projectionMatrix, 0, (float) -width / height, (float) width / height, -1, 1, Z_NEAR, Z_FAR);
 		this.updateViewProjection();
 	}
 
 	public void updateView()
 	{
-		this.eye.set(0, 0, 5 * zoom)
-		.rotateX(rotationPre.x)
-		.rotateY(rotationPre.y)
-		.rotateZ(rotationPre.z)
+		this.eye.set(0, 1, 0).multiplyBy(5 * zoom)
 		.rotateX(rotation.x)
 		.rotateY(rotation.y)
 		.rotateZ(rotation.z)
 		.add(position);
 		
-		Matrix.setLookAtM(viewMatrix, 0, eye.x, eye.y, eye.z, position.x, position.y, position.z, 0, 1, 0);
+		this.up.set(0, 1, 0)
+//		.rotateY(rotationPre.y)
+//		.rotateX(rotationPre.x)
+//		.rotateZ(rotationPre.z)
+		;
+		
+		Matrix.setLookAtM(viewMatrix, 0, eye.x, eye.y, eye.z, position.x, position.y, position.z, up.x, up.y, up.z);
 		this.updateViewProjection();
 	}
 	

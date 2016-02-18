@@ -15,7 +15,8 @@ public class Grid extends SceneObject
 	final boolean hasReflection;
 	
 	private ReflectionObject reflection;
-
+	private ReflectionObject reflection2;
+	
 	public Grid(World world, VectorF size)
 	{
 		this(world, true, size);
@@ -38,8 +39,12 @@ public class Grid extends SceneObject
 	public void init()
 	{
 		if (hasReflection)
-			world.add(this.reflection = new GridReflectionObject(this));
-
+		{
+			world.add(this.reflection = new GridReflectionObject(this, ReflectionObject.TOP));
+			world.add(this.reflection2 = new GridReflectionObject(this, ReflectionObject.BOTTOM));
+			
+		}
+			
 		super.init();
 	}
 
@@ -100,8 +105,11 @@ public class Grid extends SceneObject
 	public void delete()
 	{
 		if (hasReflection)
+		{
 			world.remove(this.reflection);
-
+			world.remove(this.reflection2);
+		}
+			
 		super.delete();
 	}
 
@@ -343,9 +351,9 @@ public class Grid extends SceneObject
 	
 	private class GridReflectionObject extends ReflectionObject
 	{
-		public GridReflectionObject(Grid parent)
+		public GridReflectionObject(Grid parent, int side)
 		{
-			super(parent);
+			super(parent, side);
 		}
 		
 		@Override

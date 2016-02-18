@@ -11,6 +11,7 @@ public class Box extends SceneObject
 	final boolean inverted;
 	
 	private ReflectionObject reflection;
+	private ReflectionObject reflection2;
 	
 	public Box(World world)
 	{
@@ -34,7 +35,10 @@ public class Box extends SceneObject
 	public void init()
 	{
 		if (hasReflection)
-			world.add(this.reflection = new ReflectionObject(this));
+		{
+			world.add(this.reflection = new ReflectionObject(this, ReflectionObject.TOP));
+			world.add(this.reflection2 = new ReflectionObject(this, ReflectionObject.BOTTOM));
+		}
 		
 		super.init();
 	}
@@ -43,8 +47,10 @@ public class Box extends SceneObject
 	public void delete()
 	{
 		if (hasReflection)
-			world.remove(this.reflection);
-		
+		{
+			world.remove(this.reflection2);
+		}
+			
 		super.delete();
 	}
 	

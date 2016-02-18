@@ -6,14 +6,20 @@ import com.taraxippus.yume.util.*;
 
 public class ReflectionObject extends GameObject
 {
+	public static final int TOP = 0;
+	public static final int BOTTOM = 1;
+	
 	public final SceneObject parent;
+	public final int side;
+	
 	public final float[] modelMatrix = new float[16];
 	public final VectorF position = new VectorF();
 	
-	public ReflectionObject(SceneObject parent)
+	public ReflectionObject(SceneObject parent, int side)
 	{
 		super(parent.world);
 		this.parent = parent;
+		this.side = side;
 	}
 
 	@Override
@@ -21,15 +27,15 @@ public class ReflectionObject extends GameObject
 	{
 		return Pass.REFLECTION;
 	}
-
+	
 	@Override
 	public void render(Renderer renderer)
 	{
-		if (!parent.enabled || !world.main.camera.insideFrustum(position.set(parent.position.x, -(parent.position.y + 0.5F) - 0.5F, parent.position.z), parent.radius))
+		if (!parent.enabled || !world.main.camera.insideFrustum(position.set(getX(parent.position.x), getY(parent.position.y), getZ(parent.position.z)), parent.radius))
 			return;
 		
 		Matrix.setIdentityM(modelMatrix, 0);
-		Matrix.translateM(modelMatrix, 0, parent.position.x, -(parent.position.y + 0.5F) - 0.5F, parent.position.z);
+		Matrix.translateM(modelMatrix, 0, position.x, position.y, position.z);
 		Matrix.scaleM(modelMatrix, 0, parent.scale.x, -parent.scale.y, parent.scale.z);
 		
 		Matrix.rotateM(modelMatrix, 0, parent.rotationPre.y, 0, 1, 0);
@@ -51,6 +57,39 @@ public class ReflectionObject extends GameObject
 	@Override
 	public float getDepth()
 	{
-		return position.set(parent.position.x, -(parent.position.y + 0.5F) - 0.5F, parent.position.z).subtract(world.main.camera.eye).length();
+		return position.set(getX(parent.position.x), getY(parent.position.y), getZ(parent.position.z)).subtract(world.main.camera.eye).length();
 	}
+	
+	public float getX(float x)
+	{
+		switch(side)
+		{
+			default:
+				return x;
+		}
+	}
+	
+	public float getY(float y)
+	{
+		switch(side)
+		{
+			case TOP:
+				return -y + 2 * (world.main.game.level.getHeight() - 0.5F);
+			case BOTTOM:
+				return -y + 2 * (- 0.5F);
+				
+			default:
+				return y;
+		}
+	}
+	
+	public float getZ(float z)
+	{
+		switch(side)
+		{
+			default:
+				return z;
+		}
+	}
+	
 }
