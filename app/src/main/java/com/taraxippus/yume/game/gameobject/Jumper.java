@@ -43,9 +43,22 @@ public class Jumper extends MovingObject
 	{
 		Path path = null;
 		
+		int side = random.nextInt(6);
 		for (int i = 0; i < 10 && path == null; ++i)
 		{
-			path = pathFinder.findPath(this, this.position.x, this.position.y, this.position.z, random.nextInt(world.main.game.level.getWidth()), 0, random.nextInt(world.main.game.level.getLength()), true);
+			if (side == 0)
+				path = pathFinder.findPath(this, this.position.x, this.position.y, this.position.z, random.nextInt(world.main.game.level.getWidth()), 0, random.nextInt(world.main.game.level.getLength()), true);
+			if (side == 1)
+				path = pathFinder.findPath(this, this.position.x, this.position.y, this.position.z, random.nextInt(world.main.game.level.getWidth()), pathFinder.level.getHeight() - 1, random.nextInt(world.main.game.level.getLength()), true);
+			if (side == 2)
+				path = pathFinder.findPath(this, this.position.x, this.position.y, this.position.z, 0, random.nextInt(world.main.game.level.getHeight()), random.nextInt(world.main.game.level.getLength()), true);
+			if (side == 3)
+				path = pathFinder.findPath(this, this.position.x, this.position.y, this.position.z, pathFinder.level.getWidth() - 1, random.nextInt(world.main.game.level.getHeight()), random.nextInt(world.main.game.level.getLength()), true);
+			if (side == 4)
+				path = pathFinder.findPath(this, this.position.x, this.position.y, this.position.z, random.nextInt(world.main.game.level.getWidth()), random.nextInt(world.main.game.level.getHeight()), 0, true);
+			if (side == 5)
+				path = pathFinder.findPath(this, this.position.x, this.position.y, this.position.z, random.nextInt(world.main.game.level.getWidth()), random.nextInt(world.main.game.level.getHeight()), pathFinder.level.getLength(), true);
+			
 		}
 		
 		setPath(path);

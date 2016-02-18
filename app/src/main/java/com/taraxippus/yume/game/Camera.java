@@ -59,16 +59,17 @@ public class Camera
 	
 	public void onResize(int width, int height)
 	{
-		Matrix.perspectiveM(projectionMatrix, 0, FOV, (float) width / height, Z_NEAR, Z_FAR);
+		//Matrix.perspectiveM(projectionMatrix, 0, FOV, (float) width / height, Z_NEAR, Z_FAR);
+		Matrix.frustumM(projectionMatrix, 0, (float) -width / height, (float) width / height, -1, 1, Z_NEAR, Z_FAR);
 		this.updateViewProjection();
 	}
 
 	public void updateView()
 	{
 		this.eye.set(0, 0, 5 * zoom)
-		//.rotateX(rotationPre.x)
-		//.rotateY(rotationPre.y)
-		//.rotateZ(rotationPre.z)
+		.rotateX(rotationPre.x)
+		.rotateY(rotationPre.y)
+		.rotateZ(rotationPre.z)
 		.rotateX(rotation.x)
 		.rotateY(rotation.y)
 		.rotateZ(rotation.z)

@@ -134,6 +134,19 @@ public class MovingObject extends Box implements IMover
 		final int dY = step.y - Math.round(position.y);
 		final int dZ = step.z - Math.round(position.z);
 		
+		if (dY != 0)
+		{
+			if (step.gravity == Level.xN)
+				return dY == -1 ? 90 : -90;
+			else if (step.gravity == Level.xP)
+				return dY == -1 ? -90 : 90;
+				
+			if (step.gravity == Level.zN)
+				return dY == -1 ? 0 : 180;
+			else if (step.gravity == Level.zP)
+				return dY == -1 ? 180 : 0;
+		}
+			
 		if (dX == 0 && dZ == 1)
 			return 0;
 			
