@@ -2,10 +2,8 @@ package com.taraxippus.yume.game.gameobject;
 
 import com.taraxippus.yume.*;
 import com.taraxippus.yume.game.*;
+import com.taraxippus.yume.game.level.*;
 import com.taraxippus.yume.game.path.*;
-import android.view.*;
-import android.view.LayoutInflater.*;
-import android.util.*;
 
 public class MovingObject extends Box implements IMover
 {
@@ -45,7 +43,7 @@ public class MovingObject extends Box implements IMover
 			float jump = 0.5F * World.GRAVITY * delta * delta + -World.GRAVITY * 0.5F * delta;
 			
 			this.position.set(
-				(nextStep.x + nextStep.gravity.x * (0.5F - scale.x * 0.5F)) * delta + (lastStep.x + lastStep.gravity.x * (0.5F - scale.x * 0.5F)) * (1 - delta)+ jump * lastStep.oppositeGravity.x, 
+				(nextStep.x + nextStep.gravity.x * (0.5F - scale.x * 0.5F)) * delta + (lastStep.x + lastStep.gravity.x * (0.5F - scale.x * 0.5F)) * (1 - delta) + jump * lastStep.oppositeGravity.x, 
 				(nextStep.y + nextStep.gravity.y * (0.5F - scale.y * 0.5F)) * delta + (lastStep.y + lastStep.gravity.y * (0.5F - scale.y * 0.5F)) * (1 - delta) + jump * lastStep.oppositeGravity.y,
 				(nextStep.z + nextStep.gravity.z * (0.5F - scale.z * 0.5F)) * delta + (lastStep.z + lastStep.gravity.z * (0.5F - scale.y * 0.5F)) * (1 - delta) + jump * lastStep.oppositeGravity.z);
 
@@ -96,13 +94,28 @@ public class MovingObject extends Box implements IMover
 			nextRotationY = faceStep(nextStep);
 			
 			if (nextRotationY - lastRotationY > 180)
-			{
 				nextRotationY -= 360;
-			}
+			
 			else if (nextRotationY - lastRotationY < -180)
-			{
 				nextRotationY += 360;
-			}
+			
+			if (Math.abs(nextRotationY - lastRotationY) == 180)
+				lastRotationY = nextRotationY;
+			
+			if (nextStep.gravity == Level.yP)
+				rotationPre.set(180, 0, 180);
+			else if (nextStep.gravity == Level.yN)
+				rotationPre.set(0, 0, 0);
+				
+			else if (nextStep.gravity == Level.zP)
+				rotationPre.set(-90, 0, 0);
+			else if (nextStep.gravity == Level.zN)
+				rotationPre.set(90, 0, 0);
+				
+			else if (nextStep.gravity == Level.xP)
+				rotationPre.set(0, 0, 90);
+			else if (nextStep.gravity == Level.xN)
+				rotationPre.set(0, 0, -90);
 		}
 		else
 		{
@@ -118,6 +131,7 @@ public class MovingObject extends Box implements IMover
 	public float faceStep(Path.Step step)
 	{
 		final int dX = step.x - Math.round(position.x);
+		final int dY = step.y - Math.round(position.y);
 		final int dZ = step.z - Math.round(position.z);
 		
 		if (dX == 0 && dZ == 1)

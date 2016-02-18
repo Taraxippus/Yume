@@ -19,6 +19,7 @@ public class SceneObject extends GameObject
 	
 	public final VectorF position = new VectorF();
 	public final VectorF scale = new VectorF(1, 1, 1);
+	public final VectorF rotationPre = new VectorF();
 	public final VectorF rotation = new VectorF();
 	
 	public final VectorF tmp = new VectorF();
@@ -108,6 +109,11 @@ public class SceneObject extends GameObject
 		Matrix.setIdentityM(modelMatrix, 0);
 		Matrix.translateM(modelMatrix, 0, position.x, position.y, position.z);
 		Matrix.scaleM(modelMatrix, 0, scale.x, scale.y, scale.z);
+		
+		Matrix.rotateM(modelMatrix, 0, rotationPre.y, 0, 1, 0);
+		Matrix.rotateM(modelMatrix, 0, rotationPre.x, 1, 0, 0);
+		Matrix.rotateM(modelMatrix, 0, rotationPre.z, 0, 0, 1);
+		
 		Matrix.rotateM(modelMatrix, 0, rotation.y, 0, 1, 0);
 		Matrix.rotateM(modelMatrix, 0, rotation.x, 1, 0, 0);
 		Matrix.rotateM(modelMatrix, 0, rotation.z, 0, 0, 1);

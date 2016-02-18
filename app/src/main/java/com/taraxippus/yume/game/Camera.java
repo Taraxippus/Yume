@@ -23,6 +23,7 @@ public class Camera
 	public float zoom = 1;
 	
 	public final VectorF position = new VectorF();
+	public final VectorF rotationPre = new VectorF();
 	public final VectorF rotation = new VectorF(-5, 0, 0);
 	public final VectorF eye = new VectorF();
 	
@@ -41,8 +42,11 @@ public class Camera
 	public void update()
 	{
 		if (target != null)
+		{
 			this.position.multiplyBy(FOLLOW_SMOOTHNESS).add(target.position).divideBy(FOLLOW_SMOOTHNESS + 1);
-		
+			this.rotationPre.multiplyBy(FOLLOW_SMOOTHNESS * 10).add(target.rotationPre).divideBy(FOLLOW_SMOOTHNESS * 10 + 1);
+		}
+			
 		updateView();
 	}
 	
@@ -50,6 +54,7 @@ public class Camera
 	{
 		this.target = target;
 		this.position.set(target.position);
+		this.rotationPre.set(target.rotationPre);
 	}
 	
 	public void onResize(int width, int height)
@@ -60,7 +65,14 @@ public class Camera
 
 	public void updateView()
 	{
-		this.eye.set(0, 0, 5).rotateX(rotation.x).rotateY(rotation.y).rotateZ(rotation.z).multiplyBy(zoom).add(position);
+		this.eye.set(0, 0, 5 * zoom)
+		//.rotateX(rotationPre.x)
+		//.rotateY(rotationPre.y)
+		//.rotateZ(rotationPre.z)
+		.rotateX(rotation.x)
+		.rotateY(rotation.y)
+		.rotateZ(rotation.z)
+		.add(position);
 		
 		Matrix.setLookAtM(viewMatrix, 0, eye.x, eye.y, eye.z, position.x, position.y, position.z, 0, 1, 0);
 		this.updateViewProjection();

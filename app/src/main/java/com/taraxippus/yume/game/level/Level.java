@@ -52,7 +52,7 @@ public class Level
 		if (direction == zN)
 			return zP;
 		else if (direction == zP)
-			return xN;
+			return zN;
 			
 		return VectorF.zero;
 	}

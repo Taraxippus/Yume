@@ -31,6 +31,11 @@ public class ReflectionObject extends GameObject
 		Matrix.setIdentityM(modelMatrix, 0);
 		Matrix.translateM(modelMatrix, 0, parent.position.x, -(parent.position.y + 0.5F) - 0.5F, parent.position.z);
 		Matrix.scaleM(modelMatrix, 0, parent.scale.x, -parent.scale.y, parent.scale.z);
+		
+		Matrix.rotateM(modelMatrix, 0, parent.rotationPre.y, 0, 1, 0);
+		Matrix.rotateM(modelMatrix, 0, parent.rotationPre.x, 1, 0, 0);
+		Matrix.rotateM(modelMatrix, 0, parent.rotationPre.z, 0, 0, 1);
+		
 		Matrix.rotateM(modelMatrix, 0, parent.rotation.y, 0, 1, 0);
 		Matrix.rotateM(modelMatrix, 0, parent.rotation.x, 1, 0, 0);
 		Matrix.rotateM(modelMatrix, 0, parent.rotation.z, 0, 0, 1);
