@@ -5,6 +5,7 @@ import com.taraxippus.yume.game.*;
 import com.taraxippus.yume.game.path.*;
 import android.view.*;
 import android.view.LayoutInflater.*;
+import android.util.*;
 
 public class MovingObject extends Box implements IMover
 {
@@ -19,7 +20,7 @@ public class MovingObject extends Box implements IMover
 	{
 		super(world);
 
-		this.translate(0, 0.5F * 0.75F, 0);
+		this.translate(0, 0.5F - 0.75F * 0.5F, 0);
 		this.scale(0.75F, 0.75F, 0.75F);
 
 		this.specularity = 50F;
@@ -41,11 +42,12 @@ public class MovingObject extends Box implements IMover
 			jumpTick -= Main.FIXED_DELTA;
 
 			float delta = (getJumpDuration() - jumpTick) / JUMP_DURATION;
-
+			float jump = 0.5F * World.GRAVITY * delta * delta + -World.GRAVITY * 0.5F * delta;
+			
 			this.position.set(
-				nextStep.x * delta + lastStep.x * (1 - delta), 
-				nextStep.y * delta + lastStep.y * (1 - delta) + 0.5F * scale.y + (0.5F * World.GRAVITY * delta * delta + -World.GRAVITY * 0.5F * delta),
-				nextStep.z * delta + lastStep.z * (1 - delta));
+				(nextStep.x + nextStep.gravity.x * (0.5F - scale.x * 0.5F)) * delta + (lastStep.x + lastStep.gravity.x * (0.5F - scale.x * 0.5F)) * (1 - delta)+ jump * lastStep.oppositeGravity.x, 
+				(nextStep.y + nextStep.gravity.y * (0.5F - scale.y * 0.5F)) * delta + (lastStep.y + lastStep.gravity.y * (0.5F - scale.y * 0.5F)) * (1 - delta) + jump * lastStep.oppositeGravity.y,
+				(nextStep.z + nextStep.gravity.z * (0.5F - scale.z * 0.5F)) * delta + (lastStep.z + lastStep.gravity.z * (0.5F - scale.y * 0.5F)) * (1 - delta) + jump * lastStep.oppositeGravity.z);
 
 			this.rotation.x = delta * 90F;
 			
@@ -53,7 +55,7 @@ public class MovingObject extends Box implements IMover
 
 			if (jumpTick <= 0)
 			{
-				this.position.set(nextStep.x, nextStep.y + 0.5F * scale.y, nextStep.z);
+				this.position.set(nextStep.x + nextStep.gravity.x * (0.5F - scale.x * 0.5F), nextStep.y + nextStep.gravity.y * (0.5F - scale.y * 0.5F), nextStep.z + nextStep.gravity.z * (0.5F - scale.z * 0.5F));
 				this.rotation.x = 0;
 				this.updateMatrix();
 				

@@ -10,6 +10,7 @@ import com.taraxippus.yume.game.*;
 import com.taraxippus.yume.game.gameobject.*;
 import com.taraxippus.yume.render.*;
 import com.taraxippus.yume.util.*;
+import android.view.View.*;
 
 public class Main extends Activity implements View.OnTouchListener
 {
@@ -176,7 +177,6 @@ public class Main extends Activity implements View.OnTouchListener
 	
 	private class GestureListener extends GestureDetector.SimpleOnGestureListener
 	{
-
 		@Override
 		public boolean onSingleTapUp(MotionEvent e)
 		{
@@ -188,11 +188,24 @@ public class Main extends Activity implements View.OnTouchListener
 				touched.onTouch(viewRay.intersection, viewRay.normal);
 
 			else if (viewRay.intersects(game.room.modelMatrix, game.room.invModelMatrix, true))
-				game.onWallTouched(viewRay.intersection.set(viewRay.normal).multiplyBy(-0.5F).add(viewRay.getPoint(viewRay.distance)), viewRay.normal);
+				game.onWallTouched(viewRay.intersection.set(viewRay.normal).multiplyBy(-0.5001F).add(viewRay.getPoint(viewRay.distance)), viewRay.normal);
 				
+			
 			return true;
 		}
+		
+		@Override
+		public void onLongPress(MotionEvent e)
+		{
+			final Ray viewRay = camera.unProject(e.getX(), e.getY());
 
+			SceneObject touched = viewRay.intersectsFirst(world.sceneObjects);
+
+			if (touched != null)
+				touched.onLongTouch(viewRay.intersection, viewRay.normal);
+		}
+
+		
 		@Override
 		public boolean onSingleTapConfirmed(MotionEvent e)
 		{

@@ -31,10 +31,10 @@ public class Game
 	{
 		main.camera.init();
 		
-		main.world.add(this.room = (Box) new Box(main.world, true, true).translate(level.getWidth() / 2F - 0.5F, level.getHeight() / 2F, level.getLength() / 2F - 0.5F).scale(level.getWidth(), level.getHeight(), level.getLength()).setPass(Pass.SCENE_POST));
+		main.world.add(this.room = (Box) new Box(main.world, true, true).translate(level.getWidth() / 2F - 0.5F, level.getHeight() / 2F - 0.5F, level.getLength() / 2F - 0.5F).scale(level.getWidth(), level.getHeight(), level.getLength()).setPass(Pass.SCENE_POST));
 		
 		main.world.add(this.player = (Player) new Player(main.world).translate(level.getWidth() / 2F, 0, level.getLength() / 2F));
-		main.world.add(this.grid = (Grid) new Grid(main.world, new VectorF(level.getWidth(), level.getHeight(), level.getLength())).setColor(0x00CCFF).translate(level.getWidth() / 2F - 0.5F, level.getHeight() / 2F, level.getLength() / 2F - 0.5F).setPass(Pass.SCENE_POST));
+		main.world.add(this.grid = (Grid) new Grid(main.world, new VectorF(level.getWidth(), level.getHeight(), level.getLength())).setColor(0x00CCFF).translate(level.getWidth() / 2F - 0.5F, level.getHeight() / 2F - 0.5F, level.getLength() / 2F - 0.5F).setPass(Pass.SCENE_POST));
 		
 		main.world.add(new FloatingBox(main.world).translate(1, 1.5F, 1).rotate(0, 45F, 0));
 		main.world.add(new Jumper(main.world).translate(level.getWidth() - 1, 0, level.getLength() - 1));
@@ -75,24 +75,24 @@ public class Game
 					public void onTouch(VectorF intersection, VectorF normal)
 					{
 						if (!player.selected)
-							onWallTouched(new VectorF(this.position.x, this.position.y - 0.5F, this.position.z), normal);
+							onWallTouched(new VectorF(this.position.x, this.position.y, this.position.z), normal);
 							
 						else
-							player.findPath(position.x + normal.x, position.y - 0.5F + normal.y, position.z + normal.z);
+							player.findPath(position.x + normal.x, position.y + normal.y, position.z + normal.z);
 					}
-//					
-//					@Override
-//					public void onDoubleTouch(VectorF intersection, VectorF normal)
-//					{
-//						if (!player.selected)
-//						{
-//							world.removeLater(this);
-//
-//							level.setBlocked(Math.round(position.x), Math.round(position.y - 0.5F), Math.round(position.z), false);
-//						}
-//					}
 					
-				}.setTouchable(true).setColor(0xAAAAAA).translate(intersection.x, intersection.y + 0.5F, intersection.z));
+					@Override
+					public void onLongTouch(VectorF intersection, VectorF normal)
+					{
+						if (!player.selected)
+						{
+							world.removeLater(this);
+
+							level.setBlocked(Math.round(position.x), Math.round(position.y), Math.round(position.z), false);
+						}
+					}
+					
+				}.setTouchable(true).setColor(0xAAAAAA).translate(intersection.x, intersection.y, intersection.z));
 			
 				level.setBlocked((int) (intersection.x), (int) (intersection.y), (int) (intersection.z), true);
 			}

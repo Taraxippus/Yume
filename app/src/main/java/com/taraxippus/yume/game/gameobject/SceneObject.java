@@ -54,6 +54,11 @@ public class SceneObject extends GameObject
 		
 	}
 	
+	public void onLongTouch(VectorF intersection, VectorF normal)
+	{
+
+	}
+	
 	public void onSingleTouch(VectorF intersection, VectorF normal)
 	{
 

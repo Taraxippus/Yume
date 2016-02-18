@@ -25,11 +25,11 @@ public class ReflectionObject extends GameObject
 	@Override
 	public void render(Renderer renderer)
 	{
-		if (!parent.enabled || !world.main.camera.insideFrustum(position.set(parent.position.x, -parent.position.y, parent.position.z), parent.radius))
+		if (!parent.enabled || !world.main.camera.insideFrustum(position.set(parent.position.x, -(parent.position.y + 0.5F) - 0.5F, parent.position.z), parent.radius))
 			return;
 		
 		Matrix.setIdentityM(modelMatrix, 0);
-		Matrix.translateM(modelMatrix, 0, parent.position.x, -parent.position.y, parent.position.z);
+		Matrix.translateM(modelMatrix, 0, parent.position.x, -(parent.position.y + 0.5F) - 0.5F, parent.position.z);
 		Matrix.scaleM(modelMatrix, 0, parent.scale.x, -parent.scale.y, parent.scale.z);
 		Matrix.rotateM(modelMatrix, 0, parent.rotation.y, 0, 1, 0);
 		Matrix.rotateM(modelMatrix, 0, parent.rotation.x, 1, 0, 0);
@@ -46,6 +46,6 @@ public class ReflectionObject extends GameObject
 	@Override
 	public float getDepth()
 	{
-		return position.set(parent.position.x, -parent.position.y, parent.position.z).subtract(world.main.camera.eye).length();
+		return position.set(parent.position.x, -(parent.position.y + 0.5F) - 0.5F, parent.position.z).subtract(world.main.camera.eye).length();
 	}
 }

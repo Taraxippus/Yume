@@ -17,11 +17,11 @@ const float c_alpha_factor = 0.25;
 void main()
 {
 	vec3 normal = normalize(v_Normal);
-	vec3 light = normalize(vec3(u_Light.x, -u_Light.y, u_Light.z) - v_Position);
+	vec3 light = normalize(vec3(u_Light.x, -(u_Light.y + 0.5) - 0.5, u_Light.z) - v_Position);
 
 	float diff = max(0.0, dot(normal, light));
 	
 	float spec = clamp(pow(max(dot(normalize(-reflect(normal, light)), normalize(u_Eye - v_Position)), 0.0), u_Specularity), 0.0, 1.0);
 	
-	gl_FragColor = vec4(u_Color.rgb * (c_Ambient + diff + spec * 0.1), u_Color.a * clamp(c_alpha_start + v_Position.y * c_alpha_factor, 0.0, c_alpha_start));
+	gl_FragColor = vec4(u_Color.rgb * (c_Ambient + diff + spec * 0.1), u_Color.a * clamp(c_alpha_start + (v_Position.y - 0.5) * c_alpha_factor, 0.0, c_alpha_start));
 }

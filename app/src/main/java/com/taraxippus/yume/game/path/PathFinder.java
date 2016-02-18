@@ -70,7 +70,7 @@ public class PathFinder
 				{
 					for (z = -1; z <= 1; ++z) 
 					{
-						if (x == 0 && z == 0) 
+						if (x == 0 && y == 0 && z == 0) 
 							continue;
 
 						if (!allowDiagonalMovement && x != 0 && z != 0) 
@@ -113,7 +113,7 @@ public class PathFinder
 			return null;
 		}
 
-		Path path = new Path();
+		Path path = new Path(level, mover);
 		Node target = getNode(tX, tY, tZ);
 		
 		while (target != getNode(sX, sY, sZ)) 

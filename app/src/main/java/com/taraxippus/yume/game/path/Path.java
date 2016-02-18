@@ -1,5 +1,8 @@
 package com.taraxippus.yume.game.path;
+import com.taraxippus.yume.game.level.*;
+import com.taraxippus.yume.util.*;
 import java.util.*;
+import android.view.*;
 
 public class Path
 {
@@ -7,6 +10,15 @@ public class Path
 	
 	public int currentStep = 0;
 	public boolean finished;
+	
+	public final Level level;
+	public final IMover mover;
+	
+	public Path(Level level, IMover mover)
+	{
+		this.level = level;
+		this.mover = mover;
+	}
 	
 	public boolean hasNext()
 	{
@@ -25,7 +37,8 @@ public class Path
 	
 	public void addStep(int x, int y, int z)
 	{
-		steps.add(0, new Step(x, y, z));
+		final VectorF gravity = level.getGravity(mover, x, y, z);
+		steps.add(0, new Step(x, y, z, gravity, level.getOpposite(gravity)));
 		currentStep = 0;
 	}
 	
@@ -40,11 +53,17 @@ public class Path
 		public final int y;
 		public final int z;
 		
-		public Step(int x, int y, int z)
+		public final VectorF gravity;
+		public final VectorF oppositeGravity;
+		
+		public Step(int x, int y, int z, VectorF gravity, VectorF oppositeGravity)
 		{
 			this.x = x;
 			this.y = y;
 			this.z = z;
+			
+			this.gravity = gravity;
+			this.oppositeGravity = oppositeGravity;
 		}
 	}
 }
