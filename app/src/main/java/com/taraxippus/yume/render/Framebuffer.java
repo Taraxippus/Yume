@@ -64,8 +64,7 @@ public class Framebuffer
 	
 	public void bindTexture(int texture)
 	{
-		GLES20.glActiveTexture(GLES20.GL_TEXTURE0 + texture);
-		color.bind();
+		color.bind(texture);
 	}
 	
 	public static void release(Renderer renderer)

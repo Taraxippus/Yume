@@ -26,8 +26,10 @@ public class SceneObject extends GameObject
 	
 	public float radius;
 	
-	public boolean touchable;
+	public boolean touchable = false;
 	public boolean enabled = true;
+	public boolean hasReflection = true;
+	private ReflectionObject[] reflection;
 	
 	public SceneObject(World world)
 	{
@@ -36,6 +38,37 @@ public class SceneObject extends GameObject
 		this.updateMatrix();
 	}
 
+	@Override
+	public void init()
+	{
+		super.init();
+		
+		if (hasReflection)
+		{
+			this.reflection = new ReflectionObject[getPass() == Pass.REFLECTION ? 27 : 26];
+			
+			int x, y, z, offset = 0;
+			for (x = -1; x <= 1; ++x)
+				for (y = -1; y <= 1; ++y)
+					for (z = -1; z <= 1; ++z)
+						if (getPass() == Pass.REFLECTION || x != 0 || y != 0 || z != 0)
+							world.add(this.reflection[offset++] = new ReflectionObject(this, new VectorF(x, y, z)).setPostPass(getPass() == Pass.REFLECTION));
+
+		}
+	}
+
+	@Override
+	public void delete()
+	{
+		super.delete();
+		
+		if (hasReflection)
+			for (ReflectionObject reflectionObject : reflection)
+				world.remove(reflectionObject);
+		
+	}
+
+	
 	public SceneObject setColor(int rgb)
 	{
 		this.color.set(Color.red(rgb) / 255F, Color.green(rgb) / 255F, Color.blue(rgb) / 255F);
@@ -43,10 +76,23 @@ public class SceneObject extends GameObject
 		return this;
 	}
 	
+	public SceneObject setAlpha(float alpha)
+	{
+		this.alpha = alpha;
+		return this;
+	}
+	
 	public SceneObject setTouchable(boolean touchable)
 	{
 		this.touchable = touchable;
 		
+		return this;
+	}
+	
+	public SceneObject setHasReflection(boolean hasReflection)
+	{
+		this.hasReflection = hasReflection;
+
 		return this;
 	}
 	
@@ -131,12 +177,23 @@ public class SceneObject extends GameObject
 	@Override
 	public void render(Renderer renderer)
 	{
-		if (!enabled || !world.main.camera.insideFrustum(position, radius))
+		if (!enabled || hasReflection && getPass() == Pass.REFLECTION || !world.main.camera.insideFrustum(position, radius))
 			return;
 		
 		renderer.uniform(modelMatrix, getPass());
 		GLES20.glUniform4f(getPass().getProgram().getUniform("u_Color"), color.x, color.y, color.z, alpha);
 		GLES20.glUniform1f(getPass().getProgram().getUniform("u_Specularity"), specularity);
+		
+		if (getPass() == Pass.REFLECTION)
+		{
+			//GLES20.glUniform3f(getPass().getProgram().getUniform("u_Eye"), world.main.camera.eye.x, world.main.camera.eye.y, world.main.camera.eye.z);
+			GLES20.glUniform3f(getPass().getProgram().getUniform("u_Light"), world.main.game.light.x,world.main.game.light.y, world.main.game.light.z);
+			GLES20.glUniform3f(getPass().getProgram().getUniform("u_ReflectionOffset"), 0, 0, 0);
+			GLES20.glUniform3f(getPass().getProgram().getUniform("u_ReflectionDir"), 0, 0, 0);
+
+			GLES20.glDepthMask(false);
+			GLES20.glCullFace(GLES20.GL_BACK);
+		}
 		
 		super.render(renderer);
 	}
@@ -144,6 +201,6 @@ public class SceneObject extends GameObject
 	@Override
 	public float getDepth()
 	{
-		return tmp.set(position).subtract(world.main.camera.eye).length();
+		return (getPass() == Pass.REFLECTION ? -999 : 0) + tmp.set(position).subtract(world.main.camera.eye).length();
 	}
 }

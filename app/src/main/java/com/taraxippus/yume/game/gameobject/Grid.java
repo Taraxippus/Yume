@@ -12,40 +12,17 @@ public class Grid extends SceneObject
 	public static final float ANIMATION_DURATION = 0.5F;
 	
 	final VectorF size = new VectorF(1, 1, 1);
-	final boolean hasReflection;
-	
-	private ReflectionObject reflection;
-	private ReflectionObject reflection2;
-	
-	public Grid(World world, VectorF size)
-	{
-		this(world, true, size);
-	}
 
-	public Grid(World world, boolean hasReflection, VectorF size)
+	public Grid(World world, VectorF size)
 	{
 		super(world);
 
-		this.hasReflection = hasReflection;
 		this.size.set(size);
 		this.scale(this.size.x, this.size.y, this.size.z);
 		
 		this.specularity = 50F;
 		this.alpha = 0;
 		this.setEnabled(false);
-	}
-
-	@Override
-	public void init()
-	{
-		if (hasReflection)
-		{
-			world.add(this.reflection = new GridReflectionObject(this, ReflectionObject.TOP));
-			world.add(this.reflection2 = new GridReflectionObject(this, ReflectionObject.BOTTOM));
-			
-		}
-			
-		super.init();
 	}
 
 	float visibilityTick;
@@ -99,18 +76,6 @@ public class Grid extends SceneObject
 		{
 			this.visibilityTick = -this.visibilityTick;
 		}
-	}
-	
-	@Override
-	public void delete()
-	{
-		if (hasReflection)
-		{
-			world.remove(this.reflection);
-			world.remove(this.reflection2);
-		}
-			
-		super.delete();
 	}
 
 	public float getRadius()
@@ -341,25 +306,5 @@ public class Grid extends SceneObject
 		shape.init(GLES20.GL_LINES, vertices, vertices.length / (3 + 3), getPass().getAttributes());
 
 		return shape;
-	}
-
-	@Override
-	public float getDepth()
-	{
-		return 1000;
-	}
-	
-	private class GridReflectionObject extends ReflectionObject
-	{
-		public GridReflectionObject(Grid parent, int side)
-		{
-			super(parent, side);
-		}
-		
-		@Override
-		public float getDepth()
-		{
-			return 1000;
-		}
 	}
 }

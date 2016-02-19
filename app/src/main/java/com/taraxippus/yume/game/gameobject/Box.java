@@ -4,56 +4,23 @@ import android.opengl.*;
 import com.taraxippus.yume.game.*;
 import com.taraxippus.yume.game.gameobject.*;
 import com.taraxippus.yume.render.*;
+import com.taraxippus.yume.util.*;
 
 public class Box extends SceneObject
 {
-	final boolean hasReflection;
 	final boolean inverted;
-	
-	private ReflectionObject reflection;
-	private ReflectionObject reflection2;
 	
 	public Box(World world)
 	{
-		this(world, true, false);
+		this(world, false);
 	}
 	
-	public Box(World world, boolean hasReflection)
-	{
-		this(world, hasReflection, false);
-	}
-	
-	public Box(World world, boolean hasReflection, boolean inverted)
+	public Box(World world, boolean inverted)
 	{
 		super(world);
-		
-		this.hasReflection = hasReflection;
+
 		this.inverted = inverted;
 	}
-
-	@Override
-	public void init()
-	{
-		if (hasReflection)
-		{
-			world.add(this.reflection = new ReflectionObject(this, ReflectionObject.TOP));
-			world.add(this.reflection2 = new ReflectionObject(this, ReflectionObject.BOTTOM));
-		}
-		
-		super.init();
-	}
-
-	@Override
-	public void delete()
-	{
-		if (hasReflection)
-		{
-			world.remove(this.reflection2);
-		}
-			
-		super.delete();
-	}
-	
 	
 	public float getRadius()
 	{

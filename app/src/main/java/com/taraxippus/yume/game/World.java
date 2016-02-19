@@ -34,7 +34,10 @@ public class World
 	}
 	
 	public void add(GameObject gameObject)
-	{
+	{	
+		if (gameObject == null)
+			return;
+			
 		gameObject.init();
 		gameObjects[gameObject.getPass().ordinal()].add(gameObject);
 		
@@ -52,6 +55,9 @@ public class World
 	
 	public void remove(GameObject gameObject)
 	{
+		if (gameObject == null)
+			return;
+		
 		gameObject.delete();
 		gameObjects[gameObject.getPass().ordinal()].remove(gameObject);
 		

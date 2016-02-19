@@ -7,7 +7,7 @@ public class GameObject implements Comparable<GameObject>
 {
 	public final World world;
 	public Shape shape;
-	private Pass pass = Pass.SCENE_PRE;
+	private Pass pass = Pass.SCENE;
 	
 	public GameObject(World world)
 	{

@@ -29,7 +29,7 @@ public class Texture
 		
 		GLES20.glGenTextures(1, texture, 0);
 		
-		this.bind();
+		this.bind(0);
 		
 		GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, minFilter);
 		GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, magFilter);
@@ -66,11 +66,12 @@ public class Texture
 		return texture[0] != 0;
 	}
 	
-	public void bind()
+	public void bind(int active)
 	{
 		if (!initialized())
 			throw new RuntimeException("Tried to bind an uninitialized texture");
 		
+		GLES20.glActiveTexture(GLES20.GL_TEXTURE0 + active);
 		GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, texture[0]);
 	}
 	

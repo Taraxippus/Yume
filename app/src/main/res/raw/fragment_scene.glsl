@@ -20,6 +20,6 @@ void main()
 	
 	float spec = clamp(pow(max(dot(normalize(-reflect(normal, light)), normalize(u_Eye - v_Position)), 0.0), u_Specularity), 0.0, 1.0);
 	
-	gl_FragColor = vec4(u_Color.rgb * (c_Ambient + diff + spec * 0.1), u_Color.a);
+	gl_FragColor = vec4(u_Color.rgb * (c_Ambient + diff + spec * 0.25), u_Color.a);
 }
 

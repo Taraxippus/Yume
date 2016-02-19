@@ -1,14 +1,16 @@
 package com.taraxippus.yume.game;
 
+import android.opengl.*;
 import com.taraxippus.yume.*;
 import com.taraxippus.yume.game.gameobject.*;
 import com.taraxippus.yume.game.level.*;
 import com.taraxippus.yume.render.*;
 import com.taraxippus.yume.util.*;
-import com.taraxippus.yume.game.path.*;
 
 public class Game
 {
+	public static final boolean DARK_MODE = true;
+	
 	public final Main main;
 	public final Level level;
 	
@@ -31,17 +33,27 @@ public class Game
 	{
 		main.camera.init();
 		
-		main.world.add(this.room = (Box) new Box(main.world, true, true).translate(level.getWidth() / 2F - 0.5F, level.getHeight() / 2F - 0.5F, level.getLength() / 2F - 0.5F).scale(level.getWidth(), level.getHeight(), level.getLength()).setPass(Pass.SCENE_POST));
+		main.world.add(this.room = (Box) new Box(main.world, true).translate(level.getWidth() / 2F - 0.5F, level.getHeight() / 2F - 0.5F, level.getLength() / 2F - 0.5F).scale(level.getWidth(), level.getHeight(), level.getLength()).setAlpha(0.75F).setPass(Pass.REFLECTION));
 		
 		main.world.add(this.player = (Player) new Player(main.world).translate(level.getWidth() / 2F, 0, level.getLength() / 2F));
-		main.world.add(this.grid = (Grid) new Grid(main.world, new VectorF(level.getWidth(), level.getHeight(), level.getLength())).setColor(0x00CCFF).translate(level.getWidth() / 2F - 0.5F, level.getHeight() / 2F - 0.5F, level.getLength() / 2F - 0.5F).setPass(Pass.SCENE_POST));
+		main.world.add(this.grid = (Grid) new Grid(main.world, new VectorF(level.getWidth(), level.getHeight(), level.getLength())).setHasReflection(false).setColor(0x00CCFF).translate(level.getWidth() / 2F - 0.5F, level.getHeight() / 2F - 0.5F, level.getLength() / 2F - 0.5F).setPass(Pass.REFLECTION));
 		
-		main.world.add(new FloatingBox(main.world).translate(1, 1.5F, 1).rotate(0, 45F, 0));
+		main.world.add(new FloatingBox(main.world).translate(1, 1.5F, 1));
+		
 		main.world.add(new Jumper(main.world).translate(level.getWidth() - 1, 0, level.getLength() - 1));
 		main.world.add(new Jumper(main.world).translate(level.getWidth() - 2, 0, level.getLength() - 2));
 		main.world.add(new Jumper(main.world).translate(level.getWidth() - 3, 0, level.getLength() - 3));
 		
 		main.world.add(new FullscreenQuad(main.world, Pass.POST));
+		
+		if (DARK_MODE)
+		{
+			this.room.setColor(0x555555);
+			this.grid.setColor(0xFF8800);
+			this.player.setColor(0x00CCFF);
+			
+			GLES20.glClearColor(0x55 / 255F, 0x55 / 255F, 0x55 / 255F, 1);
+		}
 		
 		main.camera.setTarget(player);
 	}
