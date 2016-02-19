@@ -9,6 +9,9 @@ public enum Pass
 	REFLECTION,
 	POST;
 	
+	public static final float REFLECTION_ALPHA_START = 0.75F;
+	public static final float REFLECTION_ALPHA_FACTOR = 0.25F;
+	
 	private static final Program[] programs = new Program[Pass.values().length];
 	private static final Framebuffer[] framebuffers = new Framebuffer[Pass.values().length];
 	
@@ -93,7 +96,9 @@ public enum Pass
 				GLES20.glDepthMask(true);
 				GLES20.glCullFace(GLES20.GL_FRONT);
 				GLES20.glUniform3fv(getProgram().getUniform("u_Eye"), 1, renderer.main.camera.eye.getVec40(), 0);
-				GLES20.glUniform3fv(getProgram().getUniform("u_Light"), 1, renderer.main.game.light.getVec40(), 0);
+				
+				GLES20.glUniform1f(getProgram().getUniform("u_AlphaStart"), REFLECTION_ALPHA_START);
+				GLES20.glUniform1f(getProgram().getUniform("u_AlphaFactor"), REFLECTION_ALPHA_FACTOR);
 				
 				break;
 				

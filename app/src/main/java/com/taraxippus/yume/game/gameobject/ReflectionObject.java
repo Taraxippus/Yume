@@ -50,6 +50,8 @@ public class ReflectionObject extends GameObject
 		GLES20.glUniform4f(getPass().getProgram().getUniform("u_Color"), parent.color.x, parent.color.y, parent.color.z, parent.alpha);
 		GLES20.glUniform1f(getPass().getProgram().getUniform("u_Specularity"), parent.specularity);
 		
+		GLES20.glUniform3f(getPass().getProgram().getUniform("u_Light"), getX(world.main.game.light.x), getY(world.main.game.light.y), getZ(world.main.game.light.z));
+		
 		if (parent.shape != null)
 			parent.shape.render();
 	}
