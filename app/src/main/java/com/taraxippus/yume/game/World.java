@@ -35,7 +35,7 @@ public class World
 	
 	public void add(GameObject gameObject)
 	{	
-		if (gameObject == null)
+		if (gameObject == null || isDestroying)
 			return;
 			
 		gameObject.init();
@@ -55,7 +55,7 @@ public class World
 	
 	public void remove(GameObject gameObject)
 	{
-		if (gameObject == null)
+		if (gameObject == null || isDestroying)
 			return;
 		
 		gameObject.delete();
@@ -97,10 +97,16 @@ public class World
 			gameObject.render(renderer);
 	}
 
+	public boolean isDestroying = false;
+	
 	public void delete()
 	{
+		isDestroying = true;
+		
 		for (ArrayList<GameObject> list : gameObjects)
 			for (GameObject gameObject : list)
 				gameObject.delete();
+			
+		isDestroying = false;
 	}
 }

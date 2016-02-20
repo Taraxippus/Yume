@@ -186,7 +186,8 @@ public class SceneObject extends GameObject
 		
 		if (getPass() == Pass.REFLECTION)
 		{
-			//GLES20.glUniform3f(getPass().getProgram().getUniform("u_Eye"), world.main.camera.eye.x, world.main.camera.eye.y, world.main.camera.eye.z);
+			GLES20.glUniform3f(getPass().getProgram().getUniform("u_Eye"), world.main.camera.eye.x, world.main.camera.eye.y, world.main.camera.eye.z);
+			
 			GLES20.glUniform3f(getPass().getProgram().getUniform("u_Light"), world.main.game.light.x,world.main.game.light.y, world.main.game.light.z);
 			GLES20.glUniform3f(getPass().getProgram().getUniform("u_ReflectionOffset"), 0, 0, 0);
 			GLES20.glUniform3f(getPass().getProgram().getUniform("u_ReflectionDir"), 0, 0, 0);
@@ -201,6 +202,6 @@ public class SceneObject extends GameObject
 	@Override
 	public float getDepth()
 	{
-		return (getPass() == Pass.REFLECTION ? -999 : 0) + tmp.set(position).subtract(world.main.camera.eye).length();
+		return super.getDepth() + (getPass() == Pass.REFLECTION ? 1000 : 0) + tmp.set(position).subtract(world.main.camera.eye).length();
 	}
 }

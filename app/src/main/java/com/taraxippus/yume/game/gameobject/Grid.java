@@ -8,8 +8,11 @@ import com.taraxippus.yume.util.*;
 
 public class Grid extends SceneObject
 {
-	public static final float MAX_ALPHA = 0.25F;
+	public static final float MAX_ALPHA = 0.75F;
 	public static final float ANIMATION_DURATION = 0.5F;
+	
+	public static final float WIDTH = 0.00075F;
+	public static final float EPSILON = WIDTH;
 	
 	final VectorF size = new VectorF(1, 1, 1);
 
@@ -86,225 +89,114 @@ public class Grid extends SceneObject
 	@Override
 	public Shape createShape()
 	{
-		final float[] vertices = new float[(3 + 3) * (2 * (int)(size.x * 2 + size.z * 2 + 4) + 2 * (int)(size.x * 2 + size.y * 2 + 4) + 2 * (int)(size.z * 2 + size.y * 2 + 4))];
+		final float[] vertices = new float[(3 + 3) * (6 * (int)(size.x * 2 + size.z * 2 + 4) + 2 * (int)(size.x * 2 + size.y * 2 + 4) + 2 * (int)(size.z * 2 + size.y * 2 + 4))];
 		int offset = 0;
 		
 		int x, y, z;
 		
 		for (x = 0; x <= size.x; ++x)
 		{
-			vertices[offset++] = x / size.x * 0.9998F - 0.4999F;
-			vertices[offset++] = -0.4999F;
-			vertices[offset++] = -0.5F;
+			offset = addLine(vertices, offset,
+							 x / size.x * (1F - EPSILON * 2) - (0.5F - EPSILON),
+							 -(0.5F - EPSILON),
+							 -0.5F,
+							 x / size.x * (1F - EPSILON * 2) - (0.5F - EPSILON),
+							 -(0.5F - EPSILON),
+							 0.5F,
+							 0, 1, 0, -1, 0, 0);
 			
-			vertices[offset++] = 0;
-			vertices[offset++] = 1;
-			vertices[offset++] = 0;
-			
-			vertices[offset++] = x / size.x * 0.9998F - 0.4999F;
-			vertices[offset++] = -0.4999F;
-			vertices[offset++] = 0.5F;
-
-			vertices[offset++] = 0;
-			vertices[offset++] = 1;
-			vertices[offset++] = 0;
-			
-			
-			vertices[offset++] = x / size.x * 0.9998F - 0.4999F;
-			vertices[offset++] = 0.4999F;
-			vertices[offset++] = -0.5F;
-
-			vertices[offset++] = 0;
-			vertices[offset++] = -1;
-			vertices[offset++] = 0;
-
-			vertices[offset++] = x / size.x * 0.9998F - 0.4999F;
-			vertices[offset++] = 0.4999F;
-			vertices[offset++] = 0.5F;
-
-			vertices[offset++] = 0;
-			vertices[offset++] = -1;
-			vertices[offset++] = 0;
-		}
-		for (z = 0; z <= size.z; ++z)
-		{
-			vertices[offset++] = -0.5F;
-			vertices[offset++] = -0.4999F;
-			vertices[offset++] = z / size.z - 0.4999F;
-
-			vertices[offset++] = 0;
-			vertices[offset++] = 1;
-			vertices[offset++] = 0;
-
-			vertices[offset++] = 0.5F;
-			vertices[offset++] = -0.4999F;
-			vertices[offset++] = z / size.z - 0.4999F;
-
-			vertices[offset++] = 0;
-			vertices[offset++] = 1;
-			vertices[offset++] = 0;
-			
-			
-			vertices[offset++] = -0.5F;
-			vertices[offset++] = 0.4999F;
-			vertices[offset++] = z / size.z - 0.4999F;
-
-			vertices[offset++] = 0;
-			vertices[offset++] = -1;
-			vertices[offset++] = 0;
-
-			vertices[offset++] = 0.5F;
-			vertices[offset++] = 0.4999F;
-			vertices[offset++] = z / size.z - 0.4999F;
-
-			vertices[offset++] = 0;
-			vertices[offset++] = -1;
-			vertices[offset++] = 0;
-		}
-		
-		for (x = 0; x <= size.x; ++x)
-		{
-			vertices[offset++] = x / size.x * 0.9998F - 0.4999F;
-			vertices[offset++] = -0.5F;
-			vertices[offset++] = -0.4999F;
-
-			vertices[offset++] = 0;
-			vertices[offset++] = 0;
-			vertices[offset++] = 1;
-
-			vertices[offset++] = x / size.x * 0.9998F - 0.4999F;
-			vertices[offset++] = 0.5F;
-			vertices[offset++] = -0.4999F;
-
-			vertices[offset++] = 0;
-			vertices[offset++] = 0;
-			vertices[offset++] = 1;
-
-			vertices[offset++] = x / size.x * 0.9998F - 0.4999F;
-			vertices[offset++] = -0.5F;
-			vertices[offset++] = 0.4999F;
-
-			vertices[offset++] = 0;
-			vertices[offset++] = 0;
-			vertices[offset++] = -1;
-
-			vertices[offset++] = x / size.x * 0.9998F - 0.4999F;
-			vertices[offset++] = 0.5F;
-			vertices[offset++] = 0.4999F;
-
-			vertices[offset++] = 0;
-			vertices[offset++] = 0;
-			vertices[offset++] = -1;
+			offset = addLine(vertices, offset,
+							 x / size.x * (1F - EPSILON * 2) - (0.5F - EPSILON),
+							 (0.5F - EPSILON),
+							 -0.5F,
+							 x / size.x * (1F - EPSILON * 2) - (0.5F - EPSILON),
+							 (0.5F - EPSILON),
+							 0.5F,
+							 0, -1, 0, 1, 0, 0);
 		}
 		for (y = 0; y <= size.y; ++y)
 		{
-			vertices[offset++] = -0.5F;
-			vertices[offset++] = y / size.y * 0.9998F - 0.4999F;
-			vertices[offset++] = -0.4999F;
 
-			vertices[offset++] = 0;
-			vertices[offset++] = 0;
-			vertices[offset++] = 1;
-
-			vertices[offset++] = 0.5F;
-			vertices[offset++] = y / size.y * 0.9998F - 0.4999F;
-			vertices[offset++] = -0.4999F;
-
-			vertices[offset++] = 0;
-			vertices[offset++] = 0;
-			vertices[offset++] = 1;
-
-
-			vertices[offset++] = -0.5F;
-			vertices[offset++] = y / size.y * 0.9998F - 0.4999F;
-			vertices[offset++] = 0.4999F;
-
-			vertices[offset++] = 0;
-			vertices[offset++] = 0;
-			vertices[offset++] = -1;
-
-			vertices[offset++] = 0.5F;
-			vertices[offset++] = y / size.y * 0.9998F - 0.4999F;
-			vertices[offset++] = 0.4999F;
-
-			vertices[offset++] = 0;
-			vertices[offset++] = 0;
-			vertices[offset++] = -1;
 		}
-		
 		for (z = 0; z <= size.z; ++z)
 		{
-			vertices[offset++] = -0.4999F;
-			vertices[offset++] = -0.5F;
-			vertices[offset++] = z / size.z * 0.9998F - 0.4999F;
+			offset = addLine(vertices, offset,
+							 -0.5F,
+							 -(0.5F - EPSILON),
+							 z / size.z * (1F - EPSILON * 2) - (0.5F - EPSILON),
+							 0.5F,
+							 -(0.5F - EPSILON),
+							 z / size.z * (1F - EPSILON * 2) - (0.5F - EPSILON),
+							 0, 1, 0, 0, 0, 1);
 
-			vertices[offset++] = 1;
-			vertices[offset++] = 0;
-			vertices[offset++] = 0;
-
-			vertices[offset++] = -0.4999F;
-			vertices[offset++] = 0.5F;
-			vertices[offset++] = z / size.z * 0.9998F - 0.4999F;
-
-			vertices[offset++] = 1;
-			vertices[offset++] = 0;
-			vertices[offset++] = 0;
-
-			vertices[offset++] = 0.4999F;
-			vertices[offset++] = -0.5F;
-			vertices[offset++] = z / size.z * 0.9998F - 0.4999F;
-
-			vertices[offset++] = -1;
-			vertices[offset++] = 0;
-			vertices[offset++] = 0;
-
-			vertices[offset++] = 0.4999F;
-			vertices[offset++] = 0.5F;
-			vertices[offset++] = z / size.z * 0.9998F - 0.4999F;
-
-			vertices[offset++] = -1;
-			vertices[offset++] = 0;
-			vertices[offset++] = 0;
-		}
-		for (y = 0; y <= size.y; ++y)
-		{
-			vertices[offset++] = -0.4999F;
-			vertices[offset++] = y / size.y * 0.9998F - 0.4999F;
-			vertices[offset++] = -0.5F;
-
-			vertices[offset++] = 1;
-			vertices[offset++] = 0;
-			vertices[offset++] = 0;
-
-			vertices[offset++] = -0.4999F;
-			vertices[offset++] = y / size.y * 0.9998F - 0.4999F;
-			vertices[offset++] = 0.5F;
-
-			vertices[offset++] = 1;
-			vertices[offset++] = 0;
-			vertices[offset++] = 0;
-
-
-			vertices[offset++] = 0.4999F;
-			vertices[offset++] = y / size.y * 0.9998F - 0.4999F;
-			vertices[offset++] = -0.5F;
-
-			vertices[offset++] = -1;
-			vertices[offset++] = 0;
-			vertices[offset++] = 0;
-
-			vertices[offset++] = 0.4999F;
-			vertices[offset++] = y / size.y * 0.9998F - 0.4999F;
-			vertices[offset++] = 0.5F;
-
-			vertices[offset++] = -1;
-			vertices[offset++] = 0;
-			vertices[offset++] = 0;
+			offset = addLine(vertices, offset,
+							 -0.5F,
+							 (0.5F - EPSILON),
+							 z / size.z * (1F - EPSILON * 2) - (0.5F - EPSILON),
+							 0.5F,
+							 (0.5F - EPSILON),
+							 z / size.z * (1F - EPSILON * 2) - (0.5F - EPSILON),
+							 0, -1, 0, 0, 0, -1);
 		}
 		
 		Shape shape = new Shape();
-		shape.init(GLES20.GL_LINES, vertices, vertices.length / (3 + 3), getPass().getAttributes());
+		shape.init(GLES20.GL_TRIANGLES, vertices, vertices.length / (3 + 3), getPass().getAttributes());
 
 		return shape;
+	}
+	
+	public int addLine(float[] vertices, int offset, float x1, float y1, float z1, float x2, float y2, float z2, float normalX, float normalY, float normalZ, float widthFactor, float heightFactor, float lengthFactor)
+	{
+		vertices[offset++] = x1 - WIDTH * widthFactor;
+		vertices[offset++] = y1 - WIDTH * heightFactor;
+		vertices[offset++] = z1 - WIDTH * lengthFactor;
+
+		vertices[offset++] = normalX;
+		vertices[offset++] = normalY;
+		vertices[offset++] = normalZ;
+
+		vertices[offset++] = x1 + WIDTH * widthFactor;
+		vertices[offset++] = y1 + WIDTH * heightFactor;
+		vertices[offset++] = z1 + WIDTH * lengthFactor;
+		
+		vertices[offset++] = normalX;
+		vertices[offset++] = normalY;
+		vertices[offset++] = normalZ;
+
+		vertices[offset++] = x2 - WIDTH * widthFactor;
+		vertices[offset++] = y2 - WIDTH * heightFactor;
+		vertices[offset++] = z2 - WIDTH * lengthFactor;
+		
+		vertices[offset++] = normalX;
+		vertices[offset++] = normalY;
+		vertices[offset++] = normalZ;
+		
+		
+		
+		vertices[offset++] = x2 - WIDTH * widthFactor;
+		vertices[offset++] = y2 - WIDTH * heightFactor;
+		vertices[offset++] = z2 - WIDTH * lengthFactor;
+		
+		vertices[offset++] = normalX;
+		vertices[offset++] = normalY;
+		vertices[offset++] = normalZ;
+		
+		vertices[offset++] = x1 + WIDTH * widthFactor;
+		vertices[offset++] = y1 + WIDTH * heightFactor;
+		vertices[offset++] = z1 + WIDTH * lengthFactor;
+		
+		vertices[offset++] = normalX;
+		vertices[offset++] = normalY;
+		vertices[offset++] = normalZ;
+		
+		vertices[offset++] = x2 + WIDTH * widthFactor;
+		vertices[offset++] = y2 + WIDTH * heightFactor;
+		vertices[offset++] = z2 + WIDTH * lengthFactor;
+		
+		vertices[offset++] = normalX;
+		vertices[offset++] = normalY;
+		vertices[offset++] = normalZ;
+		
+		return offset;
 	}
 }

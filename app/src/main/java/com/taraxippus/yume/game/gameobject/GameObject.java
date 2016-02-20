@@ -9,6 +9,8 @@ public class GameObject implements Comparable<GameObject>
 	public Shape shape;
 	private Pass pass = Pass.SCENE;
 	
+	public float depthOffset;
+	
 	public GameObject(World world)
 	{
 		this.world = world;
@@ -47,6 +49,13 @@ public class GameObject implements Comparable<GameObject>
 		return this;
 	}
 	
+	public GameObject setDepthOffset(float depthOffset)
+	{
+		this.depthOffset = depthOffset;
+		
+		return this;
+	}
+	
 	public void delete()
 	{
 		if (shape != null)
@@ -55,7 +64,7 @@ public class GameObject implements Comparable<GameObject>
 
 	public float getDepth()
 	{
-		return 0;
+		return depthOffset;
 	}
 	
 	@Override

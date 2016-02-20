@@ -56,7 +56,7 @@ public class ReflectionObject extends GameObject
 		GLES20.glUniform4f(getPass().getProgram().getUniform("u_Color"), parent.color.x, parent.color.y, parent.color.z, parent.alpha);
 		GLES20.glUniform1f(getPass().getProgram().getUniform("u_Specularity"), parent.specularity);
 		
-		//GLES20.glUniform3f(getPass().getProgram().getUniform("u_Eye"), getX(world.main.camera.eye.x), getY(world.main.camera.eye.y), getX(world.main.camera.eye.z));
+		GLES20.glUniform3f(getPass().getProgram().getUniform("u_Eye"), getX(world.main.camera.eye.x), getY(world.main.camera.eye.y), getX(world.main.camera.eye.z));
 		GLES20.glUniform3f(getPass().getProgram().getUniform("u_Light"), getX(world.main.game.light.x), getY(world.main.game.light.y), getZ(world.main.game.light.z));
 		GLES20.glUniform3f(getPass().getProgram().getUniform("u_ReflectionOffset"), -getX(0) / 2F, -getY(0) / 2F, -getZ(0) / 2F);
 		GLES20.glUniform3f(getPass().getProgram().getUniform("u_ReflectionDir"), -side.x, -side.y, -side.z);
@@ -71,7 +71,7 @@ public class ReflectionObject extends GameObject
 	@Override
 	public float getDepth()
 	{
-		return (postPass ? -1000 : 0) + position.set(getX(parent.position.x), getY(parent.position.y), getZ(parent.position.z)).subtract(world.main.camera.eye).length();
+		return parent.depthOffset + (postPass ? 1000 : 0) + position.set(getX(parent.position.x), getY(parent.position.y), getZ(parent.position.z)).subtract(world.main.camera.eye).length();
 	}
 	
 	public float getX(float x)
