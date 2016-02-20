@@ -30,58 +30,19 @@ public class Level
 		return 24;
 	}
 	
-	public static final VectorF xN = new VectorF(-1, 0, 0);
-	public static final VectorF xP = new VectorF(1, 0, 0);
-	public static final VectorF yN = new VectorF(0, -1, 0);
-	public static final VectorF yP = new VectorF(0, 1, 0);
-	public static final VectorF zN = new VectorF(0, 0, -1);
-	public static final VectorF zP = new VectorF(0, 0, 1);
-	
-	public VectorF getOpposite(VectorF direction)
-	{
-		if (direction == xN)
-			return xP;
-		else if (direction == xP)
-			return xN;
-			
-		if (direction == yN)
-			return yP;
-		else if (direction == yP)
-			return yN;
-			
-		if (direction == zN)
-			return zP;
-		else if (direction == zP)
-			return zN;
-			
-		return VectorF.zero;
-	}
-	
 	public VectorF getGravity(IMover mover, int x, int y, int z)
 	{
-		if (y <= 0 || blocked[x * getLength() * getHeight() + (y - 1) * getLength() + z])
-			return yN;
-		else if (y >= getHeight() - 1 || blocked[x * getLength() * getHeight() + (y + 1) * getLength() + z])
-			return yP;
-			
-		if (x <= 0 || blocked[(x - 1) * getLength() * getHeight() + y * getLength() + z])
-			return xN;
-		else if (x >= getWidth() - 1 || blocked[(x + 1) * getLength() * getHeight() + y * getLength() + z])
-			return xP;
-			
-		if (z <= 0 || blocked[x * getLength() * getHeight() + y * getLength() + z - 1])
-			return zN;
-		else if (z >= getLength() - 1 || blocked[x * getLength() * getHeight() + y * getLength() + z + 1])
-			return zP;
-			
-		return VectorF.zero;
+		return DIRECTION[
+		((y <= 0 || blocked[x * getLength() * getHeight() + (y - 1) * getLength() + z]) ? 0 : (y >= getHeight() - 1 || blocked[x * getLength() * getHeight() + (y + 1) * getLength() + z]) ? 2 : 1) * 3
+			+ ((x <= 0 || blocked[(x - 1) * getLength() * getHeight() + y * getLength() + z]) ? 0 : (x >= getWidth() - 1 || blocked[(x + 1) * getLength() * getHeight() + y * getLength() + z]) ? 2 : 1) * 9
+			+ ((z <= 0 || blocked[x * getLength() * getHeight() + y * getLength() + z - 1]) ? 0 : (z >= getLength() - 1 || blocked[x * getLength() * getHeight() + y * getLength() + z + 1]) ? 2 : 1)];
 	}
 	
     public boolean isBlocked(IMover mover, int x, int y, int z)
 	{
 		VectorF gravity = getGravity(mover, x, y, z);
 		
-		return gravity == VectorF.zero
+		return gravity.equals(VectorF.zero)
 		|| blocked[x * getLength() * getHeight() + y * getLength() + z];
 	}
 	
@@ -101,5 +62,16 @@ public class Level
     public void pathFinderVisited(int x, int y, int z)
 	{
 		
+	}
+	
+	public static final VectorF[] DIRECTION = new VectorF[27];
+	
+	static
+	{
+		int x, y, z;
+		for (x = -1; x <= 1; ++x)
+			for (y = -1; y <= 1; ++y)
+				for (z = -1; z <= 1; ++z)
+					DIRECTION[(x + 1) * 9 + (y + 1) * 3 + (z + 1)] = new VectorF(x, y, z);
 	}
 }

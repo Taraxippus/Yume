@@ -38,7 +38,7 @@ public class Path
 	public void addStep(int x, int y, int z)
 	{
 		final VectorF gravity = level.getGravity(mover, x, y, z);
-		steps.add(0, new Step(x, y, z, gravity, level.getOpposite(gravity)));
+		steps.add(0, new Step(x, y, z, gravity));
 		currentStep = 0;
 	}
 	
@@ -54,16 +54,14 @@ public class Path
 		public final int z;
 		
 		public final VectorF gravity;
-		public final VectorF oppositeGravity;
 		
-		public Step(int x, int y, int z, VectorF gravity, VectorF oppositeGravity)
+		public Step(int x, int y, int z, VectorF gravity)
 		{
 			this.x = x;
 			this.y = y;
 			this.z = z;
 			
 			this.gravity = gravity;
-			this.oppositeGravity = oppositeGravity;
 		}
 	}
 }

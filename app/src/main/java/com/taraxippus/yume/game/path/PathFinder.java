@@ -73,7 +73,7 @@ public class PathFinder
 						if (x == 0 && y == 0 && z == 0) 
 							continue;
 
-						if (!allowDiagonalMovement && x != 0 && z != 0) 
+						if (!allowDiagonalMovement && x * x + y * y + z * z != 1) 
 							continue;
 
 						nX = current.x + x;

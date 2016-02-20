@@ -73,6 +73,10 @@ public class Camera
 		.rotateZ(rotation.z)
 		.add(position);
 		
+		this.eye.x = Math.min(Math.max(this.eye.x, 0), this.main.game.level.getWidth() - 1);
+		this.eye.y = Math.min(Math.max(this.eye.y, 0), this.main.game.level.getHeight() - 1);
+		this.eye.z = Math.min(Math.max(this.eye.z, 0), this.main.game.level.getLength() - 1);
+		
 		this.up.set(0, 1, 0)
 //		.rotateY(rotationPre.y)
 //		.rotateX(rotationPre.x)

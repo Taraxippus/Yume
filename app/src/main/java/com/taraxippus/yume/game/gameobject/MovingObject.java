@@ -43,9 +43,9 @@ public class MovingObject extends Box implements IMover
 			float jump = 0.5F * World.GRAVITY * delta * delta + -World.GRAVITY * 0.5F * delta;
 			
 			this.position.set(
-				(nextStep.x + nextStep.gravity.x * (0.5F - scale.x * 0.5F)) * delta + (lastStep.x + lastStep.gravity.x * (0.5F - scale.x * 0.5F)) * (1 - delta) + jump * nextStep.oppositeGravity.x, 
-				(nextStep.y + nextStep.gravity.y * (0.5F - scale.y * 0.5F)) * delta + (lastStep.y + lastStep.gravity.y * (0.5F - scale.y * 0.5F)) * (1 - delta) + jump * nextStep.oppositeGravity.y,
-				(nextStep.z + nextStep.gravity.z * (0.5F - scale.z * 0.5F)) * delta + (lastStep.z + lastStep.gravity.z * (0.5F - scale.y * 0.5F)) * (1 - delta) + jump * nextStep.oppositeGravity.z);
+				(nextStep.x + nextStep.gravity.x * (0.5F - scale.x * 0.5F)) * delta + (lastStep.x + lastStep.gravity.x * (0.5F - scale.x * 0.5F)) * (1 - delta) + jump * -nextStep.gravity.x, 
+				(nextStep.y + nextStep.gravity.y * (0.5F - scale.y * 0.5F)) * delta + (lastStep.y + lastStep.gravity.y * (0.5F - scale.y * 0.5F)) * (1 - delta) + jump * -nextStep.gravity.y,
+				(nextStep.z + nextStep.gravity.z * (0.5F - scale.z * 0.5F)) * delta + (lastStep.z + lastStep.gravity.z * (0.5F - scale.y * 0.5F)) * (1 - delta) + jump * -nextStep.gravity.z);
 
 			this.rotation.x = delta * 90F;
 			
@@ -99,22 +99,22 @@ public class MovingObject extends Box implements IMover
 			else if (nextRotationY - lastRotationY < -180)
 				nextRotationY += 360;
 			
-			if (Math.abs(nextRotationY - lastRotationY) == 180)
+			if (lastStep.gravity != nextStep.gravity || Math.abs(nextRotationY - lastRotationY) == 180)
 				lastRotationY = nextRotationY;
 			
-			if (nextStep.gravity == Level.yP)
+			if (nextStep.gravity.y == 1)
 				rotationPre.set(180, 0, 180);
-			else if (nextStep.gravity == Level.yN)
+			else if (nextStep.gravity.y == -1)
 				rotationPre.set(0, 0, 0);
 				
-			else if (nextStep.gravity == Level.zP)
+			else if (nextStep.gravity.z == 1)
 				rotationPre.set(-90, 0, 0);
-			else if (nextStep.gravity == Level.zN)
+			else if (nextStep.gravity.z == -1)
 				rotationPre.set(90, 0, 0);
 				
-			else if (nextStep.gravity == Level.xP)
+			else if (nextStep.gravity.x == 1)
 				rotationPre.set(0, 0, 90);
-			else if (nextStep.gravity == Level.xN)
+			else if (nextStep.gravity.x == -1)
 				rotationPre.set(0, 0, -90);
 		}
 		else
@@ -134,16 +134,16 @@ public class MovingObject extends Box implements IMover
 		final int dY = step.y - Math.round(position.y);
 		final int dZ = step.z - Math.round(position.z);
 		
-		if (dY != 0)
+		if (dY != 0 && step.gravity.y == 0)
 		{
-			if (step.gravity == Level.xN)
+			if (step.gravity.x == -1)
 				return dY == -1 ? 90 : -90;
-			else if (step.gravity == Level.xP)
+			else if (step.gravity.x == 1)
 				return dY == -1 ? -90 : 90;
 				
-			if (step.gravity == Level.zN)
+			else if (step.gravity.z == -1)
 				return dY == -1 ? 0 : 180;
-			else if (step.gravity == Level.zP)
+			else if (step.gravity.z == 1)
 				return dY == -1 ? 180 : 0;
 		}
 			
