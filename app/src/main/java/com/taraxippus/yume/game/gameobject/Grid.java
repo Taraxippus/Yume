@@ -11,7 +11,7 @@ public class Grid extends SceneObject
 	public static final float MAX_ALPHA = 0.75F;
 	public static final float ANIMATION_DURATION = 0.5F;
 	
-	public static final float WIDTH = 0.00075F;
+	public static final float WIDTH = 0.0015F;
 	public static final float EPSILON = WIDTH;
 	
 	final VectorF size = new VectorF(1, 1, 1);
@@ -23,7 +23,7 @@ public class Grid extends SceneObject
 		this.size.set(size);
 		this.scale(this.size.x, this.size.y, this.size.z);
 		
-		this.specularity = 50F;
+		this.specularityExponent = 50F;
 		this.alpha = 0;
 		this.setEnabled(false);
 	}
@@ -89,7 +89,7 @@ public class Grid extends SceneObject
 	@Override
 	public Shape createShape()
 	{
-		final float[] vertices = new float[(3 + 3) * (6 * (int)(size.x * 2 + size.z * 2 + 4) + 2 * (int)(size.x * 2 + size.y * 2 + 4) + 2 * (int)(size.z * 2 + size.y * 2 + 4))];
+		final float[] vertices = new float[(3 + 3) * 24 * (int)(size.x + 1 + size.y + 1 + size.z + 1)];
 		int offset = 0;
 		
 		int x, y, z;
@@ -113,10 +113,62 @@ public class Grid extends SceneObject
 							 (0.5F - EPSILON),
 							 0.5F,
 							 0, -1, 0, 1, 0, 0);
+							 
+			offset = addLine(vertices, offset,
+							 x / size.x * (1F - EPSILON * 2) - (0.5F - EPSILON),
+							 -0.5F,
+							 -(0.5F - EPSILON),
+							 x / size.x * (1F - EPSILON * 2) - (0.5F - EPSILON),
+							 0.5F,
+							 -(0.5F - EPSILON),
+							 0, 0, 1, 1, 0, 0);
+							 
+			offset = addLine(vertices, offset,
+							 x / size.x * (1F - EPSILON * 2) - (0.5F - EPSILON),
+							 -0.5F,
+							 (0.5F - EPSILON),
+							 x / size.x * (1F - EPSILON * 2) - (0.5F - EPSILON),
+							 0.5F,
+							 (0.5F - EPSILON),
+							 0, 0, -1, -1, 0, 0);
 		}
 		for (y = 0; y <= size.y; ++y)
 		{
-
+			offset = addLine(vertices, offset,
+							 -(0.5F - EPSILON),
+							 y / size.y * (1F - EPSILON * 2) - (0.5F - EPSILON),
+							 -0.5F,
+							 -(0.5F - EPSILON),
+							 y / size.y * (1F - EPSILON * 2) - (0.5F - EPSILON),
+							 0.5F,
+							 1, 0, 0, 0, 1, 0);
+							 
+			offset = addLine(vertices, offset,
+							 (0.5F - EPSILON),
+							 y / size.y * (1F - EPSILON * 2) - (0.5F - EPSILON),
+							 -0.5F,
+							 (0.5F - EPSILON),
+							 y / size.y * (1F - EPSILON * 2) - (0.5F - EPSILON),
+							 0.5F,
+							 -1, 0, 0, 0, -1, 0);
+							 
+			offset = addLine(vertices, offset,
+							 -0.5F,
+							 y / size.y * (1F - EPSILON * 2) - (0.5F - EPSILON),
+							 -(0.5F - EPSILON),
+							 0.5F,
+							 y / size.y * (1F - EPSILON * 2) - (0.5F - EPSILON),
+							 -(0.5F - EPSILON),
+							 0, 0, 1, 0, -1, 0);
+							 
+			offset = addLine(vertices, offset,
+							 -0.5F,
+							 y / size.y * (1F - EPSILON * 2) - (0.5F - EPSILON),
+							 (0.5F - EPSILON),
+							 0.5F,
+							 y / size.y * (1F - EPSILON * 2) - (0.5F - EPSILON),
+							 (0.5F - EPSILON),
+							 0, 0, -1, 0, 1, 0);
 		}
 		for (z = 0; z <= size.z; ++z)
 		{
@@ -137,6 +189,24 @@ public class Grid extends SceneObject
 							 (0.5F - EPSILON),
 							 z / size.z * (1F - EPSILON * 2) - (0.5F - EPSILON),
 							 0, -1, 0, 0, 0, -1);
+							 
+			offset = addLine(vertices, offset,
+							 -(0.5F - EPSILON),
+							 -0.5F,
+							 z / size.z * (1F - EPSILON * 2) - (0.5F - EPSILON),
+							 -(0.5F - EPSILON),
+							 0.5F,
+							 z / size.z * (1F - EPSILON * 2) - (0.5F - EPSILON),
+							 1, 0, 0, 0, 0, -1);
+							 
+			offset = addLine(vertices, offset,
+							 (0.5F - EPSILON),
+							 -0.5F,
+							 z / size.z * (1F - EPSILON * 2) - (0.5F - EPSILON),
+							 (0.5F - EPSILON),
+							 0.5F,
+							 z / size.z * (1F - EPSILON * 2) - (0.5F - EPSILON),
+							 -1, 0, 0, 0, 0, 1);
 		}
 		
 		Shape shape = new Shape();

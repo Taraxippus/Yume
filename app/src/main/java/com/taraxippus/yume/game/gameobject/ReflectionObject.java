@@ -12,20 +12,11 @@ public class ReflectionObject extends GameObject
 	public final float[] modelMatrix = new float[16];
 	public final VectorF position = new VectorF();
 	
-	public boolean postPass;
-	
 	public ReflectionObject(SceneObject parent, VectorF side)
 	{
 		super(parent.world);
 		this.parent = parent;
 		this.side = side;
-	}
-	
-	public ReflectionObject setPostPass(boolean post)
-	{
-		this.postPass = post;
-		
-		return this;
 	}
 
 	@Override
@@ -37,7 +28,7 @@ public class ReflectionObject extends GameObject
 	@Override
 	public void render(Renderer renderer)
 	{
-		if (!parent.enabled || !world.main.camera.insideFrustum(position.set(getX(parent.position.x), getY(parent.position.y), getZ(parent.position.z)), parent.radius))
+		if (!parent.enabled || getAlpha() <= 0F || !world.main.camera.insideFrustum(position.set(getX(parent.position.x), getY(parent.position.y), getZ(parent.position.z)), parent.radius))
 			return;
 		
 		Matrix.setIdentityM(modelMatrix, 0);
@@ -54,14 +45,14 @@ public class ReflectionObject extends GameObject
 		
 		renderer.uniform(modelMatrix, getPass());
 		GLES20.glUniform4f(getPass().getProgram().getUniform("u_Color"), parent.color.x, parent.color.y, parent.color.z, parent.alpha);
-		GLES20.glUniform1f(getPass().getProgram().getUniform("u_Specularity"), parent.specularity);
+		GLES20.glUniform2f(getPass().getProgram().getUniform("u_Specularity"), parent.specularityExponent, parent.specularityFactor);
 		
 		GLES20.glUniform3f(getPass().getProgram().getUniform("u_Eye"), getX(world.main.camera.eye.x), getY(world.main.camera.eye.y), getX(world.main.camera.eye.z));
 		GLES20.glUniform3f(getPass().getProgram().getUniform("u_Light"), getX(world.main.game.light.x), getY(world.main.game.light.y), getZ(world.main.game.light.z));
 		GLES20.glUniform3f(getPass().getProgram().getUniform("u_ReflectionOffset"), -getX(0) / 2F, -getY(0) / 2F, -getZ(0) / 2F);
 		GLES20.glUniform3f(getPass().getProgram().getUniform("u_ReflectionDir"), -side.x, -side.y, -side.z);
 		
-		GLES20.glDepthMask(!postPass);
+		GLES20.glDepthMask(parent.alpha == 1);
 		GLES20.glCullFace((side.dot(side) % 2 == 1) ? GLES20.GL_FRONT : GLES20.GL_BACK);
 		
 		if (parent.shape != null)
@@ -71,7 +62,16 @@ public class ReflectionObject extends GameObject
 	@Override
 	public float getDepth()
 	{
-		return parent.depthOffset + (postPass ? 1000 : 0) + position.set(getX(parent.position.x), getY(parent.position.y), getZ(parent.position.z)).subtract(world.main.camera.eye).length();
+		return parent.depthOffset + 1000 * side.dot(side) + position.set(getX(parent.position.x), getY(parent.position.y), getZ(parent.position.z)).subtract(world.main.camera.eye).length();
+	}
+	
+	public float getAlpha()
+	{
+		return (float)Math.pow(Pass.REFLECTION_ALPHA_START, side.dot(side))
+			+ ((getX(parent.position.x) - getX(0) / 2F - parent.getRadius() * side.x) * -side.x
+			+ (getY(parent.position.y) - getY(0) / 2F - parent.getRadius() * side.y) * -side.y
+			+ (getZ(parent.position.z) - getZ(0) / 2F - parent.getRadius() * side.z) * -side.z)
+			* Pass.REFLECTION_ALPHA_FACTOR;
 	}
 	
 	public float getX(float x)

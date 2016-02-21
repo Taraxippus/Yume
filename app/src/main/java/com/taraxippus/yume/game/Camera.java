@@ -7,11 +7,12 @@ import com.taraxippus.yume.game.gameobject.*;
 
 public class Camera
 {
-	public static final float Z_NEAR = 1;
+	public static final float Z_NEAR = 0.1F;
 	public static final float Z_FAR = 100;
 	public static final float FOV = 60;
 	
 	public static final float FOLLOW_SMOOTHNESS = 10;
+	public static final boolean FOLLOW_ROTATION = true;
 	
 	public final Main main;
 	
@@ -24,7 +25,8 @@ public class Camera
 	
 	public final VectorF position = new VectorF();
 	public final VectorF rotationPre = new VectorF();
-	public final VectorF rotation = new VectorF(-5, 0, 0);
+	public final VectorF rotation = new VectorF(-5, 180, 0);
+	public final VectorF rotationPost = new VectorF();
 	public final VectorF eye = new VectorF();
 	public final VectorF up = new VectorF();
 	
@@ -45,7 +47,9 @@ public class Camera
 		if (target != null)
 		{
 			this.position.multiplyBy(FOLLOW_SMOOTHNESS).add(target.position).divideBy(FOLLOW_SMOOTHNESS + 1);
+			
 			this.rotationPre.multiplyBy(FOLLOW_SMOOTHNESS * 10).add(target.rotationPre).divideBy(FOLLOW_SMOOTHNESS * 10 + 1);
+			this.rotationPost.multiplyBy(FOLLOW_SMOOTHNESS * 5).add(target.rotation).divideBy(FOLLOW_SMOOTHNESS * 5 + 1);
 		}
 			
 		updateView();
@@ -56,6 +60,7 @@ public class Camera
 		this.target = target;
 		this.position.set(target.position);
 		this.rotationPre.set(target.rotationPre);
+		this.rotationPost.set(target.rotation);
 	}
 	
 	public void onResize(int width, int height)
@@ -67,24 +72,42 @@ public class Camera
 
 	public void updateView()
 	{
-		this.eye.set(0, 1, 0).multiplyBy(5 * zoom)
-		.rotateX(rotation.x)
-		.rotateY(rotation.y)
-		.rotateZ(rotation.z)
-		.add(position);
+		if (FOLLOW_ROTATION)
+		{
+			Matrix.setIdentityM(viewMatrix, 0);
+			Matrix.rotateM(viewMatrix, 0, rotationPre.y, 0, 1, 0);
+			Matrix.rotateM(viewMatrix, 0, rotationPre.x, 1, 0, 0);
+			Matrix.rotateM(viewMatrix, 0, rotationPre.z, 0, 0, 1);
+
+			this.eye.set(0, 1, 0).multiplyBy(5 * zoom)
+				.rotateX(rotation.x)
+				.rotateY(rotation.y + rotationPost.y)
+				.rotateZ(rotation.z)
+				.multiplyBy(viewMatrix)
+				.add(position);
+
+			this.eye.x = Math.min(Math.max(this.eye.x, -0.05F), this.main.game.level.getWidth() - 0.95F);
+			this.eye.y = Math.min(Math.max(this.eye.y, -0.05F), this.main.game.level.getHeight() - 0.95F);
+			this.eye.z = Math.min(Math.max(this.eye.z, -0.05F), this.main.game.level.getLength() - 0.95F);
+
+			this.up.set(0, 1, 0).multiplyBy(viewMatrix);
+
+			Matrix.setLookAtM(viewMatrix, 0, eye.x, eye.y, eye.z, position.x, position.y, position.z, up.x, up.y, up.z);
+			this.updateViewProjection();
+		}
+		else
+		{
 		
-		this.eye.x = Math.min(Math.max(this.eye.x, 0), this.main.game.level.getWidth() - 1);
-		this.eye.y = Math.min(Math.max(this.eye.y, 0), this.main.game.level.getHeight() - 1);
-		this.eye.z = Math.min(Math.max(this.eye.z, 0), this.main.game.level.getLength() - 1);
+			this.eye.set(0, 1, 0).multiplyBy(5 * zoom)
+				.rotateX(rotation.x)
+				.rotateY(rotation.y)
+				.rotateZ(rotation.z)
+				.add(position);
+
+			Matrix.setLookAtM(viewMatrix, 0, eye.x, eye.y, eye.z, position.x, position.y, position.z, 0, 1, 0);
+			this.updateViewProjection();
+		}
 		
-		this.up.set(0, 1, 0)
-//		.rotateY(rotationPre.y)
-//		.rotateX(rotationPre.x)
-//		.rotateZ(rotationPre.z)
-		;
-		
-		Matrix.setLookAtM(viewMatrix, 0, eye.x, eye.y, eye.z, position.x, position.y, position.z, up.x, up.y, up.z);
-		this.updateViewProjection();
 	}
 	
 	public void updateViewProjection()
@@ -117,6 +140,7 @@ public class Camera
             rayWorld1[1] = rayWorld1[1] / rayWorld1[3];
             rayWorld1[2] = rayWorld1[2] / rayWorld1[3];
             rayWorld1[3] = 1;
+			
             rayWorld2[0] = rayWorld2[0] / rayWorld2[3];
             rayWorld2[1] = rayWorld2[1] / rayWorld2[3];
             rayWorld2[2] = rayWorld2[2] / rayWorld2[3];

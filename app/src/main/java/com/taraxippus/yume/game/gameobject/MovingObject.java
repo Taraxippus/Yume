@@ -2,8 +2,8 @@ package com.taraxippus.yume.game.gameobject;
 
 import com.taraxippus.yume.*;
 import com.taraxippus.yume.game.*;
-import com.taraxippus.yume.game.level.*;
 import com.taraxippus.yume.game.path.*;
+import com.taraxippus.yume.util.*;
 
 public class MovingObject extends Box implements IMover
 {
@@ -21,7 +21,8 @@ public class MovingObject extends Box implements IMover
 		this.translate(0, -(0.5F - 0.75F * 0.5F), 0);
 		this.scale(0.75F, 0.75F, 0.75F);
 
-		this.specularity = 50F;
+		this.specularityExponent = 50F;
+		this.specularityFactor = 0.25F;
 		
 		this.pathFinder = new PathFinder(world.main.game.level, 1000, false);
 	}
@@ -100,8 +101,10 @@ public class MovingObject extends Box implements IMover
 				nextRotationY += 360;
 			
 			if (lastStep.gravity != nextStep.gravity || Math.abs(nextRotationY - lastRotationY) == 180)
-				lastRotationY = nextRotationY;
+				rotation.y = lastRotationY = nextRotationY;
 			
+			VectorF lastRotationPre = rotationPre.copy();
+				
 			if (nextStep.gravity.y == 1)
 				rotationPre.set(180, 0, 180);
 			else if (nextStep.gravity.y == -1)
@@ -116,6 +119,21 @@ public class MovingObject extends Box implements IMover
 				rotationPre.set(0, 0, 90);
 			else if (nextStep.gravity.x == -1)
 				rotationPre.set(0, 0, -90);
+				
+			if (rotationPre.x - lastRotationPre.x > 180)
+				rotationPre.x -= 360;
+			else if (rotationPre.x - lastRotationPre.x < -180)
+				rotationPre.x += 360;
+			
+			if (rotationPre.y - lastRotationPre.y > 180)
+				rotationPre.y -= 360;
+			else if (rotationPre.y - lastRotationPre.y < -180)
+				rotationPre.y += 360;
+				
+			if (rotationPre.z - lastRotationPre.z > 180)
+				rotationPre.z -= 360;
+			else if (rotationPre.z - lastRotationPre.z < -180)
+				rotationPre.z += 360;
 		}
 		else
 		{

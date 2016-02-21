@@ -15,7 +15,8 @@ public class SceneObject extends GameObject
 	
 	public final VectorF color = new VectorF(0xCC / 255F, 0xCC / 255F, 0xCC / 255F);
 	public float alpha = 1F;
-	public float specularity = 20F;
+	public float specularityExponent = 20F;
+	public float specularityFactor = 0.1F;
 	
 	public final VectorF position = new VectorF();
 	public final VectorF scale = new VectorF(1, 1, 1);
@@ -52,7 +53,7 @@ public class SceneObject extends GameObject
 				for (y = -1; y <= 1; ++y)
 					for (z = -1; z <= 1; ++z)
 						if (getPass() == Pass.REFLECTION || x != 0 || y != 0 || z != 0)
-							world.add(this.reflection[offset++] = new ReflectionObject(this, new VectorF(x, y, z)).setPostPass(getPass() == Pass.REFLECTION));
+							world.add(this.reflection[offset++] = new ReflectionObject(this, new VectorF(x, y, z)));
 
 		}
 	}
@@ -79,6 +80,14 @@ public class SceneObject extends GameObject
 	public SceneObject setAlpha(float alpha)
 	{
 		this.alpha = alpha;
+		return this;
+	}
+	
+
+	public SceneObject setSpecularity(float exponent, float factor)
+	{
+		this.specularityExponent = exponent;
+		this.specularityFactor = factor;
 		return this;
 	}
 	
@@ -182,7 +191,7 @@ public class SceneObject extends GameObject
 		
 		renderer.uniform(modelMatrix, getPass());
 		GLES20.glUniform4f(getPass().getProgram().getUniform("u_Color"), color.x, color.y, color.z, alpha);
-		GLES20.glUniform1f(getPass().getProgram().getUniform("u_Specularity"), specularity);
+		GLES20.glUniform2f(getPass().getProgram().getUniform("u_Specularity"), specularityExponent, specularityFactor);
 		
 		if (getPass() == Pass.REFLECTION)
 		{

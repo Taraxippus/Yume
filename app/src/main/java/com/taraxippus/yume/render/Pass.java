@@ -10,7 +10,7 @@ public enum Pass
 	REFLECTION,
 	POST;
 	
-	public static final float REFLECTION_ALPHA_START = 0.8F;
+	public static final float REFLECTION_ALPHA_START = 0.95F;
 	public static final float REFLECTION_ALPHA_FACTOR = 1 / 16F;
 	
 	private static final Program[] programs = new Program[Pass.values().length];
@@ -104,7 +104,7 @@ public enum Pass
 				GLES20.glUniform1f(getProgram().getUniform("u_AlphaStart"), REFLECTION_ALPHA_START);
 				GLES20.glUniform1f(getProgram().getUniform("u_AlphaFactor"), REFLECTION_ALPHA_FACTOR);
 				
-				//GLES20.glUniform3f(getProgram().getUniform("u_Eye"), renderer.main.camera.eye.x, renderer.main.camera.eye.y, renderer.main.camera.eye.z);
+				GLES20.glUniform3f(getProgram().getUniform("u_Eye"), renderer.main.camera.eye.x, renderer.main.camera.eye.y, renderer.main.camera.eye.z);
 				
 				break;
 				
