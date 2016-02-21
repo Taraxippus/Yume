@@ -3,6 +3,7 @@ package com.taraxippus.yume.game.path;
 import com.taraxippus.yume.game.level.*;
 import java.util.*;
 import org.w3c.dom.*;
+import com.taraxippus.yume.util.*;
 
 public class PathFinder
 {
@@ -50,6 +51,7 @@ public class PathFinder
 		int x, y, z;
 		int nX, nY, nZ;
 		float nextStepCost;
+		VectorF gravity;
 		
 		int maxDepth = 0;
 		while (maxDepth < maxSearchDistance && open.size() != 0)
@@ -73,12 +75,17 @@ public class PathFinder
 						if (x == 0 && y == 0 && z == 0) 
 							continue;
 
-						if (!allowDiagonalMovement && x * x + y * y + z * z != 1) 
-							continue;
-
 						nX = current.x + x;
 						nY = current.y + y;
 						nZ = current.z + z;
+							
+						gravity = level.getGravity(mover, current.x, current.y, current.z);
+						
+						if (!allowDiagonalMovement && x * x + y * y + z * z != 1 && 
+							!(gravity == level.getGravity(mover, nX, nY, nZ)
+							&& (gravity.x == 0 || y * y + z * z == 1) && (gravity.y == 0 || x * x + z * z == 1) && (gravity.z == 0 || y * y + x * x == 1)
+							&& isValidLocation())) 
+							continue;
 
 						if (isValidLocation(mover, sX, sY, sZ, nX, nY, nZ))
 						{

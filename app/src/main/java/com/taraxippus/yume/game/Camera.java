@@ -4,6 +4,7 @@ import android.opengl.*;
 import com.taraxippus.yume.*;
 import com.taraxippus.yume.util.*;
 import com.taraxippus.yume.game.gameobject.*;
+import android.widget.*;
 
 public class Camera
 {
@@ -82,7 +83,7 @@ public class Camera
 			this.eye.set(0, 1, 0).multiplyBy(5 * zoom)
 				.rotateX(rotation.x)
 				.rotateY(rotation.y + rotationPost.y)
-				.rotateZ(rotation.z)
+				.rotateZ(rotation.z + (target != null && target.rotationPre.z == 180 ? -180 : 0))
 				.multiplyBy(viewMatrix)
 				.add(position);
 
@@ -90,7 +91,7 @@ public class Camera
 			this.eye.y = Math.min(Math.max(this.eye.y, -0.05F), this.main.game.level.getHeight() - 0.95F);
 			this.eye.z = Math.min(Math.max(this.eye.z, -0.05F), this.main.game.level.getLength() - 0.95F);
 
-			this.up.set(0, 1, 0).multiplyBy(viewMatrix);
+			this.up.set(0, target != null && target.rotationPre.z == 180 ? -1 : 1, 0).multiplyBy(viewMatrix);
 
 			Matrix.setLookAtM(viewMatrix, 0, eye.x, eye.y, eye.z, position.x, position.y, position.z, up.x, up.y, up.z);
 			this.updateViewProjection();
