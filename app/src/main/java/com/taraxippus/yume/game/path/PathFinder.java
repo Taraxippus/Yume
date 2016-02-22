@@ -81,10 +81,10 @@ public class PathFinder
 							
 						gravity = level.getGravity(mover, current.x, current.y, current.z);
 						
-						if (!allowDiagonalMovement && x * x + y * y + z * z != 1 && 
-							!(gravity == level.getGravity(mover, nX, nY, nZ)
-							&& (gravity.x == 0 || y * y + z * z == 1) && (gravity.y == 0 || x * x + z * z == 1) && (gravity.z == 0 || y * y + x * x == 1)
-							&& isValidLocation())) 
+						if (!allowDiagonalMovement && x * x + y * y + z * z != 1
+							// && !(gravity == level.getGravity(mover, nX, nY, nZ)
+							// && (gravity.x == 0 || y * y + z * z == 1) && (gravity.y == 0 || x * x + z * z == 1) && (gravity.z == 0 || y * y + x * x == 1))
+							) 
 							continue;
 
 						if (isValidLocation(mover, sX, sY, sZ, nX, nY, nZ))
