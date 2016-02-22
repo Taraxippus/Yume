@@ -22,7 +22,7 @@ void main()
 	vec3 light = normalize(u_Light - v_Position);
 
 	float diff = max(0.0, dot(normal, light));
-	float spec = clamp(pow(max(dot(normalize(-reflect(normal, light)), normalize(u_Eye - v_Position)), 0.0), u_Specularity.x), 0.0, 1.0);
+	float spec = clamp(pow(max(0.0, dot(normalize(-reflect(normal, light)), normalize(u_Eye - v_Position))), u_Specularity.x), 0.0, 1.0);
 	
 	vec3 alphaFactor = (v_Position + u_ReflectionOffset) * u_ReflectionDir;
 	float alphaStart = pow(u_AlphaStart, dot(u_ReflectionDir, u_ReflectionDir));

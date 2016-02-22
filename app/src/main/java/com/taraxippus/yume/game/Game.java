@@ -38,7 +38,7 @@ public class Game
 		main.world.add(this.player = (Player) new Player(main.world).translate(level.getWidth() / 2F, 0, level.getLength() / 2F));
 		main.world.add(this.grid = (Grid) new Grid(main.world, new VectorF(level.getWidth(), level.getHeight(), level.getLength())).setColor(0x00CCFF).setSpecularity(0, 0).translate(level.getWidth() / 2F - 0.5F, level.getHeight() / 2F - 0.5F, level.getLength() / 2F - 0.5F).setPass(Pass.REFLECTION).setDepthOffset(1499));
 		
-		main.world.add(new FloatingBox(main.world).translate(1, 1.5F, 1));
+		main.world.add(new FloatingBox(main.world).translate(level.getWidth() / 2F, level.getHeight() / 2F + 3, level.getLength() / 2F));
 		
 		main.world.add(new Jumper(main.world).translate(level.getWidth() - 1, 0, level.getLength() - 1));
 		main.world.add(new Jumper(main.world).translate(level.getWidth() - 2, 0, level.getLength() - 2));

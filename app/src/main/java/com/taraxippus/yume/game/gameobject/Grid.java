@@ -8,7 +8,7 @@ import com.taraxippus.yume.util.*;
 
 public class Grid extends SceneObject
 {
-	public static final float MAX_ALPHA = 0.75F;
+	public static final float MAX_ALPHA = 0.95F;
 	public static final float ANIMATION_DURATION = 0.5F;
 	
 	public static final float WIDTH = 0.0015F;

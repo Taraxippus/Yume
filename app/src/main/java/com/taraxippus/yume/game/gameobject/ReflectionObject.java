@@ -51,7 +51,7 @@ public class ReflectionObject extends GameObject
 			GLES20.glUniform4f(Pass.GRID.getProgram().getUniform("u_Color"), parent.color.x, parent.color.y, parent.color.z, parent.alpha);
 			GLES20.glUniform2f(Pass.GRID.getProgram().getUniform("u_Specularity"), parent.specularityExponent, parent.specularityFactor);
 
-			GLES20.glUniform4f(Pass.GRID.getProgram().getUniform("u_Center"), getX(world.main.game.player.position.x), getY(world.main.game.player.position.y), getZ(world.main.game.player.position.z), 5);
+			GLES20.glUniform4f(Pass.GRID.getProgram().getUniform("u_Center"), getX(world.main.game.player.position.x), getY(world.main.game.player.position.y), getZ(world.main.game.player.position.z), 7.5F);
 			GLES20.glUniform3f(Pass.GRID.getProgram().getUniform("u_Eye"), getX(world.main.camera.eye.x), getY(world.main.camera.eye.y), getZ(world.main.camera.eye.z));
 			GLES20.glUniform3f(Pass.GRID.getProgram().getUniform("u_Light"), getX(world.main.game.light.x), getY(world.main.game.light.y), getZ(world.main.game.light.z));
 			GLES20.glUniform3f(Pass.GRID.getProgram().getUniform("u_ReflectionOffset"), -getX(0) / 2F, -getY(0) / 2F, -getZ(0) / 2F);
