@@ -8,6 +8,7 @@ public enum Pass
 {
 	SCENE,
 	REFLECTION,
+	GRID,
 	POST;
 	
 	public static final float REFLECTION_ALPHA_START = 0.95F;
@@ -30,6 +31,7 @@ public enum Pass
 			
 		attributes[SCENE.ordinal()] = new int[] {3, 3};
 		attributes[REFLECTION.ordinal()] = new int[] {3, 3};
+		attributes[GRID.ordinal()] = new int[] {3, 3};
 		attributes[POST.ordinal()] = new int[] {2};
 	}
 	
@@ -39,6 +41,7 @@ public enum Pass
 		framebuffers[SCENE.ordinal()].init(true, main.renderer.width, main.renderer.height);
 		
 		programs[REFLECTION.ordinal()].init(main, R.raw.vertex_reflection, R.raw.fragment_reflection, "a_Position", "a_Normal");
+		programs[GRID.ordinal()].init(main, R.raw.vertex_reflection, R.raw.fragment_grid, "a_Position", "a_Normal");
 		
 		programs[POST.ordinal()].init(main, R.raw.vertex_post, R.raw.fragment_post, "a_Position");
 		
@@ -87,6 +90,11 @@ public enum Pass
 		return framebuffers[this.ordinal()];
 	}
 	
+	public boolean inOrder()
+	{
+		return this != Pass.GRID;
+	}
+	
 	public void onRender(Renderer renderer)
 	{
 		this.getProgram().use();
@@ -104,8 +112,16 @@ public enum Pass
 				GLES20.glUniform1f(getProgram().getUniform("u_AlphaStart"), REFLECTION_ALPHA_START);
 				GLES20.glUniform1f(getProgram().getUniform("u_AlphaFactor"), REFLECTION_ALPHA_FACTOR);
 				
-				GLES20.glUniform3f(getProgram().getUniform("u_Eye"), renderer.main.camera.eye.x, renderer.main.camera.eye.y, renderer.main.camera.eye.z);
+				//GLES20.glUniform3f(getProgram().getUniform("u_Eye"), renderer.main.camera.eye.x, renderer.main.camera.eye.y, renderer.main.camera.eye.z);
 				
+				break;
+				
+			case GRID:
+				GLES20.glUniform1f(getProgram().getUniform("u_AlphaStart"), REFLECTION_ALPHA_START);
+				GLES20.glUniform1f(getProgram().getUniform("u_AlphaFactor"), REFLECTION_ALPHA_FACTOR);
+
+				//GLES20.glUniform3f(getProgram().getUniform("u_Eye"), renderer.main.camera.eye.x, renderer.main.camera.eye.y, renderer.main.camera.eye.z);
+
 				break;
 				
 			case POST:

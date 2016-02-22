@@ -86,6 +86,9 @@ public class Renderer implements GLSurfaceView.Renderer
 		
 		for (Pass pass : Pass.values())
 		{
+			if (!pass.inOrder())
+				continue;
+				
 			pass.onRender(this);
 			main.world.render(this, pass);
 		}

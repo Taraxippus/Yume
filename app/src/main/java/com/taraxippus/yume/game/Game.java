@@ -36,7 +36,7 @@ public class Game
 		main.world.add(this.room = (Box) new Box(main.world, true).translate(level.getWidth() / 2F - 0.5F, level.getHeight() / 2F - 0.5F, level.getLength() / 2F - 0.5F).setSpecularity(0, 0).scale(level.getWidth(), level.getHeight(), level.getLength()).setAlpha(0.5F).setPass(Pass.REFLECTION).setDepthOffset(1500));
 		
 		main.world.add(this.player = (Player) new Player(main.world).translate(level.getWidth() / 2F, 0, level.getLength() / 2F));
-		main.world.add(this.grid = (Grid) new Grid(main.world, new VectorF(level.getWidth(), level.getHeight(), level.getLength())).setHasReflection(false).setColor(0x00CCFF).setSpecularity(0, 0).translate(level.getWidth() / 2F - 0.5F, level.getHeight() / 2F - 0.5F, level.getLength() / 2F - 0.5F).setPass(Pass.REFLECTION).setDepthOffset(1501));
+		main.world.add(this.grid = (Grid) new Grid(main.world, new VectorF(level.getWidth(), level.getHeight(), level.getLength())).setColor(0x00CCFF).setSpecularity(0, 0).translate(level.getWidth() / 2F - 0.5F, level.getHeight() / 2F - 0.5F, level.getLength() / 2F - 0.5F).setPass(Pass.REFLECTION).setDepthOffset(1499));
 		
 		main.world.add(new FloatingBox(main.world).translate(1, 1.5F, 1));
 		
