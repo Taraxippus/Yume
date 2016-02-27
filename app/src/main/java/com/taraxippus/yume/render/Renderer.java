@@ -55,6 +55,9 @@ public class Renderer implements GLSurfaceView.Renderer
 	private float accumulator;
 	private float accumulatorReal;
 	
+	private long lastFPSUpdate;
+	private int frames;
+	
 	public float partial;
 	public Pass currentPass;
 	
@@ -94,6 +97,23 @@ public class Renderer implements GLSurfaceView.Renderer
 			pass.onRender(this);
 			currentPass = pass;
 			main.world.render(this, pass);
+		}
+		
+		frames++;
+		
+		if (SystemClock.elapsedRealtime() - lastFPSUpdate >= 1000)
+		{
+			main.runOnUiThread(new Runnable()
+			{
+					@Override
+					public void run()
+					{
+						main.textView.setText("" + frames);
+						frames = 0;
+					}
+			});
+	
+			lastFPSUpdate = SystemClock.elapsedRealtime();
 		}
 	}
 	

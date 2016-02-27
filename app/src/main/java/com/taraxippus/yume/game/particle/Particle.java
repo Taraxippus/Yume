@@ -18,7 +18,7 @@ public class Particle
     public float size = 0;
     public float minSize = 0F, maxSize = 1.15F;
 
-	public float alpha = 1F;
+	public float alpha = 0.25F;
 	
     public float lifeTime;
     public float maxLifeTime;
@@ -76,11 +76,11 @@ public class Particle
         vertices.put(color.x * partial + prevColor.x * (1 - partial));
         vertices.put(color.y * partial + prevColor.y * (1 - partial));
         vertices.put(color.z * partial + prevColor.z * (1 - partial));
-		
 		vertices.put(alpha);
 		
 		vertices.put(-1);
 		vertices.put(-1);
+		
 		
 		vertices.put((position.x + rotPosition.x) * partial + (prevPosition.x + prevRotPosition.x) * (1 - partial));
         vertices.put((position.y + rotPosition.y) * partial + (prevPosition.y + prevRotPosition.y) * (1 - partial));
@@ -90,7 +90,6 @@ public class Particle
         vertices.put(color.x * partial + prevColor.x * (1 - partial));
         vertices.put(color.y * partial + prevColor.y * (1 - partial));
         vertices.put(color.z * partial + prevColor.z * (1 - partial));
-		
 		vertices.put(alpha);
 		
 		vertices.put(1);
@@ -105,7 +104,6 @@ public class Particle
         vertices.put(color.x * partial + prevColor.x * (1 - partial));
         vertices.put(color.y * partial + prevColor.y * (1 - partial));
         vertices.put(color.z * partial + prevColor.z * (1 - partial));
-		
 		vertices.put(alpha);
 		
 		vertices.put(-1);
@@ -120,7 +118,6 @@ public class Particle
         vertices.put(color.x * partial + prevColor.x * (1 - partial));
         vertices.put(color.y * partial + prevColor.y * (1 - partial));
         vertices.put(color.z * partial + prevColor.z * (1 - partial));
-		
 		vertices.put(alpha);
 		
 		vertices.put(1);

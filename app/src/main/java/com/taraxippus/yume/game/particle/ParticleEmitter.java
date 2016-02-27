@@ -27,7 +27,7 @@ public class ParticleEmitter extends SceneObject
 
     public boolean alive = true;
     public boolean respawn = true;
-    public int particleCount = 400;
+    public int particleCount;
 
     public float renderSize;
     public float simulateDistance = -1;
@@ -36,7 +36,7 @@ public class ParticleEmitter extends SceneObject
     public float minLifetime = 0.5F, maxLifetime = 3;
     public float minVelocity = 0.5F, maxVelocity = 1.5F;
     public float minRotVelocity = 0F, maxRotVelocity = 0F;
-    public float minRangeX = -(float) Math.PI / 8F, maxRangeX = (float) Math.PI / 8F;
+    public float minRangeX = -180 / 8F, maxRangeX = 180 / 8F;
     public float minMinSize = 0, maxMinSize = 0.05F, minMaxSize = 0.15F, maxMaxSize = 0.17F;
     public float minOffsetX, maxOffsetX, minOffsetY, maxOffsetY, minOffsetZ, maxOffsetZ;
     public float minMinRadius = 0, maxMinRadius = 0, minMaxRadius = 0, maxMaxRadius = 0;
@@ -50,6 +50,8 @@ public class ParticleEmitter extends SceneObject
 		particles = new Particle[count];
 		for (int i = 0; i < count; ++i)
 			particles[i] = new Particle(this);
+			
+		particleCount = count;
 	}
 	
 	public ParticleEmitter setLifeTime(float min, float max)
@@ -136,7 +138,8 @@ public class ParticleEmitter extends SceneObject
             particle.maxRadius = this.minMaxRadius + (this.maxMaxRadius - this.minMaxRadius) * random.nextFloat();
             particle.rotPosition.set(particle.prevRotPosition.set(0, 0, particle.minRadius).rotateY(particle.rotation));
             particle.position.set(particle.prevPosition.set(this.position).add(minOffsetX + random.nextFloat() * (maxOffsetX - minOffsetX), minOffsetY + random.nextFloat() * (maxOffsetY - minOffsetY), minOffsetZ + random.nextFloat() * (maxOffsetZ - minOffsetZ)));
-            particle.velocity.set(0, minVelocity + random.nextFloat() * (maxVelocity - minVelocity), 0).rotateX(minRangeX + random.nextFloat() * (maxRangeX - minRangeX)).rotateY(random.nextFloat() * (float) Math.PI * 2);particle.maxLifeTime = minLifetime + random.nextFloat() * (maxLifetime - minLifetime);
+            particle.velocity.set(0, minVelocity + random.nextFloat() * (maxVelocity - minVelocity), 0).rotateX(minRangeX + random.nextFloat() * (maxRangeX - minRangeX)).rotateY(random.nextFloat() * 360);
+			particle.maxLifeTime = minLifetime + random.nextFloat() * (maxLifetime - minLifetime);
             particle.rotVelocity = minRotVelocity + (maxRotVelocity - minRotVelocity) * random.nextFloat();
             particle.lifeTime = particle.maxLifeTime;
             particle.minSize = minMinSize + random.nextFloat() * (maxMinSize - minMinSize);
@@ -168,13 +171,13 @@ public class ParticleEmitter extends SceneObject
 		ShortBuffer indices = ShortBuffer.allocate(particles.length * 6);
 		for (int i = 0; i < particles.length; ++i)
 		{
-			indices.put((short) (i));
-			indices.put((short) (i + 1));
-			indices.put((short) (i + 2));
+			indices.put((short) (i * 4));
+			indices.put((short) (i * 4 + 1));
+			indices.put((short) (i * 4 + 2));
 			
-			indices.put((short) (i + 1));
-			indices.put((short) (i + 3));
-			indices.put((short) (i + 2));
+			indices.put((short) (i * 4 + 1));
+			indices.put((short) (i * 4 + 3));
+			indices.put((short) (i * 4 + 2));
 		}
 		
 		Shape shape = new Shape();

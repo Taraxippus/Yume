@@ -11,6 +11,7 @@ import com.taraxippus.yume.game.gameobject.*;
 import com.taraxippus.yume.render.*;
 import com.taraxippus.yume.util.*;
 import android.view.View.*;
+import android.util.*;
 
 public class Main extends Activity implements View.OnTouchListener
 {
@@ -24,6 +25,7 @@ public class Main extends Activity implements View.OnTouchListener
 	public final Camera camera = new Camera(this);
 	
 	public GLSurfaceView view;
+	public TextView textView;
 	
 	private ScaleGestureDetector scaleDetector;
 	private GestureDetector gestureDetector;
@@ -47,6 +49,16 @@ public class Main extends Activity implements View.OnTouchListener
 		view.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
 		
         setContentView(view);
+		
+		int padding = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8, getResources().getDisplayMetrics());
+		
+		textView = new TextView(this);
+		textView.setTextColor(0xFFFFFFFF);
+		textView.setShadowLayer(padding, -1, -1, 0xFF000000);
+		textView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 24);
+		textView.setText("60");
+		textView.setPadding(padding, padding / 2, padding, padding);
+		addContentView(textView, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
     }
 
 	@Override
