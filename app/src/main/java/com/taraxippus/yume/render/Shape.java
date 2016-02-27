@@ -18,27 +18,27 @@ public class Shape
 		
 	}
 	
-	public void init(int type, float[] vertices, short[] indices, int... attributes)
+	public void init(int type, float[] vertices, short[] indices,  int... attributes)
 	{
-		init(type, FloatBuffer.wrap(vertices), ShortBuffer.wrap(indices), 0, attributes);
+		init(type, FloatBuffer.wrap(vertices), ShortBuffer.wrap(indices), 0, false, attributes);
 	}
 	
-	public void init(int type, FloatBuffer vertices, ShortBuffer indices, int... attributes)
+	public void init(int type, FloatBuffer vertices, ShortBuffer indices, boolean dynamic, int... attributes)
 	{
-		init(type, vertices, indices, 0, attributes);
+		init(type, vertices, indices, 0, dynamic, attributes);
 	}
 	
 	public void init(int type, float[] vertices, int indexCount, int... attributes)
 	{
-		init(type, FloatBuffer.wrap(vertices), null, indexCount, attributes);
+		init(type, FloatBuffer.wrap(vertices), null, indexCount, false, attributes);
 	}
 	
-	public void init(int type, FloatBuffer vertices, int indexCount, int... attributes)
+	public void init(int type, FloatBuffer vertices, int indexCount, boolean dynamic, int... attributes)
 	{
-		init(type, vertices, null, indexCount, attributes);
+		init(type, vertices, null, indexCount, dynamic, attributes);
 	}
 	
-	private void init(int type, FloatBuffer vertices, ShortBuffer indices, int indexCount, int... attributes)
+	private void init(int type, FloatBuffer vertices, ShortBuffer indices, int indexCount, boolean dynamic, int... attributes)
 	{
 		if (initialized())
 			delete();
@@ -59,16 +59,19 @@ public class Shape
 				indices.position(0);
 
 				GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vbo[0]);
-				GLES20.glBufferData(GLES20.GL_ARRAY_BUFFER, vertices.capacity() * 4, vertices, GLES20.GL_STATIC_DRAW);
+				GLES20.glBufferData(GLES20.GL_ARRAY_BUFFER, vertices.capacity() * 4, vertices, dynamic ? GLES20.GL_DYNAMIC_DRAW : GLES20.GL_STATIC_DRAW);
 
 				GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, vbo[1]);
-				GLES20.glBufferData(GLES20.GL_ELEMENT_ARRAY_BUFFER, indices.capacity() * 2, indices, GLES20.GL_STATIC_DRAW);
+				GLES20.glBufferData(GLES20.GL_ELEMENT_ARRAY_BUFFER, indices.capacity() * 2, indices, dynamic ? GLES20.GL_DYNAMIC_DRAW : GLES20.GL_STATIC_DRAW);
 
 				GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, 0);
 				GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, 0);
 
-				vertices.limit(0);
-				indices.limit(0);
+				if (!dynamic)
+				{
+					vertices.limit(0);
+					indices.limit(0);
+				}
 			}
 			else 
 			{
@@ -86,17 +89,56 @@ public class Shape
 				vertices.position(0);
 
 				GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vbo[0]);
-				GLES20.glBufferData(GLES20.GL_ARRAY_BUFFER, vertices.capacity() * 4, vertices, GLES20.GL_STATIC_DRAW);
+				GLES20.glBufferData(GLES20.GL_ARRAY_BUFFER, vertices.capacity() * 4, vertices, dynamic ? GLES20.GL_DYNAMIC_DRAW : GLES20.GL_STATIC_DRAW);
 				
 				GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, 0);
 			
-				vertices.limit(0);
+				if (!dynamic)
+					vertices.limit(0);
 			}
 			else 
-			{
 				throw new RuntimeException("Error creating VBO");
+		}
+	}
+	
+	public void buffer(FloatBuffer vertices, ShortBuffer indices)
+	{
+		if (initialized())
+		{
+			if (hasIndices)
+			{
+				if (vertices != null)
+				{
+					vertices.position(0);
+					
+					GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vbo[0]);
+					GLES20.glBufferSubData(GLES20.GL_ARRAY_BUFFER, 0, vertices.capacity() * 4, vertices);
+
+					GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, 0);
+				}
+					
+				if (indices != null)
+				{
+					indices.position(0);
+					
+					GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, vbo[1]);
+					GLES20.glBufferSubData(GLES20.GL_ELEMENT_ARRAY_BUFFER, 0, indices.capacity() * 2, indices);
+					
+					GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, 0);
+				}
+			}
+			else
+			{
+				vertices.position(0);
+
+				GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vbo[0]);
+				GLES20.glBufferSubData(GLES20.GL_ARRAY_BUFFER, 0, vertices.capacity() * 4, vertices);
+
+				GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, 0);
 			}
 		}
+		else 
+			throw new RuntimeException("Tried to buffer unitialized shape");
 	}
 	
 	public boolean initialized()

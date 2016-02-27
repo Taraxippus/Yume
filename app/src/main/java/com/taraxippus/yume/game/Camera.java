@@ -17,8 +17,8 @@ public class Camera
 	
 	public final Main main;
 	
-	final float[] viewMatrix = new float[16];
-	final float[] projectionMatrix = new float[16];
+	public final float[] viewMatrix = new float[16];
+	public final float[] projectionMatrix = new float[16];
 	public final float[] projectionViewMatrix = new float[16];
 	public final float[] invProjectionViewMatrix = new float[16];
 	

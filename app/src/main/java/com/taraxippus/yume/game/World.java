@@ -39,7 +39,7 @@ public class World
 			return;
 			
 		gameObject.init();
-		gameObjects[gameObject.getPass().ordinal()].add(gameObject);
+		gameObjects[gameObject.getPass().getParent().ordinal()].add(gameObject);
 		
 		if (gameObject instanceof SceneObject)
 			sceneObjects.add((SceneObject) gameObject);
@@ -59,7 +59,7 @@ public class World
 			return;
 		
 		gameObject.delete();
-		gameObjects[gameObject.getPass().ordinal()].remove(gameObject);
+		gameObjects[gameObject.getPass().getParent().ordinal()].remove(gameObject);
 		
 		if (gameObject instanceof SceneObject)
 			sceneObjects.remove(gameObject);
