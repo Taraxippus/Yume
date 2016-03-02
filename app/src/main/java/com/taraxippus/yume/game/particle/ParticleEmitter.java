@@ -37,7 +37,7 @@ public class ParticleEmitter extends SceneObject
     public float minVelocity = 0.5F, maxVelocity = 1.5F;
     public float minRotVelocity = 0F, maxRotVelocity = 0F;
     public float minRangeX = -180 / 8F, maxRangeX = 180 / 8F;
-    public float minMinSize = 0, maxMinSize = 0.05F, minMaxSize = 0.15F, maxMaxSize = 0.17F;
+    public float minMinSize = 0, maxMinSize = 0.05F, minMaxSize = 0.075F, maxMaxSize = 0.09F;
     public float minOffsetX, maxOffsetX, minOffsetY, maxOffsetY, minOffsetZ, maxOffsetZ;
     public float minMinRadius = 0, maxMinRadius = 0, minMaxRadius = 0, maxMaxRadius = 0;
 
@@ -197,9 +197,6 @@ public class ParticleEmitter extends SceneObject
 	@Override
 	public void render(Renderer renderer)
 	{
-		GLES20.glBlendFunc(GLES20.GL_ONE, GLES20.GL_ONE_MINUS_SRC_ALPHA);
-		getPass().onRender(renderer);
-		
 		if (shape != null)
 		{
 			buffer(renderer.partial);
@@ -207,9 +204,6 @@ public class ParticleEmitter extends SceneObject
 		}
 		
 		super.render(renderer);
-	
-		getPass().getParent().onRender(renderer);
-		GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
 	}
 
 	@Override

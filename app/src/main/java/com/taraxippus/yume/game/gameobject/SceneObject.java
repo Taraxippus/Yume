@@ -53,7 +53,7 @@ public class SceneObject extends GameObject
 				for (y = -1; y <= 1; ++y)
 					for (z = -1; z <= 1; ++z)
 						if (getPass() == Pass.REFLECTION || x != 0 || y != 0 || z != 0)
-							world.add(this.reflection[offset++] = new ReflectionObject(this, new VectorF(x, y, z)));
+							world.add(this.reflection[offset++] = (ReflectionObject) new ReflectionObject(this, new VectorF(x, y, z)).setPass(getPass()));
 
 		}
 	}
@@ -189,23 +189,19 @@ public class SceneObject extends GameObject
 		if (!enabled || hasReflection && getPass() == Pass.REFLECTION || !world.main.camera.insideFrustum(position, radius))
 			return;
 		
+		if (renderer.currentPass != getPass())
+			getPass().onRender(renderer);
+			
 		renderer.uniform(modelMatrix, getPass());
 		GLES20.glUniform4f(getPass().getProgram().getUniform("u_Color"), color.x, color.y, color.z, alpha);
 		GLES20.glUniform2f(getPass().getProgram().getUniform("u_Specularity"), specularityExponent, specularityFactor);
 		
-		if (getPass() == Pass.REFLECTION)
-		{
-			GLES20.glUniform3f(getPass().getProgram().getUniform("u_Eye"), world.main.camera.eye.x, world.main.camera.eye.y, world.main.camera.eye.z);
-			
-			GLES20.glUniform3f(getPass().getProgram().getUniform("u_Light"), world.main.game.light.x,world.main.game.light.y, world.main.game.light.z);
-			GLES20.glUniform3f(getPass().getProgram().getUniform("u_ReflectionOffset"), 0, 0, 0);
-			GLES20.glUniform3f(getPass().getProgram().getUniform("u_ReflectionDir"), 0, 0, 0);
+		GLES20.glDepthMask(this.alpha == 1);
 
-			GLES20.glDepthMask(false);
-			GLES20.glCullFace(GLES20.GL_BACK);
-		}
-		
 		super.render(renderer);
+		
+		if (renderer.currentPass != getPass())
+			getPass().getParent().onRender(renderer);
 	}
 
 	@Override

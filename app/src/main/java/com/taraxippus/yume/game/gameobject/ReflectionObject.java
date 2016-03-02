@@ -20,6 +20,20 @@ public class ReflectionObject extends GameObject
 	}
 
 	@Override
+	public GameObject setPass(Pass pass)
+	{
+		if (pass == Pass.GRID)
+			super.setPass(Pass.GRID);
+			
+		else if (pass == Pass.PARTICLE)
+			super.setPass(Pass.PARTICLE_REFLECTION);
+			
+		else
+			super.setPass(Pass.REFLECTION);
+		return this;
+	}
+	
+	@Override
 	public Pass getPass()
 	{
 		return Pass.REFLECTION;
@@ -43,45 +57,29 @@ public class ReflectionObject extends GameObject
 		Matrix.rotateM(modelMatrix, 0, parent.rotation.x, 1, 0, 0);
 		Matrix.rotateM(modelMatrix, 0, parent.rotation.z, 0, 0, 1);
 		
-		if (this.parent instanceof Grid)
-		{
-			Pass.GRID.onRender(renderer);
-			
-			renderer.uniform(modelMatrix, Pass.GRID);
-			GLES20.glUniform4f(Pass.GRID.getProgram().getUniform("u_Color"), parent.color.x, parent.color.y, parent.color.z, parent.alpha);
-			GLES20.glUniform2f(Pass.GRID.getProgram().getUniform("u_Specularity"), parent.specularityExponent, parent.specularityFactor);
-
+		if (renderer.currentPass != getPass())
+			getPass().onRender(renderer);
+		
+		if (this.getPass() == Pass.GRID)
 			GLES20.glUniform4f(Pass.GRID.getProgram().getUniform("u_Center"), getX(world.main.game.player.position.x), getY(world.main.game.player.position.y), getZ(world.main.game.player.position.z), 7.5F);
-			GLES20.glUniform3f(Pass.GRID.getProgram().getUniform("u_Eye"), getX(world.main.camera.eye.x), getY(world.main.camera.eye.y), getZ(world.main.camera.eye.z));
-			GLES20.glUniform3f(Pass.GRID.getProgram().getUniform("u_Light"), getX(world.main.game.light.x), getY(world.main.game.light.y), getZ(world.main.game.light.z));
-			GLES20.glUniform3f(Pass.GRID.getProgram().getUniform("u_ReflectionOffset"), -getX(0) / 2F, -getY(0) / 2F, -getZ(0) / 2F);
-			GLES20.glUniform3f(Pass.GRID.getProgram().getUniform("u_ReflectionDir"), -side.x, -side.y, -side.z);
 
-			GLES20.glDepthMask(parent.alpha == 1);
-			GLES20.glCullFace((side.dot(side) % 2 == 1) ? GLES20.GL_FRONT : GLES20.GL_BACK);
+		renderer.uniform(modelMatrix, getPass());
+		GLES20.glUniform4f(getPass().getProgram().getUniform("u_Color"), parent.color.x, parent.color.y, parent.color.z, parent.alpha);
+		GLES20.glUniform2f(getPass().getProgram().getUniform("u_Specularity"), parent.specularityExponent, parent.specularityFactor);
 
-			if (parent.shape != null)
-				parent.shape.render();
-				
-			Pass.REFLECTION.onRender(renderer);
-		}
-		else
-		{
-			renderer.uniform(modelMatrix, getPass());
-			GLES20.glUniform4f(getPass().getProgram().getUniform("u_Color"), parent.color.x, parent.color.y, parent.color.z, parent.alpha);
-			GLES20.glUniform2f(getPass().getProgram().getUniform("u_Specularity"), parent.specularityExponent, parent.specularityFactor);
+		GLES20.glUniform3f(getPass().getProgram().getUniform("u_Eye"), getX(world.main.camera.eye.x), getY(world.main.camera.eye.y), getZ(world.main.camera.eye.z));
+		GLES20.glUniform3f(getPass().getProgram().getUniform("u_Light"), getX(world.main.game.light.x), getY(world.main.game.light.y), getZ(world.main.game.light.z));
+		GLES20.glUniform3f(getPass().getProgram().getUniform("u_ReflectionOffset"), -getX(0) / 2F, -getY(0) / 2F, -getZ(0) / 2F);
+		GLES20.glUniform3f(getPass().getProgram().getUniform("u_ReflectionDir"), -side.x, -side.y, -side.z);
 
-			GLES20.glUniform3f(getPass().getProgram().getUniform("u_Eye"), getX(world.main.camera.eye.x), getY(world.main.camera.eye.y), getZ(world.main.camera.eye.z));
-			GLES20.glUniform3f(getPass().getProgram().getUniform("u_Light"), getX(world.main.game.light.x), getY(world.main.game.light.y), getZ(world.main.game.light.z));
-			GLES20.glUniform3f(getPass().getProgram().getUniform("u_ReflectionOffset"), -getX(0) / 2F, -getY(0) / 2F, -getZ(0) / 2F);
-			GLES20.glUniform3f(getPass().getProgram().getUniform("u_ReflectionDir"), -side.x, -side.y, -side.z);
+		GLES20.glDepthMask(this.parent.alpha == 1);
+		GLES20.glCullFace((side.dot(side) % 2 == 1) ? GLES20.GL_FRONT : GLES20.GL_BACK);
+
+		if (parent.shape != null)
+			parent.shape.render();
 			
-			GLES20.glDepthMask(parent.alpha == 1);
-			GLES20.glCullFace((side.dot(side) % 2 == 1) ? GLES20.GL_FRONT : GLES20.GL_BACK);
-
-			if (parent.shape != null)
-				parent.shape.render();
-		}
+		if (renderer.currentPass != getPass())
+			getPass().getParent().onRender(renderer);
 	}
 	
 	@Override

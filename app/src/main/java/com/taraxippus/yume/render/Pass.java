@@ -6,11 +6,11 @@ import java.util.*;
 
 public enum Pass
 {
-	SCENE,
-	PARTICLE,
 	REFLECTION,
 	GRID,
 	PARTICLE_REFLECTION,
+	SCENE,
+	PARTICLE,
 	POST;
 	
 	public static final float REFLECTION_ALPHA_START = 0.95F;
@@ -31,25 +31,27 @@ public enum Pass
 		for (int i = 0; i < framebuffers.length; ++i)
 			framebuffers[i] = new Framebuffer();
 			
-		attributes[SCENE.ordinal()] = new int[] {3, 3};
-		attributes[PARTICLE.ordinal()] = new int[] {4, 4, 2};
 		attributes[REFLECTION.ordinal()] = new int[] {3, 3};
 		attributes[GRID.ordinal()] = new int[] {3, 3};
 		attributes[PARTICLE_REFLECTION.ordinal()] = new int[] {4, 4, 2};
+		attributes[SCENE.ordinal()] = new int[] {3, 3};
+		attributes[PARTICLE.ordinal()] = new int[] {4, 4, 2};
 		attributes[POST.ordinal()] = new int[] {2};
 	}
 	
 	public static void init(Main main)
 	{
-		programs[SCENE.ordinal()].init(main, R.raw.vertex_scene, R.raw.fragment_scene, "a_Position", "a_Normal");
-		framebuffers[SCENE.ordinal()].init(true, main.renderer.width, main.renderer.height);
-		programs[PARTICLE.ordinal()].init(main, R.raw.vertex_particle, R.raw.fragment_particle, "a_Position", "a_Color", "a_Direction");
-		
 		programs[REFLECTION.ordinal()].init(main, R.raw.vertex_reflection, R.raw.fragment_reflection, "a_Position", "a_Normal");
+		
 		programs[GRID.ordinal()].init(main, R.raw.vertex_reflection, R.raw.fragment_grid, "a_Position", "a_Normal");
 		programs[PARTICLE_REFLECTION.ordinal()].init(main, R.raw.vertex_particle_reflection, R.raw.fragment_particle_reflection, "a_Position", "a_Color", "a_Direction");
 		
+		programs[SCENE.ordinal()].init(main, R.raw.vertex_scene, R.raw.fragment_scene, "a_Position", "a_Normal");
+		programs[PARTICLE.ordinal()].init(main, R.raw.vertex_particle, R.raw.fragment_particle, "a_Position", "a_Color", "a_Direction");
+		
 		programs[POST.ordinal()].init(main, R.raw.vertex_post, R.raw.fragment_post, "a_Position");
+		
+		framebuffers[SCENE.ordinal()].init(true, main.renderer.width, main.renderer.height);
 		
 		POST.getProgram().use();
 		GLES20.glUniform1i(POST.getProgram().getUniform("u_Texture"), 0);
@@ -98,25 +100,24 @@ public enum Pass
 	
 	public boolean inOrder()
 	{
-		return this != Pass.GRID && this != Pass.PARTICLE && this != Pass.PARTICLE_REFLECTION;
+		return this != Pass.GRID;
 	}
 	
 	public Pass getParent()
 	{
 		switch (this)
 		{
-			case PARTICLE:
-				return SCENE;
-				
 			case GRID:
 				return REFLECTION;
 				
-			case PARTICLE_REFLECTION:
-				return REFLECTION;
-			
 			default:
 				return this;
 		}
+	}
+	
+	public static void onRenderFrame(Renderer renderer)
+	{
+		SCENE.getFramebuffer().bind();
 	}
 	
 	public void onRender(Renderer renderer)
@@ -125,23 +126,8 @@ public enum Pass
 		
 		switch (this)
 		{
-			case SCENE:
-				if (renderer.currentPass != Pass.SCENE)
-					this.getFramebuffer().bind();
-					
-				GLES20.glDepthMask(true);
-				GLES20.glUniform3fv(getProgram().getUniform("u_Eye"), 1, renderer.main.camera.eye.getVec40(), 0);
-				GLES20.glUniform3fv(getProgram().getUniform("u_Light"), 1, renderer.main.game.light.getVec40(), 0);
-				
-				break;
-				
-			case PARTICLE:
-				
-				//GLES20.glDepthMask(false);
-				
-				break;
-		
 			case REFLECTION:
+				GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
 				GLES20.glUniform1f(getProgram().getUniform("u_AlphaStart"), REFLECTION_ALPHA_START);
 				GLES20.glUniform1f(getProgram().getUniform("u_AlphaFactor"), REFLECTION_ALPHA_FACTOR);
 				
@@ -154,6 +140,24 @@ public enum Pass
 				GLES20.glUniform1f(getProgram().getUniform("u_AlphaFactor"), REFLECTION_ALPHA_FACTOR);
 
 				//GLES20.glUniform3f(getProgram().getUniform("u_Eye"), renderer.main.camera.eye.x, renderer.main.camera.eye.y, renderer.main.camera.eye.z);
+
+				break;
+				
+			case SCENE:
+				
+				GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
+				GLES20.glDepthMask(true);
+				GLES20.glCullFace(GLES20.GL_BACK);
+				GLES20.glUniform3fv(getProgram().getUniform("u_Eye"), 1, renderer.main.camera.eye.getVec40(), 0);
+				GLES20.glUniform3fv(getProgram().getUniform("u_Light"), 1, renderer.main.game.light.getVec40(), 0);
+
+				break;
+
+			case PARTICLE:
+				GLES20.glBlendFunc(GLES20.GL_ONE, GLES20.GL_ONE_MINUS_SRC_ALPHA);
+				GLES20.glDepthMask(false);
+				GLES20.glCullFace(GLES20.GL_BACK);
+				//GLES20.glDepthMask(false);
 
 				break;
 				

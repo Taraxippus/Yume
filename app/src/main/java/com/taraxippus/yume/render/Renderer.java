@@ -89,6 +89,7 @@ public class Renderer implements GLSurfaceView.Renderer
 		partial = accumulator / Main.FIXED_DELTA;
 		
 		currentPass = null;
+		Pass.onRenderFrame(this);
 		for (Pass pass : Pass.values())
 		{
 			if (!pass.inOrder())

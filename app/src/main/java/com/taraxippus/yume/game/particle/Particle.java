@@ -18,7 +18,7 @@ public class Particle
     public float size = 0;
     public float minSize = 0F, maxSize = 1.15F;
 
-	public float alpha = 0.25F;
+	public float alpha = 0F;
 	
     public float lifeTime;
     public float maxLifeTime;
