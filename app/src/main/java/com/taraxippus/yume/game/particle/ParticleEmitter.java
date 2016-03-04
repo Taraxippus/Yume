@@ -25,7 +25,7 @@ public class ParticleEmitter extends SceneObject
 
     Random random = new Random();
 
-    public boolean alive = true;
+	public boolean alive = true;
     public boolean respawn = true;
     public int particleCount;
 
@@ -52,6 +52,8 @@ public class ParticleEmitter extends SceneObject
 			particles[i] = new Particle(this);
 			
 		particleCount = count;
+		
+		this.alpha = 1F;
 	}
 	
 	public ParticleEmitter setLifeTime(float min, float max)
@@ -112,7 +114,7 @@ public class ParticleEmitter extends SceneObject
 
     public ParticleEmitter setRespawn(boolean respawn)
     {
-        this.respawn = false;
+        this.respawn = respawn;
 
         return this;
     }
@@ -129,6 +131,18 @@ public class ParticleEmitter extends SceneObject
         return this;
     }
 
+	@Override
+	public void init()
+	{
+		for (Particle p : particles)
+			spawn(p);
+		
+		if (!respawn)
+			alive = false;
+			
+		super.init();
+	}
+	
 	public void spawn(Particle particle)
     {
         if (alive)
@@ -168,7 +182,7 @@ public class ParticleEmitter extends SceneObject
 		vertices = FloatBuffer.allocate(particles.length * 10 * 4);
 		buffer(1);
 		
-		ShortBuffer indices = ShortBuffer.allocate(particles.length * 6);
+		ShortBuffer indices = ShortBuffer.allocate(particles.length * 12);
 		for (int i = 0; i < particles.length; ++i)
 		{
 			indices.put((short) (i * 4));
@@ -178,6 +192,15 @@ public class ParticleEmitter extends SceneObject
 			indices.put((short) (i * 4 + 1));
 			indices.put((short) (i * 4 + 3));
 			indices.put((short) (i * 4 + 2));
+			
+			
+			indices.put((short) (i * 4));
+			indices.put((short) (i * 4 + 2));
+			indices.put((short) (i * 4 + 1));
+
+			indices.put((short) (i * 4 + 1));
+			indices.put((short) (i * 4 + 2));
+			indices.put((short) (i * 4 + 3));
 		}
 		
 		Shape shape = new Shape();

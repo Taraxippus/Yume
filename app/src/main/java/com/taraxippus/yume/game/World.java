@@ -79,16 +79,16 @@ public class World
 
 	public void render(Renderer renderer, Pass pass)
 	{
-		for (GameObject gameObject : gameObjects_add)
+		for (int i = 0; i < gameObjects_add.size();)
 		{
-			this.add(gameObject);
-			gameObjects_add.remove(gameObject);
+			this.add(gameObjects_add.get(0));
+			gameObjects_add.remove(0);
 		}
 		
-		for (GameObject gameObject : gameObjects_remove)
+		for (int i = 0; i < gameObjects_remove.size();)
 		{
-			this.remove(gameObject);
-			gameObjects_remove.remove(gameObject);
+			this.remove(gameObjects_remove.get(0));
+			gameObjects_remove.remove(0);
 		}
 		
 		Collections.sort(gameObjects[pass.ordinal()]);

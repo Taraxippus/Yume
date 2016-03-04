@@ -13,9 +13,6 @@ varying vec2 v_Direction;
 
 void main()
 {
-	if (1.0 - length(v_Direction) <= 0.0)
-		discard;
-
 	vec3 alphaFactor = (v_Position + u_ReflectionOffset) * u_ReflectionDir;
 	float alphaStart = pow(u_AlphaStart, dot(u_ReflectionDir, u_ReflectionDir));
 

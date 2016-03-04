@@ -6,9 +6,6 @@ varying vec2 v_Direction;
 
 void main()
 {
-	if (1.0 - length(v_Direction) <= 0.0)
-		discard;
-
 	gl_FragColor = v_Color;
 }
 

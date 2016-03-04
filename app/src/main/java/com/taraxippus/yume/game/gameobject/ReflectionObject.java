@@ -23,20 +23,15 @@ public class ReflectionObject extends GameObject
 	public GameObject setPass(Pass pass)
 	{
 		if (pass == Pass.GRID)
-			super.setPass(Pass.GRID);
+			super.setPass(Pass.GRID_REFLECTION);
 			
 		else if (pass == Pass.PARTICLE)
 			super.setPass(Pass.PARTICLE_REFLECTION);
 			
 		else
-			super.setPass(Pass.REFLECTION);
+			super.setPass(Pass.SCENE_REFLECTION);
+			
 		return this;
-	}
-	
-	@Override
-	public Pass getPass()
-	{
-		return Pass.REFLECTION;
 	}
 	
 	@Override
@@ -60,8 +55,8 @@ public class ReflectionObject extends GameObject
 		if (renderer.currentPass != getPass())
 			getPass().onRender(renderer);
 		
-		if (this.getPass() == Pass.GRID)
-			GLES20.glUniform4f(Pass.GRID.getProgram().getUniform("u_Center"), getX(world.main.game.player.position.x), getY(world.main.game.player.position.y), getZ(world.main.game.player.position.z), 7.5F);
+		if (this.getPass() == Pass.GRID_REFLECTION)
+			GLES20.glUniform4f(Pass.GRID_REFLECTION.getProgram().getUniform("u_Center"), getX(world.main.game.player.position.x), getY(world.main.game.player.position.y), getZ(world.main.game.player.position.z), 7.5F);
 
 		renderer.uniform(modelMatrix, getPass());
 		GLES20.glUniform4f(getPass().getProgram().getUniform("u_Color"), parent.color.x, parent.color.y, parent.color.z, parent.alpha);

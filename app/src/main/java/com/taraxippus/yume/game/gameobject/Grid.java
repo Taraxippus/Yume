@@ -28,6 +28,12 @@ public class Grid extends SceneObject
 		this.setEnabled(false);
 	}
 
+	@Override
+	public Pass getPass()
+	{
+		return Pass.GRID;
+	}
+	
 	float visibilityTick;
 	
 	@Override

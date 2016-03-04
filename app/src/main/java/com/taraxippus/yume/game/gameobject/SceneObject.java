@@ -46,13 +46,13 @@ public class SceneObject extends GameObject
 		
 		if (hasReflection)
 		{
-			this.reflection = new ReflectionObject[getPass() == Pass.REFLECTION ? 27 : 26];
+			this.reflection = new ReflectionObject[26];
 			
 			int x, y, z, offset = 0;
 			for (x = -1; x <= 1; ++x)
 				for (y = -1; y <= 1; ++y)
 					for (z = -1; z <= 1; ++z)
-						if (getPass() == Pass.REFLECTION || x != 0 || y != 0 || z != 0)
+						if (x != 0 || y != 0 || z != 0)
 							world.add(this.reflection[offset++] = (ReflectionObject) new ReflectionObject(this, new VectorF(x, y, z)).setPass(getPass()));
 
 		}
@@ -141,6 +141,15 @@ public class SceneObject extends GameObject
 		return this;
 	}
 	
+	public SceneObject rotatePre(float x, float y, float z)
+	{
+		this.rotationPre.add(x, y, z);
+
+		this.updateMatrix();
+
+		return this;
+	}
+	
 	public SceneObject rotate(float x, float y, float z)
 	{
 		this.rotation.add(x, y, z);
@@ -186,7 +195,7 @@ public class SceneObject extends GameObject
 	@Override
 	public void render(Renderer renderer)
 	{
-		if (!enabled || hasReflection && getPass() == Pass.REFLECTION || !world.main.camera.insideFrustum(position, radius))
+		if (!enabled || hasReflection && getPass() == Pass.SCENE_REFLECTION || !world.main.camera.insideFrustum(position, radius))
 			return;
 		
 		if (renderer.currentPass != getPass())
@@ -207,6 +216,6 @@ public class SceneObject extends GameObject
 	@Override
 	public float getDepth()
 	{
-		return super.getDepth() + (getPass() == Pass.REFLECTION ? 1000 : 0) + tmp.set(position).subtract(world.main.camera.eye).length();
+		return super.getDepth() + tmp.set(position).subtract(world.main.camera.eye).length();
 	}
 }

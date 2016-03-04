@@ -4,6 +4,7 @@ import com.taraxippus.yume.*;
 import com.taraxippus.yume.game.*;
 import com.taraxippus.yume.game.path.*;
 import com.taraxippus.yume.util.*;
+import com.taraxippus.yume.game.particle.*;
 
 public class MovingObject extends Box implements IMover
 {
@@ -13,7 +14,7 @@ public class MovingObject extends Box implements IMover
 	public final PathFinder pathFinder;
 	public Path path;
 	public Path.Step lastStep, nextStep;
-
+	
 	public MovingObject(World world)
 	{
 		super(world);
@@ -58,6 +59,14 @@ public class MovingObject extends Box implements IMover
 				this.rotation.x = 0;
 				this.updateMatrix();
 				
+				ParticleEmitter pe = (ParticleEmitter) new ParticleEmitter(world, 20)
+				.setRespawn(false)
+				.setRange(80, 90)
+					.translate(position.x + scale.x * 0.5F * nextStep.gravity.x, position.y + scale.y * 0.5F * nextStep.gravity.y, position.z + scale.z * 0.5F * nextStep.gravity.z)
+				.rotatePre(rotationPre.x, rotationPre.y, rotationPre.z)
+				.rotate(rotation.x, rotation.y, rotation.z);
+				
+				world.addLater(pe);
 				nextStep();
 			}
 		}
