@@ -87,9 +87,9 @@ public class Camera
 				.multiplyBy(viewMatrix)
 				.add(position);
 
-			this.eye.x = Math.min(Math.max(this.eye.x, -0.05F), this.main.game.level.getWidth() - 0.95F);
-			this.eye.y = Math.min(Math.max(this.eye.y, -0.05F), this.main.game.level.getHeight() - 0.95F);
-			this.eye.z = Math.min(Math.max(this.eye.z, -0.05F), this.main.game.level.getLength() - 0.95F);
+			this.eye.x = Math.min(Math.max(this.eye.x, -0.05F), this.main.level.getWidth() - 0.95F);
+			this.eye.y = Math.min(Math.max(this.eye.y, -0.05F), this.main.level.getHeight() - 0.95F);
+			this.eye.z = Math.min(Math.max(this.eye.z, -0.05F), this.main.level.getLength() - 0.95F);
 
 			this.up.set(0, target != null && target.rotationPre.z == 180 ? -1 : 1, 0).multiplyBy(viewMatrix);
 

@@ -15,6 +15,8 @@ public class MovingObject extends Box implements IMover
 	public Path path;
 	public Path.Step lastStep, nextStep;
 	
+	public Follower follower;
+	
 	public MovingObject(World world)
 	{
 		super(world);
@@ -25,7 +27,7 @@ public class MovingObject extends Box implements IMover
 		this.specularityExponent = 50F;
 		this.specularityFactor = 0.25F;
 		
-		this.pathFinder = new PathFinder(world.main.game.level, 1000, false);
+		this.pathFinder = new PathFinder(world.main.level, 1000, false);
 	}
 
 	float jumpTick;
@@ -41,7 +43,7 @@ public class MovingObject extends Box implements IMover
 		{
 			jumpTick -= Main.FIXED_DELTA;
 
-			float delta = (getJumpDuration() - jumpTick) / JUMP_DURATION;
+			float delta = (getJumpDuration() - jumpTick) / getJumpDuration();
 			float jump = 0.5F * World.GRAVITY * delta * delta + -World.GRAVITY * 0.5F * delta;
 			
 			this.position.set(
@@ -62,7 +64,9 @@ public class MovingObject extends Box implements IMover
 				ParticleEmitter pe = (ParticleEmitter) new ParticleEmitter(world, 20)
 				.setRespawn(false)
 				.setRange(80, 90)
-					.translate(position.x + scale.x * 0.5F * nextStep.gravity.x, position.y + scale.y * 0.5F * nextStep.gravity.y, position.z + scale.z * 0.5F * nextStep.gravity.z)
+				.setVelocity(2.5F, 3.5F, 0, 0)
+				.setAcceleration(0.99F)
+				.translate(position.x + scale.x * 0.5F * nextStep.gravity.x, position.y + scale.y * 0.5F * nextStep.gravity.y, position.z + scale.z * 0.5F * nextStep.gravity.z)
 				.rotatePre(rotationPre.x, rotationPre.y, rotationPre.z)
 				.rotate(rotation.x, rotation.y, rotation.z);
 				
@@ -91,58 +95,21 @@ public class MovingObject extends Box implements IMover
 	{
 		if (path != null && path.hasNext())
 		{
+			if (follower != null)
+				follower.onNextStep(this);
+			
 			lastStep = nextStep;
 			nextStep = path.nextStep();
 			if (lastStep == null)
 			{
+				if (follower != null)
+					follower.onNextStep(this);
+				
 				lastStep = nextStep;
 				nextStep = path.nextStep();
 			}
-			jumpTick = -getJumpPause();
 			
-			lastRotationY = rotation.y;
-			nextRotationY = faceStep(nextStep);
-			
-			if (nextRotationY - lastRotationY > 180)
-				nextRotationY -= 360;
-			
-			else if (nextRotationY - lastRotationY < -180)
-				nextRotationY += 360;
-			
-			if (lastStep.gravity != nextStep.gravity || Math.abs(nextRotationY - lastRotationY) == 180)
-				rotation.y = lastRotationY = nextRotationY;
-			
-			VectorF lastRotationPre = rotationPre.copy();
-				
-			if (nextStep.gravity.y == 1)
-				rotationPre.set(180, 0, 180);
-			else if (nextStep.gravity.y == -1)
-				rotationPre.set(0, 0, 0);
-				
-			else if (nextStep.gravity.z == 1)
-				rotationPre.set(-90, 0, 0);
-			else if (nextStep.gravity.z == -1)
-				rotationPre.set(90, 0, 0);
-				
-			else if (nextStep.gravity.x == 1)
-				rotationPre.set(0, 0, 90);
-			else if (nextStep.gravity.x == -1)
-				rotationPre.set(0, 0, -90);
-				
-			if (rotationPre.x - lastRotationPre.x > 180)
-				rotationPre.x -= 360;
-			else if (rotationPre.x - lastRotationPre.x < -180)
-				rotationPre.x += 360;
-			
-			if (rotationPre.y - lastRotationPre.y > 180)
-				rotationPre.y -= 360;
-			else if (rotationPre.y - lastRotationPre.y < -180)
-				rotationPre.y += 360;
-				
-			if (rotationPre.z - lastRotationPre.z > 180)
-				rotationPre.z -= 360;
-			else if (rotationPre.z - lastRotationPre.z < -180)
-				rotationPre.z += 360;
+			onNextStep();
 		}
 		else
 		{
@@ -153,6 +120,55 @@ public class MovingObject extends Box implements IMover
 			if (path != null)
 				onPathFinished();
 		}
+	}
+	
+	public void onNextStep()
+	{
+		jumpTick = -getJumpPause();
+
+		lastRotationY = rotation.y;
+		nextRotationY = faceStep(nextStep);
+
+		if (nextRotationY - lastRotationY > 180)
+			nextRotationY -= 360;
+
+		else if (nextRotationY - lastRotationY < -180)
+			nextRotationY += 360;
+
+		if (lastStep.gravity != nextStep.gravity || Math.abs(nextRotationY - lastRotationY) == 180)
+			rotation.y = lastRotationY = nextRotationY;
+
+		VectorF lastRotationPre = rotationPre.copy();
+
+		if (nextStep.gravity.y == 1)
+			rotationPre.set(180, 0, 180);
+		else if (nextStep.gravity.y == -1)
+			rotationPre.set(0, 0, 0);
+
+		else if (nextStep.gravity.z == 1)
+			rotationPre.set(-90, 0, 0);
+		else if (nextStep.gravity.z == -1)
+			rotationPre.set(90, 0, 0);
+
+		else if (nextStep.gravity.x == 1)
+			rotationPre.set(0, 0, 90);
+		else if (nextStep.gravity.x == -1)
+			rotationPre.set(0, 0, -90);
+
+		if (rotationPre.x - lastRotationPre.x > 180)
+			rotationPre.x -= 360;
+		else if (rotationPre.x - lastRotationPre.x < -180)
+			rotationPre.x += 360;
+
+		if (rotationPre.y - lastRotationPre.y > 180)
+			rotationPre.y -= 360;
+		else if (rotationPre.y - lastRotationPre.y < -180)
+			rotationPre.y += 360;
+
+		if (rotationPre.z - lastRotationPre.z > 180)
+			rotationPre.z -= 360;
+		else if (rotationPre.z - lastRotationPre.z < -180)
+			rotationPre.z += 360;
 	}
 	
 	public float faceStep(Path.Step step)

@@ -1,56 +1,68 @@
 package com.taraxippus.yume.game.level;
 
-import com.taraxippus.yume.game.*;
+import com.taraxippus.yume.*;
 import com.taraxippus.yume.game.gameobject.*;
 import com.taraxippus.yume.game.path.*;
 import com.taraxippus.yume.util.*;
+import java.nio.*;
 
 public class Level
 {
-	final Game game;
-	final boolean[] blocked = new boolean[getWidth() * getHeight() * getLength()];
+	final Main main;
 	
-	public Level(Game game)
+	private int width = 24, height = 24, length = 24;
+	private byte[] ids = new byte[getWidth() * getHeight() * getLength()];
+	
+	
+	public Level(Main main)
 	{
-		this.game = game;
+		this.main = main;
 	}
 	
 	public int getWidth()
 	{
-		return 24;
+		return width;
 	}
 	
 	public int getHeight()
 	{
-		return 24;
+		return height;
 	}
 	
     public int getLength()
 	{
-		return 24;
+		return length;
 	}
 	
 	public VectorF getGravity(IMover mover, int x, int y, int z)
 	{
 		return DIRECTION[
-		((y <= 0 || blocked[x * getLength() * getHeight() + (y - 1) * getLength() + z]) ? 0 : (y >= getHeight() - 1 || blocked[x * getLength() * getHeight() + (y + 1) * getLength() + z]) ? 2 : 1) * 3
-			+ ((x <= 0 || blocked[(x - 1) * getLength() * getHeight() + y * getLength() + z]) ? 0 : (x >= getWidth() - 1 || blocked[(x + 1) * getLength() * getHeight() + y * getLength() + z]) ? 2 : 1) * 9
-			+ ((z <= 0 || blocked[x * getLength() * getHeight() + y * getLength() + z - 1]) ? 0 : (z >= getLength() - 1 || blocked[x * getLength() * getHeight() + y * getLength() + z + 1]) ? 2 : 1)];
+		((y <= 0 || y >= 0 && y < getHeight() && isBlocked(ids[x * getLength() * getHeight() + (y - 1) * getLength() + z])) ? 0 : (y >= getHeight() - 1 || y >= 0 && y < getHeight() && isBlocked(ids[x * getLength() * getHeight() + (y + 1) * getLength() + z])) ? 2 : 1) * 3
+			+ ((x <= 0 || x >= 0 && x < getWidth() && isBlocked(ids[(x - 1) * getLength() * getHeight() + y * getLength() + z])) ? 0 : (x >= getWidth() - 1 || x >= 0 && x < getWidth() && isBlocked(ids[(x + 1) * getLength() * getHeight() + y * getLength() + z])) ? 2 : 1) * 9
+			+ ((z <= 0 || z >= 0 && z < getLength() && isBlocked(ids[x * getLength() * getHeight() + y * getLength() + z - 1])) ? 0 : (z >= getLength() - 1 || z >= 0 && z < getLength() && isBlocked(ids[x * getLength() * getHeight() + y * getLength() + z + 1])) ? 2 : 1)];
+	}
+	
+	public boolean isBlocked(byte id)
+	{
+		return id != 0;
 	}
 	
     public boolean isBlocked(IMover mover, int x, int y, int z)
 	{
+		if (x >= getWidth() || y >= getHeight() || z >= getLength() || x < 0 || y < 0 || z < 0)
+			return true;
+		
 		VectorF gravity = getGravity(mover, x, y, z);
 		
 		return gravity.equals(VectorF.zero)
-		|| blocked[x * getLength() * getHeight() + y * getLength() + z];
+		|| isBlocked(ids[x * getLength() * getHeight() + y * getLength() + z]);
 	}
 	
-	public void setBlocked(int x, int y, int z, boolean block)
+	public void setBlocked(int x, int y, int z, byte id)
 	{
-		blocked[x * getLength() * getHeight() + y * getLength() + z] = block;
+		ids[x * getLength() * getHeight() + y * getLength() + z] = id;
 		
-		for (MovingObject gameObject : game.main.world.movingObjects)
+		for (MovingObject gameObject : main.world.movingObjects)
 			gameObject.checkPath();
 	}
 	
@@ -62,6 +74,48 @@ public class Level
     public void pathFinderVisited(int x, int y, int z)
 	{
 		
+	}
+	
+	public ByteBuffer save(ByteBuffer buffer)
+	{
+		buffer.putInt(0);
+		
+		buffer.putInt(getWidth());
+		buffer.putInt(getHeight());
+		buffer.putInt(getLength());
+		
+		for (byte id : ids)
+			buffer.put(id);
+		
+		return buffer;
+	}
+	
+	public ByteBuffer load(ByteBuffer buffer)
+	{
+		int version = buffer.getInt();
+		
+		if (version >= 0)
+		{
+			width = buffer.getInt();
+			height = buffer.getInt();
+			length = buffer.getInt();
+			
+			ids = new byte[getWidth() * getHeight() * getLength()];
+			
+			for (int i = 0; i < ids.length; ++i)
+				ids[i] = buffer.get();
+				
+		}
+		
+		for (MovingObject gameObject : main.world.movingObjects)
+			gameObject.checkPath();
+		
+		return buffer;
+	}
+	
+	public int getBytes()
+	{
+		return (Integer.SIZE / Byte.SIZE) * 4 + ids.length;
 	}
 	
 	public static final VectorF[] DIRECTION = new VectorF[27];

@@ -1,21 +1,26 @@
 package com.taraxippus.yume;
 
 import android.app.*;
+import android.content.*;
 import android.opengl.*;
 import android.os.*;
 import android.support.v4.view.*;
+import android.util.*;
 import android.view.*;
 import android.widget.*;
 import com.taraxippus.yume.game.*;
 import com.taraxippus.yume.game.gameobject.*;
+import com.taraxippus.yume.game.level.*;
 import com.taraxippus.yume.render.*;
 import com.taraxippus.yume.util.*;
-import android.view.View.*;
-import android.util.*;
+import java.io.*;
+import java.nio.*;
 
 public class Main extends Activity implements View.OnTouchListener
 {
-	public static final float FIXED_DELTA = 1 / 240F;
+	public static final String FILENAME = "save.save";
+	
+	public static final float FIXED_DELTA = 1 / 120F;
 	public float timeFactor = 1;
 	
 	public final ResourceHelper resourceHelper = new ResourceHelper(this);
@@ -23,6 +28,7 @@ public class Main extends Activity implements View.OnTouchListener
 	public final Game game = new Game(this);
 	public final World world = new World(this);
 	public final Camera camera = new Camera(this);
+	public final Level level = new Level(this);
 	
 	public GLSurfaceView view;
 	public TextView textView;
@@ -84,6 +90,77 @@ public class Main extends Activity implements View.OnTouchListener
 		super.onResume();
 		
 		renderer.lastTime = 0;
+		
+		byte[] bytes = null;
+		FileInputStream fis = null;
+		try
+		{
+			fis = openFileInput(FILENAME);
+			
+			if (fis != null)
+			{
+				bytes = new byte[fis.available()];
+				fis.read(bytes);
+			}
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+			return;
+		}
+		finally
+		{
+			try
+			{
+				if (fis != null)
+					fis.close();
+			}
+			catch (Exception e)
+			{
+				e.printStackTrace();
+				return;
+			}
+		}
+		
+		if (bytes != null && bytes.length > 0)
+		{
+			ByteBuffer buffer = ByteBuffer.wrap(bytes);
+
+			level.load(buffer);
+		}
+		
+	}
+
+	@Override
+	protected void onPause()
+	{
+		super.onPause();
+		
+		ByteBuffer buffer = ByteBuffer.allocate(level.getBytes());
+		level.save(buffer);
+		
+		FileOutputStream fos = null;
+		try
+		{
+			fos = openFileOutput(FILENAME, Context.MODE_PRIVATE);
+			fos.write(buffer.array());
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+		finally
+		{
+			try
+			{
+				if (fos != null)
+					fos.close();
+			}
+			catch (Exception e)
+			{
+				e.printStackTrace();
+			}
+		}
 	}
 	
 	@Override

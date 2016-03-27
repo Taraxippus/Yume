@@ -14,8 +14,8 @@ public enum Pass
 	PARTICLE,
 	POST;
 	
-	public static final float REFLECTION_ALPHA_START = 0.95F;
-	public static final float REFLECTION_ALPHA_FACTOR = 1 / 16F;
+	public static final float REFLECTION_ALPHA_START = 0.9F;
+	public static final float REFLECTION_ALPHA_FACTOR = 1 / 8F;
 	
 	private static final Program[] programs = new Program[Pass.values().length];
 	private static final Framebuffer[] framebuffers = new Framebuffer[Pass.values().length];

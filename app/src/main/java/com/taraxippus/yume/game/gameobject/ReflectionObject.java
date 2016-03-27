@@ -95,7 +95,7 @@ public class ReflectionObject extends GameObject
 	public float getX(float x)
 	{
 		if (side.x == 1)
-			return -x + 2 * (world.main.game.level.getWidth() - 0.5F);
+			return -x + 2 * (world.main.level.getWidth() - 0.5F);
 		else if (side.x == -1)
 			return -x + 2 * (- 0.5F);
 		
@@ -105,7 +105,7 @@ public class ReflectionObject extends GameObject
 	public float getY(float y)
 	{
 		if (side.y == 1)
-			return -y + 2 * (world.main.game.level.getHeight() - 0.5F);
+			return -y + 2 * (world.main.level.getHeight() - 0.5F);
 		else if (side.y == -1)
 			return -y + 2 * (- 0.5F);
 				
@@ -115,7 +115,7 @@ public class ReflectionObject extends GameObject
 	public float getZ(float z)
 	{
 		if (side.z == 1)
-			return -z + 2 * (world.main.game.level.getLength() - 0.5F);
+			return -z + 2 * (world.main.level.getLength() - 0.5F);
 		else if (side.z == -1)
 			return -z + 2 * (- 0.5F);
 		
