@@ -6,19 +6,13 @@ import java.util.*;
 
 public enum Pass
 {
-	SCENE_REFLECTION,
-	GRID_REFLECTION,
-	PARTICLE_REFLECTION,
 	SCENE,
-	GRID,
 	PARTICLE,
+	SNOW,
 	POST;
-	
-	public static final float REFLECTION_ALPHA_START = 0.9F;
-	public static final float REFLECTION_ALPHA_FACTOR = 1 / 8F;
-	
+
 	private static final Program[] programs = new Program[Pass.values().length];
-	private static final Framebuffer[] framebuffers = new Framebuffer[Pass.values().length];
+	private static final Framebuffer[] framebuffer = new Framebuffer[Pass.values().length];
 	
 	private static final int[][] attributes = new int[Pass.values().length][];
 	
@@ -29,39 +23,37 @@ public enum Pass
 		for (int i = 0; i < programs.length; ++i)
 			programs[i] = new Program();
 			
-		for (int i = 0; i < framebuffers.length; ++i)
-			framebuffers[i] = new Framebuffer();
-			
-		attributes[SCENE_REFLECTION.ordinal()] = new int[] {3, 3};
-		attributes[GRID_REFLECTION.ordinal()] = new int[] {3, 3};
-		attributes[PARTICLE_REFLECTION.ordinal()] = new int[] {4, 4, 2};
-		
+		for (int i = 0; i < framebuffer.length; ++i)
+			framebuffer[i] = new Framebuffer();
+
 		attributes[SCENE.ordinal()] = new int[] {3, 3};
-		attributes[GRID.ordinal()] = new int[] {3, 3};
 		attributes[PARTICLE.ordinal()] = new int[] {4, 4, 2};
+		attributes[SNOW.ordinal()] = new int[] {3, 2};
 		attributes[POST.ordinal()] = new int[] {2};
 	}
 	
 	public static void init(Main main)
 	{
-		programs[SCENE_REFLECTION.ordinal()].init(main, R.raw.vertex_reflection, R.raw.fragment_reflection, "a_Position", "a_Normal");
-		programs[GRID_REFLECTION.ordinal()].init(main, R.raw.vertex_reflection, R.raw.fragment_grid_reflection, "a_Position", "a_Normal");
-		programs[PARTICLE_REFLECTION.ordinal()].init(main, R.raw.vertex_particle_reflection, R.raw.fragment_particle_reflection, "a_Position", "a_Color", "a_Direction");
-		
 		programs[SCENE.ordinal()].init(main, R.raw.vertex_scene, R.raw.fragment_scene, "a_Position", "a_Normal");
-		programs[GRID.ordinal()].init(main, R.raw.vertex_scene, R.raw.fragment_grid, "a_Position", "a_Normal");
 		programs[PARTICLE.ordinal()].init(main, R.raw.vertex_particle, R.raw.fragment_particle, "a_Position", "a_Color", "a_Direction");
-		
+		programs[SNOW.ordinal()].init(main, R.raw.vertex_snow, R.raw.fragment_snow, "a_Position", "a_UV");
+
 		programs[POST.ordinal()].init(main, R.raw.vertex_post, R.raw.fragment_post, "a_Position");
 		
-		framebuffers[SCENE.ordinal()].init(true, main.renderer.width, main.renderer.height);
-		
+		framebuffer[SCENE.ordinal()].init(true, main.renderer.width, main.renderer.height);
+
+		PARTICLE.getProgram().use();
+		GLES20.glUniform1i(PARTICLE.getProgram().getUniform("u_Texture"), 0);
+
+		SNOW.getProgram().use();
+		GLES20.glUniform1i(SNOW.getProgram().getUniform("u_Texture"), 0);
+
 		POST.getProgram().use();
 		GLES20.glUniform1i(POST.getProgram().getUniform("u_Texture"), 0);
 		GLES20.glUniform1i(POST.getProgram().getUniform("u_Dither"), 1);
 		
 		final int[] colors = new int[main.renderer.width * main.renderer.height];
-		final int gray;
+		int gray;
 		final Random random = new Random();
 		
 		for (int i = 0; i < colors.length; ++i)
@@ -70,7 +62,7 @@ public enum Pass
 			colors[i] = Color.rgb(gray, gray, gray);
 		}
 			
-		dither.init(Bitmap.createBitmap(main.getResources().getDisplayMetrics(), colors, main.renderer.width, main.renderer.height, Bitmap.Config.RGB_565), GLES20.GL_NEAREST, GLES20.GL_NEAREST, GLES20.GL_CLAMP_TO_EDGE);
+		dither.init(Bitmap.createBitmap(colors, 0, main.renderer.width, main.renderer.width, main.renderer.height, Bitmap.Config.RGB_565), GLES20.GL_NEAREST, GLES20.GL_NEAREST, GLES20.GL_CLAMP_TO_EDGE);
 	}
 	
 	public static void delete()
@@ -79,7 +71,7 @@ public enum Pass
 			if (program.initialized())
 				program.delete();
 				
-		for (Framebuffer framebuffer : framebuffers)
+		for (Framebuffer framebuffer : Pass.framebuffer)
 			if (framebuffer.initialized())
 				framebuffer.delete();
 				
@@ -98,31 +90,21 @@ public enum Pass
 	
 	public Framebuffer getFramebuffer()
 	{
-		return framebuffers[this.ordinal()];
+		return framebuffer[this.ordinal()];
 	}
 	
 	public boolean inOrder()
 	{
-		return this == SCENE_REFLECTION || this == SCENE || this == POST;
+		return this == SCENE || this == POST || this == SNOW;
 	}
 	
 	public Pass getParent()
 	{
 		switch (this)
 		{
-			case GRID:
-				return SCENE;
-				
-			case GRID_REFLECTION:
-				return SCENE_REFLECTION;
-				
 			case PARTICLE:
 				return SCENE;
 
-			case PARTICLE_REFLECTION:
-				return SCENE_REFLECTION;
-				
-				
 			default:
 				return this;
 		}
@@ -139,57 +121,25 @@ public enum Pass
 		
 		switch (this)
 		{
-			case SCENE_REFLECTION:
-				GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
-				GLES20.glUniform1f(getProgram().getUniform("u_AlphaStart"), REFLECTION_ALPHA_START);
-				GLES20.glUniform1f(getProgram().getUniform("u_AlphaFactor"), REFLECTION_ALPHA_FACTOR);
-				
-				//GLES20.glUniform3f(getProgram().getUniform("u_Eye"), renderer.main.camera.eye.x, renderer.main.camera.eye.y, renderer.main.camera.eye.z);
-				
-				break;
-				
-			case GRID_REFLECTION:
-				GLES20.glUniform1f(getProgram().getUniform("u_AlphaStart"), REFLECTION_ALPHA_START);
-				GLES20.glUniform1f(getProgram().getUniform("u_AlphaFactor"), REFLECTION_ALPHA_FACTOR);
-
-				//GLES20.glUniform3f(getProgram().getUniform("u_Eye"), renderer.main.camera.eye.x, renderer.main.camera.eye.y, renderer.main.camera.eye.z);
-
-				break;
-				
-			case PARTICLE_REFLECTION:
-				GLES20.glUniform1f(getProgram().getUniform("u_AlphaStart"), REFLECTION_ALPHA_START);
-				GLES20.glUniform1f(getProgram().getUniform("u_AlphaFactor"), REFLECTION_ALPHA_FACTOR);
-				
-
-				break;
-				
 			case SCENE:
-				GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
 				GLES20.glDepthMask(true);
-				GLES20.glCullFace(GLES20.GL_BACK);
 				GLES20.glUniform3fv(getProgram().getUniform("u_Eye"), 1, renderer.main.camera.eye.getVec40(), 0);
 				GLES20.glUniform3fv(getProgram().getUniform("u_Light"), 1, renderer.main.game.light.getVec40(), 0);
 
 				break;
 
-			case GRID:
-				GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
-				GLES20.glDepthMask(true);
-				GLES20.glCullFace(GLES20.GL_BACK);
-				GLES20.glUniform3fv(getProgram().getUniform("u_Eye"), 1, renderer.main.camera.eye.getVec40(), 0);
-				GLES20.glUniform3fv(getProgram().getUniform("u_Light"), 1, renderer.main.game.light.getVec40(), 0);
-				GLES20.glUniform4f(getProgram().getUniform("u_Center"), renderer.main.game.player.position.x, renderer.main.game.player.position.y, renderer.main.game.player.position.z, 7.5F);
-				
-				break;
-				
 			case PARTICLE:
-				GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
-				
+				GLES20.glDepthMask(false);
+
 				break;
-				
+
+			case SNOW:
+				GLES20.glDepthMask(false);
+
+				break;
+
 			case POST:
 				GLES20.glDepthMask(true);
-				GLES20.glCullFace(GLES20.GL_BACK);
 				Framebuffer.release(renderer);
 				
 				SCENE.getFramebuffer().bindTexture(0);

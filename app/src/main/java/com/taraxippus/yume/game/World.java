@@ -1,16 +1,22 @@
 package com.taraxippus.yume.game;
 
+import android.view.animation.RotateAnimation;
+
 import com.taraxippus.yume.*;
+import com.taraxippus.yume.game.chunk.Chunk;
 import com.taraxippus.yume.game.gameobject.*;
 import com.taraxippus.yume.render.*;
+import com.taraxippus.yume.util.VectorF;
+
+import java.nio.ByteBuffer;
 import java.util.*;
 
 public class World
 {
-	public static final float SCALE = 0.5F;
-	public static final float GRAVITY = -9.81F * SCALE;
+	public static final float GRAVITY = -9.81F;
 	
 	public final Main main;
+	public final Random random = new Random();
 	public final ArrayList<GameObject>[] gameObjects = new ArrayList[Pass.values().length];
 	public final ArrayList<SceneObject> sceneObjects = new ArrayList<>();
 	public final ArrayList<MovingObject> movingObjects = new ArrayList<>();
@@ -19,7 +25,9 @@ public class World
 	public final List<GameObject> gameObjects_remove = Collections.synchronizedList(new ArrayList<GameObject>());
 	
 	public float time = 0;
-	
+
+	public Chunk chunk;
+
 	public World(Main main)
 	{
 		this.main = main;
@@ -90,7 +98,7 @@ public class World
 			this.remove(gameObjects_remove.get(0));
 			gameObjects_remove.remove(0);
 		}
-		
+
 		Collections.sort(gameObjects[pass.ordinal()]);
 		
 		for (GameObject gameObject : gameObjects[pass.ordinal()])
@@ -108,5 +116,36 @@ public class World
 				gameObject.delete();
 			
 		isDestroying = false;
+	}
+
+	VectorF gravity = new VectorF(0, -1, 0);
+
+	public VectorF getGravity(float x, float z)
+	{
+		return gravity;
+	}
+
+	public ByteBuffer save(ByteBuffer buffer)
+	{
+		buffer.putInt(0);
+
+		return buffer;
+	}
+
+	public ByteBuffer load(ByteBuffer buffer)
+	{
+		int version = buffer.getInt();
+
+		if (version >= 0)
+		{
+
+		}
+
+		return buffer;
+	}
+
+	public int getBytes()
+	{
+		return Integer.SIZE / Byte.SIZE;
 	}
 }

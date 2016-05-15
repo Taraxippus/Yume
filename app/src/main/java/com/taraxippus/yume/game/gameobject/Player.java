@@ -1,14 +1,10 @@
 package com.taraxippus.yume.game.gameobject;
 
-import com.taraxippus.yume.game.*;
-import com.taraxippus.yume.game.path.*;
-import com.taraxippus.yume.util.*;
+import com.taraxippus.yume.game.World;
+import com.taraxippus.yume.util.VectorF;
 
-public class Player extends MovingObject implements IMover
+public class Player extends MovingObject
 {
-	public static final float JUMP_DURATION = 0.25F;
-	public static final float JUMP_PAUSE = 0.05F;
-	
 	public boolean selected;
 	
 	public Player(World world)
@@ -19,12 +15,9 @@ public class Player extends MovingObject implements IMover
 		this.setTouchable(true);
 	}
 
-	float jumpTick;
-	
 	@Override
 	public void onTouch(VectorF intersection, VectorF normal)
 	{
 		this.selected = !this.selected;
-		this.world.main.game.grid.toggleVisibility();
 	}
 }

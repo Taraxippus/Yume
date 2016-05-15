@@ -65,8 +65,8 @@ public class Particle
         this.velocity.multiplyBy(acceleration);
         this.rotVelocity *= acceleration;
 		
-		if (emitter.world.main.level.isBlocked(null, (int) (emitter.position.x + position.x), (int) (emitter.position.y + position.y), (int) (emitter.position.z + position.z)))
-			this.position.set(prevPosition);
+//		if (emitter.world.main.level.isBlocked(null, (int) (emitter.position.x + position.x), (int) (emitter.position.y + position.y), (int) (emitter.position.z + position.z)))
+//			this.position.set(prevPosition);
 	}
 	
 	public void buffer(FloatBuffer vertices, float partial)

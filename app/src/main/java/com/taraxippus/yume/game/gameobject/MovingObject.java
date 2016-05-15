@@ -1,39 +1,34 @@
 package com.taraxippus.yume.game.gameobject;
 
-import com.taraxippus.yume.*;
-import com.taraxippus.yume.game.*;
-import com.taraxippus.yume.game.path.*;
-import com.taraxippus.yume.util.*;
-import com.taraxippus.yume.game.particle.*;
+import com.taraxippus.yume.Main;
+import com.taraxippus.yume.game.World;
+import com.taraxippus.yume.game.particle.ParticleEmitter;
+import com.taraxippus.yume.util.Position;
+import com.taraxippus.yume.util.VectorF;
 
-public class MovingObject extends Box implements IMover
+public class MovingObject extends Box
 {
 	public static final float JUMP_DURATION = 0.5F;
 	public static final float JUMP_PAUSE = 0.15F;
-	
-	public final PathFinder pathFinder;
-	public Path path;
-	public Path.Step lastStep, nextStep;
-	
-	public Follower follower;
-	
+
+	public float jumpLength = 1F;
+
 	public MovingObject(World world)
 	{
 		super(world);
 
-		this.translate(0, -(0.5F - 0.75F * 0.5F), 0);
-		this.scale(0.75F, 0.75F, 0.75F);
+		this.translate(0, 0, 0);
 
 		this.specularityExponent = 50F;
 		this.specularityFactor = 0.25F;
-		
-		this.pathFinder = new PathFinder(world.main.level, 1000, false);
 	}
 
 	float jumpTick;
 	float lastRotationY;
 	float nextRotationY;
-	
+
+	Position lastStep, nextStep;
+
 	@Override
 	public void update()
 	{
@@ -47,9 +42,9 @@ public class MovingObject extends Box implements IMover
 			float jump = 0.5F * World.GRAVITY * delta * delta + -World.GRAVITY * 0.5F * delta;
 			
 			this.position.set(
-				(nextStep.x + nextStep.gravity.x * (0.5F - scale.x * 0.5F)) * delta + (lastStep.x + lastStep.gravity.x * (0.5F - scale.x * 0.5F)) * (1 - delta) + jump * -nextStep.gravity.x, 
-				(nextStep.y + nextStep.gravity.y * (0.5F - scale.y * 0.5F)) * delta + (lastStep.y + lastStep.gravity.y * (0.5F - scale.y * 0.5F)) * (1 - delta) + jump * -nextStep.gravity.y,
-				(nextStep.z + nextStep.gravity.z * (0.5F - scale.z * 0.5F)) * delta + (lastStep.z + lastStep.gravity.z * (0.5F - scale.y * 0.5F)) * (1 - delta) + jump * -nextStep.gravity.z);
+				nextStep.position.x * delta + lastStep.position.x * (1 - delta) + jump * -(nextStep.gravity.x * delta + lastStep.gravity.x * (1 - delta)),
+				nextStep.position.y * delta + lastStep.position.y * (1 - delta) + jump * -(nextStep.gravity.y * delta + lastStep.gravity.y * (1 - delta)),
+				nextStep.position.z * delta + lastStep.position.z * (1 - delta) + jump * -(nextStep.gravity.z * delta + lastStep.gravity.z * (1 - delta)));
 
 			this.rotation.x = delta * 90F;
 			
@@ -57,21 +52,12 @@ public class MovingObject extends Box implements IMover
 
 			if (jumpTick <= 0)
 			{
-				this.position.set(nextStep.x + nextStep.gravity.x * (0.5F - scale.x * 0.5F), nextStep.y + nextStep.gravity.y * (0.5F - scale.y * 0.5F), nextStep.z + nextStep.gravity.z * (0.5F - scale.z * 0.5F));
+				this.position.set(nextStep.position.x + nextStep.gravity.x * (0.5F - scale.x * 0.5F), nextStep.position.y + nextStep.gravity.y * (0.5F - scale.y * 0.5F), nextStep.position.z + nextStep.gravity.z * (0.5F - scale.z * 0.5F));
 				this.rotation.x = 0;
 				this.updateMatrix();
-				
-				ParticleEmitter pe = (ParticleEmitter) new ParticleEmitter(world, 20)
-				.setRespawn(false)
-				.setRange(80, 90)
-				.setVelocity(2.5F, 3.5F, 0, 0)
-				.setAcceleration(0.99F)
-				.translate(position.x + scale.x * 0.5F * nextStep.gravity.x, position.y + scale.y * 0.5F * nextStep.gravity.y, position.z + scale.z * 0.5F * nextStep.gravity.z)
-				.rotatePre(rotationPre.x, rotationPre.y, rotationPre.z)
-				.rotate(rotation.x, rotation.y, rotation.z);
-				
-				world.addLater(pe);
-				nextStep();
+
+				jumpTick = 0;
+				onJumpFinished();
 			}
 		}
 		else if (jumpTick < 0)
@@ -90,44 +76,21 @@ public class MovingObject extends Box implements IMover
 			}
 		}
 	}
-	
-	public void nextStep()
+
+	public void move(float direction)
 	{
-		if (path != null && path.hasNext())
-		{
-			if (follower != null)
-				follower.onNextStep(this);
-			
-			lastStep = nextStep;
-			nextStep = path.nextStep();
-			if (lastStep == null)
-			{
-				if (follower != null)
-					follower.onNextStep(this);
-				
-				lastStep = nextStep;
-				nextStep = path.nextStep();
-			}
-			
-			onNextStep();
-		}
-		else
-		{
-			jumpTick = 0;
-			lastStep = null;
-			nextStep= null;
-			
-			if (path != null)
-				onPathFinished();
-		}
-	}
-	
-	public void onNextStep()
-	{
-		jumpTick = -getJumpPause();
+		if (jumpTick != 0)
+			return;
 
 		lastRotationY = rotation.y;
-		nextRotationY = faceStep(nextStep);
+		nextRotationY = direction;
+
+		VectorF tmp = VectorF.obtain();
+
+		lastStep = new Position(world, this.position);
+		nextStep = new Position(world, tmp.set(0, 0, jumpLength).rotateY(direction).add(position));
+
+		VectorF.release(tmp);
 
 		if (nextRotationY - lastRotationY > 180)
 			nextRotationY -= 360;
@@ -135,83 +98,22 @@ public class MovingObject extends Box implements IMover
 		else if (nextRotationY - lastRotationY < -180)
 			nextRotationY += 360;
 
-		if (lastStep.gravity != nextStep.gravity || Math.abs(nextRotationY - lastRotationY) == 180)
-			rotation.y = lastRotationY = nextRotationY;
-
-		VectorF lastRotationPre = rotationPre.copy();
-
-		if (nextStep.gravity.y == 1)
-			rotationPre.set(180, 0, 180);
-		else if (nextStep.gravity.y == -1)
-			rotationPre.set(0, 0, 0);
-
-		else if (nextStep.gravity.z == 1)
-			rotationPre.set(-90, 0, 0);
-		else if (nextStep.gravity.z == -1)
-			rotationPre.set(90, 0, 0);
-
-		else if (nextStep.gravity.x == 1)
-			rotationPre.set(0, 0, 90);
-		else if (nextStep.gravity.x == -1)
-			rotationPre.set(0, 0, -90);
-
-		if (rotationPre.x - lastRotationPre.x > 180)
-			rotationPre.x -= 360;
-		else if (rotationPre.x - lastRotationPre.x < -180)
-			rotationPre.x += 360;
-
-		if (rotationPre.y - lastRotationPre.y > 180)
-			rotationPre.y -= 360;
-		else if (rotationPre.y - lastRotationPre.y < -180)
-			rotationPre.y += 360;
-
-		if (rotationPre.z - lastRotationPre.z > 180)
-			rotationPre.z -= 360;
-		else if (rotationPre.z - lastRotationPre.z < -180)
-			rotationPre.z += 360;
+		jumpTick = -getJumpPause();
 	}
-	
-	public float faceStep(Path.Step step)
+
+	public void onJumpFinished()
 	{
-		final int dX = step.x - Math.round(position.x);
-		final int dY = step.y - Math.round(position.y);
-		final int dZ = step.z - Math.round(position.z);
-		
-		if (dY != 0 && step.gravity.y == 0)
-		{
-			if (step.gravity.x == -1)
-				return dY == -1 ? 90 : -90;
-			else if (step.gravity.x == 1)
-				return dY == -1 ? -90 : 90;
-				
-			else if (step.gravity.z == -1)
-				return dY == -1 ? 0 : 180;
-			else if (step.gravity.z == 1)
-				return dY == -1 ? 180 : 0;
-		}
-			
-		if (dX == 0 && dZ == 1)
-			return 0;
-			
-		else if (dX == 0 && dZ == -1)
-			return 180;
-		
-		else if (dX == 1 && dZ == 0)
-			return 90;
+		ParticleEmitter pe = (ParticleEmitter) new ParticleEmitter(world, 20)
+				.setRespawn(false)
+				.setRange(80, 90)
+				.setVelocity(2.5F, 3.5F, 0, 0)
+				.setAcceleration(0.99F)
+				.translate(position.x + scale.x * 0.5F * nextStep.gravity.x, position.y + scale.y * 0.5F * nextStep.gravity.y, position.z + scale.z * 0.5F * nextStep.gravity.z)
+				.rotate(rotation.x, rotation.y, rotation.z);
 
-		else if (dX == -1 && dZ == 0)
-			return -90;
-			
-		else
-			return rotation.y;
-	
+		world.addLater(pe);
 	}
-	
-	public void onPathFinished()
-	{
-		path.finish();
-	}
-	
+
 	public float getJumpDuration()
 	{
 		return JUMP_DURATION;
@@ -220,24 +122,5 @@ public class MovingObject extends Box implements IMover
 	public float getJumpPause()
 	{
 		return JUMP_PAUSE;
-	}
-
-	public void setPath(Path path)
-	{
-		this.path = path;
-
-		if (jumpTick == 0)
-			nextStep();
-	}
-	
-	public void findPath(float tX, float tY, float tZ)
-	{
-		setPath(pathFinder.findPath(this, position.x, position.y, position.z, tX, tY, tZ, jumpTick == 0));
-	}
-	
-	public void checkPath()
-	{
-		if (path != null && !path.finished)
-			setPath(pathFinder.findPath(this, nextStep.x, nextStep.y, nextStep.z, path.getTarget().x, path.getTarget().y, path.getTarget().z, false));
 	}
 }

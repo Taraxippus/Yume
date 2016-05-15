@@ -54,7 +54,6 @@ public class Framebuffer
 	{
 		if (!initialized())
 			throw new RuntimeException("Tried to bind an uninitialized, deleted or corrupt framebuffer");
-			
 
 		GLES20.glViewport(0, 0, width, height);
 		GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, framebuffer[0]);

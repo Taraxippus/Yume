@@ -1,6 +1,8 @@
 package com.taraxippus.yume.game.particle;
 
 import android.opengl.*;
+
+import com.taraxippus.yume.R;
 import com.taraxippus.yume.game.*;
 import com.taraxippus.yume.game.gameobject.*;
 import com.taraxippus.yume.render.*;
@@ -13,25 +15,20 @@ public class ParticleEmitter extends SceneObject
 	public FloatBuffer vertices;
 	public final Particle[] particles;
 	
-	public final VectorF prevPosition = new VectorF();
     public final VectorF position = new VectorF();
-    public final VectorF tmp = new VectorF();
 
-    public final VectorF color_start_min = new VectorF(1, 0.5F, 0.05);
-    public final VectorF color_start_max = new VectorF(1, 0.5F, 0.1);
+    public final VectorF color_start_min = new VectorF(0.9, 0.9F, 0.9);
+    public final VectorF color_start_max = new VectorF(1, 1, 1);
 
-    public final VectorF color_end_min = new VectorF(0.8F, 0, 0);
-    public final VectorF color_end_max = new VectorF(1.2F, 0.3, 0.05);
+    public final VectorF color_end_min = new VectorF(0.75F, 0.75F, 0.75F);
+    public final VectorF color_end_max = new VectorF(1F, 1, 1);
 
-    Random random = new Random();
+    private final Random random = new Random();
 
 	public boolean alive = true;
     public boolean respawn = true;
+    public int textureResource = R.drawable.snow_particle;
     public int particleCount;
-
-    public float renderSize;
-    public float simulateDistance = -1;
-    public float renderDistance = -1;
 
     public float minLifetime = 0.5F, maxLifetime = 3;
     public float minVelocity = 0.5F, maxVelocity = 1.5F;
@@ -42,6 +39,9 @@ public class ParticleEmitter extends SceneObject
     public float minMinRadius = 0, maxMinRadius = 0, minMaxRadius = 0, maxMaxRadius = 0;
 
     public float acceleration = 0.999F;
+
+    private static final Texture defaultTexture = new Texture();
+    private Texture texture = new Texture();
 
 	public ParticleEmitter(World world, int count)
 	{
@@ -139,7 +139,15 @@ public class ParticleEmitter extends SceneObject
 		
 		if (!respawn)
 			alive = false;
-			
+
+        if (!defaultTexture.initialized())
+            defaultTexture.init(world.main.resourceHelper.getBitmap(R.drawable.snow_particle), GLES20.GL_LINEAR_MIPMAP_LINEAR, GLES20.GL_LINEAR, GLES20.GL_REPEAT);
+
+        if (textureResource == R.drawable.snow_particle)
+            texture = defaultTexture;
+        else
+            texture.init(world.main.resourceHelper.getBitmap(textureResource), GLES20.GL_LINEAR_MIPMAP_LINEAR, GLES20.GL_LINEAR, GLES20.GL_REPEAT);
+
 		super.init();
 	}
 	
@@ -225,7 +233,9 @@ public class ParticleEmitter extends SceneObject
 			buffer(renderer.partial);
 			shape.buffer(vertices, null);
 		}
-		
+
+        texture.bind(0);
+
 		super.render(renderer);
 	}
 
@@ -249,5 +259,8 @@ public class ParticleEmitter extends SceneObject
 		super.delete();
 		
 		vertices.limit(0);
+
+        if (texture != defaultTexture)
+            texture.delete();
 	}
 }

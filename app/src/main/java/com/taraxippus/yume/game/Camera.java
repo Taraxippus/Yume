@@ -13,8 +13,7 @@ public class Camera
 	public static final float FOV = 60;
 	
 	public static final float FOLLOW_SMOOTHNESS = 10;
-	public static final boolean FOLLOW_ROTATION = true;
-	
+
 	public final Main main;
 	
 	public final float[] viewMatrix = new float[16];
@@ -25,13 +24,10 @@ public class Camera
 	public float zoom = 1;
 	
 	public final VectorF position = new VectorF();
-	public final VectorF rotationPre = new VectorF();
 	public final VectorF rotation = new VectorF(-5, 180, 0);
-	public final VectorF rotationPost = new VectorF();
 	public final VectorF eye = new VectorF();
-	public final VectorF up = new VectorF();
-	
-	public SceneObject target;
+
+	public Player target;
 	
 	public Camera(Main main)
 	{
@@ -48,67 +44,33 @@ public class Camera
 		if (target != null)
 		{
 			this.position.multiplyBy(FOLLOW_SMOOTHNESS).add(target.position).divideBy(FOLLOW_SMOOTHNESS + 1);
-			
-			this.rotationPre.multiplyBy(FOLLOW_SMOOTHNESS * 10).add(target.rotationPre).divideBy(FOLLOW_SMOOTHNESS * 10 + 1);
-			this.rotationPost.multiplyBy(FOLLOW_SMOOTHNESS * 5).add(target.rotation).divideBy(FOLLOW_SMOOTHNESS * 5 + 1);
 		}
 			
 		updateView();
 	}
 	
-	public void setTarget(SceneObject target)
+	public void setTarget(Player target)
 	{
 		this.target = target;
 		this.position.set(target.position);
-		this.rotationPre.set(target.rotationPre);
-		this.rotationPost.set(target.rotation);
 	}
 	
 	public void onResize(int width, int height)
 	{
 		Matrix.perspectiveM(projectionMatrix, 0, FOV, (float) width / height, Z_NEAR, Z_FAR);
-		//Matrix.frustumM(projectionMatrix, 0, (float) -width / height, (float) width / height, -1, 1, Z_NEAR, Z_FAR);
 		this.updateViewProjection();
 	}
 
 	public void updateView()
 	{
-		if (FOLLOW_ROTATION)
-		{
-			Matrix.setIdentityM(viewMatrix, 0);
-			Matrix.rotateM(viewMatrix, 0, rotationPre.y, 0, 1, 0);
-			Matrix.rotateM(viewMatrix, 0, rotationPre.x, 1, 0, 0);
-			Matrix.rotateM(viewMatrix, 0, rotationPre.z, 0, 0, 1);
-
-			this.eye.set(0, 1, 0).multiplyBy(5 * zoom)
-				.rotateX(rotation.x)
-				.rotateY(rotation.y + rotationPost.y)
-				.rotateZ(rotation.z + (target != null && target.rotationPre.z == 180 ? -180 : 0))
-				.multiplyBy(viewMatrix)
-				.add(position);
-
-			this.eye.x = Math.min(Math.max(this.eye.x, -0.05F), this.main.level.getWidth() - 0.95F);
-			this.eye.y = Math.min(Math.max(this.eye.y, -0.05F), this.main.level.getHeight() - 0.95F);
-			this.eye.z = Math.min(Math.max(this.eye.z, -0.05F), this.main.level.getLength() - 0.95F);
-
-			this.up.set(0, target != null && target.rotationPre.z == 180 ? -1 : 1, 0).multiplyBy(viewMatrix);
-
-			Matrix.setLookAtM(viewMatrix, 0, eye.x, eye.y, eye.z, position.x, position.y, position.z, up.x, up.y, up.z);
-			this.updateViewProjection();
-		}
-		else
-		{
-		
-			this.eye.set(0, 1, 0).multiplyBy(5 * zoom)
+		this.eye.set(0, 1, 0).multiplyBy(5 * zoom)
 				.rotateX(rotation.x)
 				.rotateY(rotation.y)
 				.rotateZ(rotation.z)
 				.add(position);
 
-			Matrix.setLookAtM(viewMatrix, 0, eye.x, eye.y, eye.z, position.x, position.y, position.z, 0, 1, 0);
-			this.updateViewProjection();
-		}
-		
+		Matrix.setLookAtM(viewMatrix, 0, eye.x, eye.y, eye.z, position.x, position.y, position.z, 0, 1, 0);
+		this.updateViewProjection();
 	}
 	
 	public void updateViewProjection()
@@ -152,10 +114,11 @@ public class Camera
     }
 
 	private final Plane leftPlane = new Plane(), rightPlane = new Plane(), topPlane = new Plane(), bottomPlane = new Plane(), nearPlane = new Plane(), farPlane = new Plane();
-    private final VectorF tmp = new VectorF();
-	
+
     public void calculateFrustumPlanes()
     {
+		VectorF tmp = VectorF.obtain();
+
         leftPlane.set(tmp.set(value(41) + value(11), value(42) + value(12), value(43) + value(13)), value(44) + value(14));
         rightPlane.set(tmp.set(value(41) - value(11), value(42) - value(12), value(43) - value(13)), value(44) - value(14));
 
@@ -164,6 +127,8 @@ public class Camera
 
         nearPlane.set(tmp.set(value(41) + value(31), value(42) + value(32), value(43) + value(33)), value(44) + value(34));
         farPlane.set(tmp.set(value(41) - value(31), value(42) - value(32), value(43) - value(33)), value(44) - value(34));
+
+		VectorF.release(tmp);
     }
 
     private float value(int rowColumn)

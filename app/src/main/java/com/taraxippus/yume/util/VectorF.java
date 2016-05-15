@@ -2,6 +2,7 @@ package com.taraxippus.yume.util;
 
 import android.opengl.*;
 import java.nio.*;
+import java.util.Vector;
 
 public class VectorF
 {
@@ -32,7 +33,6 @@ public class VectorF
     {
         this.set(other);
     }
-
 
     public VectorF()
     {
@@ -483,5 +483,26 @@ public class VectorF
     public int getByteCount()
     {
         return Float.SIZE / 8 * 3;
+    }
+
+    private static final Vector<VectorF> pool = new Vector<>();
+
+    public static VectorF obtain()
+    {
+        if (pool.isEmpty())
+            return new VectorF();
+        else
+            return pool.remove(0);
+    }
+
+    public static VectorF release(VectorF tmp)
+    {
+        pool.add(tmp);
+        return tmp;
+    }
+
+    public VectorF release()
+    {
+        return release(this);
     }
 }

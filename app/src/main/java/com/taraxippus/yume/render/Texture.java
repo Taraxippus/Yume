@@ -3,6 +3,8 @@ import android.graphics.*;
 import android.net.*;
 import android.opengl.*;
 
+import java.util.HashMap;
+
 public class Texture
 {
 	final int[] texture = new int[1];
@@ -11,7 +13,7 @@ public class Texture
 	{
 		
 	}
-	
+
 	public void init(Bitmap bitmap, int minFilter, int magFilter, int wrapping)
 	{
 		init(bitmap, 0, 0, 0, 0, 0, minFilter, magFilter, wrapping);

@@ -33,9 +33,8 @@ public class Renderer implements GLSurfaceView.Renderer
 		GLES20.glCullFace(GLES20.GL_BACK);
 		GLES20.glEnable(GLES20.GL_BLEND);
 		GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
-		
-		GLES20.glLineWidth(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10F, main.getResources().getDisplayMetrics()));
-		
+		GLES20.glDepthMask(true);
+
 		Pass.init(main);
 		main.game.init();
 	}
@@ -89,17 +88,24 @@ public class Renderer implements GLSurfaceView.Renderer
 		partial = accumulator / Main.FIXED_DELTA;
 		
 		currentPass = null;
-		Pass.onRenderFrame(this);
-		for (Pass pass : Pass.values())
-		{
-			if (!pass.inOrder())
-				continue;
-				
-			pass.onRender(this);
-			currentPass = pass;
-			main.world.render(this, pass);
-		}
-		
+        try
+        {
+            Pass.onRenderFrame(this);
+            for (Pass pass : Pass.values())
+            {
+                if (!pass.inOrder())
+                    continue;
+
+                pass.onRender(this);
+                currentPass = pass;
+                main.world.render(this, pass);
+            }
+        }
+        catch (RuntimeException e)
+        {
+            e.printStackTrace();
+        }
+
 		frames++;
 		
 		if (SystemClock.elapsedRealtime() - lastFPSUpdate >= 1000)
@@ -123,25 +129,30 @@ public class Renderer implements GLSurfaceView.Renderer
 	
 	public void uniform(float[] modelMatrix, Pass pass)
 	{
-		if (pass == Pass.PARTICLE || pass == Pass.PARTICLE_REFLECTION)
+		switch (pass)
 		{
-			Matrix.multiplyMM(mvpMatrix, 0, main.camera.viewMatrix, 0, modelMatrix, 0);
-			GLES20.glUniformMatrix4fv(pass.getProgram().getUniform("u_MV"), 1, false, mvpMatrix, 0);
+            case SNOW:
+                Matrix.multiplyMM(mvpMatrix, 0, main.camera.projectionViewMatrix, 0, modelMatrix, 0);
+                GLES20.glUniformMatrix4fv(pass.getProgram().getUniform("u_MVP"), 1, false, mvpMatrix, 0);
 
-			GLES20.glUniformMatrix4fv(pass.getProgram().getUniform("u_P"), 1, false, main.camera.projectionMatrix, 0);
-			
-			if (pass == Pass.PARTICLE_REFLECTION)
+                break;
+
+			case PARTICLE:
+				Matrix.multiplyMM(mvpMatrix, 0, main.camera.viewMatrix, 0, modelMatrix, 0);
+				GLES20.glUniformMatrix4fv(pass.getProgram().getUniform("u_MV"), 1, false, mvpMatrix, 0);
+
+				GLES20.glUniformMatrix4fv(pass.getProgram().getUniform("u_P"), 1, false, main.camera.projectionMatrix, 0);
+				break;
+
+			default:
+				Matrix.multiplyMM(mvpMatrix, 0, main.camera.projectionViewMatrix, 0, modelMatrix, 0);
+				GLES20.glUniformMatrix4fv(pass.getProgram().getUniform("u_MVP"), 1, false, mvpMatrix, 0);
+
+				Matrix.invertM(normalMatrix, 0, modelMatrix, 0);
+				GLES20.glUniformMatrix4fv(pass.getProgram().getUniform("u_N"), 1, true, normalMatrix, 0);
+
 				GLES20.glUniformMatrix4fv(pass.getProgram().getUniform("u_M"), 1, false, modelMatrix, 0);
-		}
-		else
-		{
-			Matrix.multiplyMM(mvpMatrix, 0, main.camera.projectionViewMatrix, 0, modelMatrix, 0);
-			GLES20.glUniformMatrix4fv(pass.getProgram().getUniform("u_MVP"), 1, false, mvpMatrix, 0);
-
-			Matrix.invertM(normalMatrix, 0, modelMatrix, 0);
-			GLES20.glUniformMatrix4fv(pass.getProgram().getUniform("u_N"), 1, true, normalMatrix, 0);
-
-			GLES20.glUniformMatrix4fv(pass.getProgram().getUniform("u_M"), 1, false, modelMatrix, 0);
+				break;
 		}
 	}
 	
