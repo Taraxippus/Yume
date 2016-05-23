@@ -3,7 +3,6 @@ package com.taraxippus.yume.game;
 import android.view.animation.RotateAnimation;
 
 import com.taraxippus.yume.*;
-import com.taraxippus.yume.game.chunk.Chunk;
 import com.taraxippus.yume.game.gameobject.*;
 import com.taraxippus.yume.render.*;
 import com.taraxippus.yume.util.VectorF;
@@ -19,14 +18,11 @@ public class World
 	public final Random random = new Random();
 	public final ArrayList<GameObject>[] gameObjects = new ArrayList[Pass.values().length];
 	public final ArrayList<SceneObject> sceneObjects = new ArrayList<>();
-	public final ArrayList<MovingObject> movingObjects = new ArrayList<>();
 	
 	public final List<GameObject> gameObjects_add = Collections.synchronizedList(new ArrayList<GameObject>());
 	public final List<GameObject> gameObjects_remove = Collections.synchronizedList(new ArrayList<GameObject>());
 	
 	public float time = 0;
-
-	public Chunk chunk;
 
 	public World(Main main)
 	{
@@ -35,7 +31,6 @@ public class World
 		for (int i = 0; i < gameObjects.length; ++i)
 			gameObjects[i] = new ArrayList<>();
 	}
-	
 	public void addLater(GameObject gameObject)
 	{
 		gameObjects_add.add(gameObject);
@@ -51,9 +46,6 @@ public class World
 		
 		if (gameObject instanceof SceneObject)
 			sceneObjects.add((SceneObject) gameObject);
-			
-		if (gameObject instanceof MovingObject)
-			movingObjects.add((MovingObject) gameObject);
 	}
 	
 	public void removeLater(GameObject gameObject)
@@ -71,9 +63,6 @@ public class World
 		
 		if (gameObject instanceof SceneObject)
 			sceneObjects.remove(gameObject);
-			
-		if (gameObject instanceof MovingObject)
-			movingObjects.remove(gameObject);
 	}
 	
 	public void update()

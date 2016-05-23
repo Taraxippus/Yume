@@ -18,6 +18,6 @@ void main()
 	v_UV_NE = v_UV.xy + (vec2(+1.0, -1.0) * u_InvResolution);
 	v_UV_SW = v_UV.xy + (vec2(-1.0, +1.0) * u_InvResolution);
 	v_UV_SE = v_UV.xy + (vec2(+1.0, +1.0) * u_InvResolution);
-
+	
 	gl_Position = vec4(a_Position, 0.0, 1.0);
 }

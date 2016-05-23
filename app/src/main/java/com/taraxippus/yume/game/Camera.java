@@ -27,7 +27,7 @@ public class Camera
 	public final VectorF rotation = new VectorF(-5, 180, 0);
 	public final VectorF eye = new VectorF();
 
-	public Player target;
+	public SceneObject target;
 	
 	public Camera(Main main)
 	{
@@ -46,10 +46,13 @@ public class Camera
 			this.position.multiplyBy(FOLLOW_SMOOTHNESS).add(target.position).divideBy(FOLLOW_SMOOTHNESS + 1);
 		}
 			
+		this.rotation.x = Math.max(Math.min(270, rotation.x), -90);
+		this.rotation.y = (this.rotation.y + 180) % 360 - 180;
+		
 		updateView();
 	}
 	
-	public void setTarget(Player target)
+	public void setTarget(SceneObject target)
 	{
 		this.target = target;
 		this.position.set(target.position);
@@ -63,13 +66,29 @@ public class Camera
 
 	public void updateView()
 	{
-		this.eye.set(0, 1, 0).multiplyBy(5 * zoom)
+		if (target != null)
+		{
+			this.eye.set(0, 1, 0).multiplyBy(5 * zoom)
 				.rotateX(rotation.x)
 				.rotateY(rotation.y)
 				.rotateZ(rotation.z)
 				.add(position);
 
-		Matrix.setLookAtM(viewMatrix, 0, eye.x, eye.y, eye.z, position.x, position.y, position.z, 0, 1, 0);
+			Matrix.setLookAtM(viewMatrix, 0, eye.x, eye.y, eye.z, position.x, position.y, position.z, 0, 1, 0);
+			
+		}
+		else
+		{
+			this.eye.set(position);
+			
+			Matrix.setIdentityM(viewMatrix, 0);
+			
+			Matrix.rotateM(viewMatrix, 0, -rotation.z, 0, 0, 1);
+			Matrix.rotateM(viewMatrix, 0, -rotation.x, 1, 0, 0);
+			Matrix.rotateM(viewMatrix, 0, -rotation.y, 0, 1, 0);
+			Matrix.translateM(viewMatrix, 0, -position.x, -position.y, -position.z);
+		}
+		
 		this.updateViewProjection();
 	}
 	

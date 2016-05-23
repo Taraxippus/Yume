@@ -14,7 +14,7 @@ varying vec2 v_UV;
 void main()
 {
 	v_Color = a_Color;
-	v_UV = a_Direction * 0.5 + vec2(0.5, 0.5);
+	v_UV = a_Direction * -0.5 + vec2(0.5, 0.5);
 
 	gl_Position = u_P * (vec4(a_Direction * a_Position.w, 0.0, 0.0) + u_MV * vec4(a_Position.xyz, 1.0));
 }

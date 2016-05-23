@@ -27,7 +27,7 @@ public class ParticleEmitter extends SceneObject
 
 	public boolean alive = true;
     public boolean respawn = true;
-    public int textureResource = R.drawable.snow_particle;
+    public int textureResource = R.drawable.ic_launcher;
     public int particleCount;
 
     public float minLifetime = 0.5F, maxLifetime = 3;
@@ -53,7 +53,7 @@ public class ParticleEmitter extends SceneObject
 			
 		particleCount = count;
 		
-		this.alpha = 1F;
+		this.alpha = 0.999F;
 	}
 	
 	public ParticleEmitter setLifeTime(float min, float max)
@@ -141,9 +141,9 @@ public class ParticleEmitter extends SceneObject
 			alive = false;
 
         if (!defaultTexture.initialized())
-            defaultTexture.init(world.main.resourceHelper.getBitmap(R.drawable.snow_particle), GLES20.GL_LINEAR_MIPMAP_LINEAR, GLES20.GL_LINEAR, GLES20.GL_REPEAT);
+            defaultTexture.init(world.main.resourceHelper.getBitmap(R.drawable.ic_launcher), GLES20.GL_LINEAR_MIPMAP_LINEAR, GLES20.GL_LINEAR, GLES20.GL_REPEAT);
 
-        if (textureResource == R.drawable.snow_particle)
+        if (textureResource == R.drawable.ic_launcher)
             texture = defaultTexture;
         else
             texture.init(world.main.resourceHelper.getBitmap(textureResource), GLES20.GL_LINEAR_MIPMAP_LINEAR, GLES20.GL_LINEAR, GLES20.GL_REPEAT);

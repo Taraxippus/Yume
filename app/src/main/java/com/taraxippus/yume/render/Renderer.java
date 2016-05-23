@@ -27,7 +27,7 @@ public class Renderer implements GLSurfaceView.Renderer
 		width = main.view.getWidth();
 		height = main.view.getHeight();
 		
-		GLES20.glClearColor(1F, 1F, 1F, 1);
+		GLES20.glClearColor(186.0F / 255.0F, 221.0F / 255.0F, 1.0F, 1);
 		GLES20.glEnable(GLES20.GL_DEPTH_TEST);
 		GLES20.glEnable(GLES20.GL_CULL_FACE);
 		GLES20.glCullFace(GLES20.GL_BACK);
@@ -131,12 +131,15 @@ public class Renderer implements GLSurfaceView.Renderer
 	{
 		switch (pass)
 		{
-            case SNOW:
-                Matrix.multiplyMM(mvpMatrix, 0, main.camera.projectionViewMatrix, 0, modelMatrix, 0);
-                GLES20.glUniformMatrix4fv(pass.getProgram().getUniform("u_MVP"), 1, false, mvpMatrix, 0);
+			case SCENE_OUTLINE:
+				GLES20.glUniformMatrix4fv(pass.getProgram().getUniform("u_VP"), 1, false, main.camera.projectionViewMatrix, 0);
 
-                break;
+				Matrix.invertM(normalMatrix, 0, modelMatrix, 0);
+				GLES20.glUniformMatrix4fv(pass.getProgram().getUniform("u_N"), 1, true, normalMatrix, 0);
 
+				GLES20.glUniformMatrix4fv(pass.getProgram().getUniform("u_M"), 1, false, modelMatrix, 0);
+				break;
+				
 			case PARTICLE:
 				Matrix.multiplyMM(mvpMatrix, 0, main.camera.viewMatrix, 0, modelMatrix, 0);
 				GLES20.glUniformMatrix4fv(pass.getProgram().getUniform("u_MV"), 1, false, mvpMatrix, 0);

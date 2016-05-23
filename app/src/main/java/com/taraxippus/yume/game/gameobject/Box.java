@@ -22,11 +22,6 @@ public class Box extends SceneObject
 		this.inverted = inverted;
 	}
 	
-	public float getRadius()
-	{
-		return (float) Math.sqrt(scale.x * scale.x * 0.5 * 0.5 + scale.y * scale.y * 0.5 * 0.5 + scale.z * scale.z * 0.5 * 0.5);
-	}
-	
 	public static final float[] vertices = new float[]
 	{
 		-0.5F, -0.5F, -0.5F,

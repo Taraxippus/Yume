@@ -5,7 +5,6 @@ import android.content.Context;
 import android.opengl.GLSurfaceView;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.view.MotionEventCompat;
 import android.util.TypedValue;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -186,106 +185,13 @@ public class Main extends Activity implements View.OnTouchListener
 		super.onDestroy();
 	}
 	
-	private static final int INVALID_POINTER_ID = -1;
-	
-	private int activePointerIdLeft = INVALID_POINTER_ID, activePointerIdRight = INVALID_POINTER_ID;
-	private float lastTouchXLeft, lastTouchYLeft, lastTouchYRight;
-
 	@Override
 	public boolean onTouch(View view, MotionEvent ev)
 	{
-		scaleDetector.onTouchEvent(ev);
 		gestureDetector.onTouchEvent(ev);
-
-		final int action = MotionEventCompat.getActionMasked(ev); 
-
-		switch (action)
-		{
-			case MotionEvent.ACTION_DOWN:
-			case MotionEvent.ACTION_POINTER_DOWN:
-				{
-					final int pointerIndex = MotionEventCompat.getActionIndex(ev); 
-					final float x = MotionEventCompat.getX(ev, pointerIndex); 
-					final float y = MotionEventCompat.getY(ev, pointerIndex); 
-
-					if (x < view.getWidth() / 2)
-					{
-						if (activePointerIdLeft == INVALID_POINTER_ID)
-						{
-							lastTouchXLeft = x;
-							lastTouchYLeft = y;
-
-							activePointerIdLeft = MotionEventCompat.getPointerId(ev, 0);
-						}
-					}
-					else
-					{
-						if (activePointerIdRight == INVALID_POINTER_ID)
-						{
-							lastTouchYRight = y;
-
-							activePointerIdRight = MotionEventCompat.getPointerId(ev, 0);
-						}
-					}
-
-					break;
-				}
-
-			case MotionEvent.ACTION_MOVE:
-				{
-					final int pointerIndex = MotionEventCompat.getActionIndex(ev);
-					final int pointerId = MotionEventCompat.getPointerId(ev, pointerIndex);
-					float x, y, dx, dy;
-
-					if (pointerIndex == activePointerIdLeft)
-					{
-						x = MotionEventCompat.getX(ev, pointerIndex);
-						y = MotionEventCompat.getY(ev, pointerIndex);
-
-						dx = x - lastTouchXLeft;
-						dy = y - lastTouchYLeft;
-
-						camera.rotation.y -= dx * 0.1F;
-						camera.rotation.x -= dy * 0.1F;
-
-						camera.rotation.x = Math.min(180 - 1F, Math.max(camera.rotation.x, 1F));
-
-						lastTouchXLeft = x;
-						lastTouchYLeft = y;
-					}
-					else if (pointerId == activePointerIdRight)
-					{
-						y = MotionEventCompat.getY(ev, pointerIndex);
-						dy = y - lastTouchYRight;
-						camera.target.jumpLength = Math.abs(dy / 50F);
-						camera.target.move(camera.rotation.y - (dy < 0 ? 180 : 0));
-					}
-
-					break;
-				}
-
-			case MotionEvent.ACTION_POINTER_UP:
-			{
-				final int pointerIndex = MotionEventCompat.getActionIndex(ev);
-				final int pointerId = MotionEventCompat.getPointerId(ev, pointerIndex);
-
-				if (pointerId == activePointerIdLeft)
-					activePointerIdLeft = INVALID_POINTER_ID;
-
-				else if (pointerId == activePointerIdRight)
-					activePointerIdRight = INVALID_POINTER_ID;
-
-				break;
-			}
-			case MotionEvent.ACTION_UP:
-			case MotionEvent.ACTION_CANCEL:
-			{
-				activePointerIdLeft = INVALID_POINTER_ID;
-				activePointerIdRight = INVALID_POINTER_ID;
-
-				break;
-			}
-		}       
+		game.onTouch(view, ev);
+		//scaleDetector.onTouchEvent(ev);
+		
 		return true;
 	}
 	
@@ -294,11 +200,8 @@ public class Main extends Activity implements View.OnTouchListener
 		@Override
 		public boolean onScale(ScaleGestureDetector detector) 
 		{
-			if (activePointerIdLeft == INVALID_POINTER_ID || activePointerIdRight == INVALID_POINTER_ID)
-			{
-				camera.zoom /= detector.getScaleFactor();
-				camera.zoom = Math.max(1F, Math.min(camera.zoom, 2.5F));
-			}
+			camera.zoom /= detector.getScaleFactor();
+			camera.zoom = Math.max(1F, Math.min(camera.zoom, 2.5F));
 
 			return true;
 		}

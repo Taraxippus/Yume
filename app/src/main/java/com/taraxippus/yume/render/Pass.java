@@ -6,9 +6,9 @@ import java.util.*;
 
 public enum Pass
 {
+	SCENE_OUTLINE,
 	SCENE,
 	PARTICLE,
-	SNOW,
 	POST;
 
 	private static final Program[] programs = new Program[Pass.values().length];
@@ -26,18 +26,18 @@ public enum Pass
 		for (int i = 0; i < framebuffer.length; ++i)
 			framebuffer[i] = new Framebuffer();
 
+		attributes[SCENE_OUTLINE.ordinal()] = new int[] {3, 3};
 		attributes[SCENE.ordinal()] = new int[] {3, 3};
 		attributes[PARTICLE.ordinal()] = new int[] {4, 4, 2};
-		attributes[SNOW.ordinal()] = new int[] {3, 2};
 		attributes[POST.ordinal()] = new int[] {2};
 	}
 	
 	public static void init(Main main)
 	{
+		programs[SCENE_OUTLINE.ordinal()].init(main, R.raw.vertex_scene_outline, R.raw.fragment_scene_outline, "a_Position", "a_Normal");
 		programs[SCENE.ordinal()].init(main, R.raw.vertex_scene, R.raw.fragment_scene, "a_Position", "a_Normal");
 		programs[PARTICLE.ordinal()].init(main, R.raw.vertex_particle, R.raw.fragment_particle, "a_Position", "a_Color", "a_Direction");
-		programs[SNOW.ordinal()].init(main, R.raw.vertex_snow, R.raw.fragment_snow, "a_Position", "a_UV");
-
+		
 		programs[POST.ordinal()].init(main, R.raw.vertex_post, R.raw.fragment_post, "a_Position");
 		
 		framebuffer[SCENE.ordinal()].init(true, main.renderer.width, main.renderer.height);
@@ -45,12 +45,9 @@ public enum Pass
 		PARTICLE.getProgram().use();
 		GLES20.glUniform1i(PARTICLE.getProgram().getUniform("u_Texture"), 0);
 
-		SNOW.getProgram().use();
-		GLES20.glUniform1i(SNOW.getProgram().getUniform("u_Texture"), 0);
-
 		POST.getProgram().use();
 		GLES20.glUniform1i(POST.getProgram().getUniform("u_Texture"), 0);
-		GLES20.glUniform1i(POST.getProgram().getUniform("u_Dither"), 1);
+		GLES20.glUniform1i(POST.getProgram().getUniform("u_Dither"), 2);
 		
 		final int[] colors = new int[main.renderer.width * main.renderer.height];
 		int gray;
@@ -95,16 +92,16 @@ public enum Pass
 	
 	public boolean inOrder()
 	{
-		return this == SCENE || this == POST || this == SNOW;
+		return this != SCENE_OUTLINE;
 	}
 	
 	public Pass getParent()
 	{
 		switch (this)
 		{
-			case PARTICLE:
+			case SCENE_OUTLINE:
 				return SCENE;
-
+				
 			default:
 				return this;
 		}
@@ -133,17 +130,12 @@ public enum Pass
 
 				break;
 
-			case SNOW:
-				GLES20.glDepthMask(false);
-
-				break;
-
 			case POST:
 				GLES20.glDepthMask(true);
 				Framebuffer.release(renderer);
 				
 				SCENE.getFramebuffer().bindTexture(0);
-				dither.bind(1);
+				dither.bind(2);
 				
 				GLES20.glUniform2f(getProgram().getUniform("u_InvResolution"), 1F / SCENE.getFramebuffer().width, 1F / SCENE.getFramebuffer().height);
 				GLES20.glUniform1f(getProgram().getUniform("u_VignetteFactor"), 0.6F + 0.2F / renderer.main.timeFactor);

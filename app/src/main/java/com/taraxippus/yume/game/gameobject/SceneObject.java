@@ -26,11 +26,14 @@ public class SceneObject extends GameObject
 	
 	public boolean touchable = false;
 	public boolean enabled = true;
+	
+	private Shape outlineShape;
 
 	public SceneObject(World world)
 	{
 		super(world);
 		
+		this.setPass(Pass.SCENE_OUTLINE);
 		this.updateMatrix();
 	}
 	
@@ -47,7 +50,6 @@ public class SceneObject extends GameObject
 		return this;
 	}
 	
-
 	public SceneObject setSpecularity(float exponent, float factor)
 	{
 		this.specularityExponent = exponent;
@@ -133,7 +135,20 @@ public class SceneObject extends GameObject
 	
 	public float getRadius()
 	{
-		return (float) Math.sqrt(scale.x * scale.x + scale.y * scale.y + scale.z * scale.z);
+		return (float) Math.sqrt(scale.x * scale.x * 0.5 * 0.5 + scale.y * scale.y * 0.5 * 0.5 + scale.z * scale.z * 0.5 * 0.5);
+	}
+
+	@Override
+	public void init()
+	{
+		super.init();
+		
+		outlineShape = createOutlineShape();
+	}
+	
+	public Shape createOutlineShape()
+	{
+		return shape;
 	}
 	
 	@Override
@@ -142,19 +157,43 @@ public class SceneObject extends GameObject
 		if (!enabled || !world.main.camera.insideFrustum(position, radius))
 			return;
 		
-		if (renderer.currentPass != getPass())
-			getPass().onRender(renderer);
-			
-		renderer.uniform(modelMatrix, getPass());
-		GLES20.glUniform4f(getPass().getProgram().getUniform("u_Color"), color.x, color.y, color.z, alpha);
-		GLES20.glUniform2f(getPass().getProgram().getUniform("u_Specularity"), specularityExponent, specularityFactor);
-		
 		GLES20.glDepthMask(this.alpha == 1);
-
-		super.render(renderer);
 		
 		if (renderer.currentPass != getPass())
+		{
+			if (outlineShape == null)
+				outlineShape = createOutlineShape();
+			
+			getPass().onRender(renderer);
+
+			GLES20.glCullFace(GLES20.GL_FRONT);
+			renderer.uniform(modelMatrix, getPass());
+			if (outlineShape != null)
+				outlineShape.render();
+			GLES20.glCullFace(GLES20.GL_BACK);
+			
 			getPass().getParent().onRender(renderer);
+		}
+		
+		renderer.uniform(modelMatrix, getPass().getParent());
+		uniform();
+		super.render(renderer);
+	}
+
+	@Override
+	public void delete()
+	{
+		super.delete();
+		
+		if (outlineShape != null && outlineShape.initialized())
+			outlineShape.delete();
+	}
+	
+	
+	public void uniform()
+	{
+		GLES20.glUniform4f(getPass().getParent().getProgram().getUniform("u_Color"), color.x, color.y, color.z, alpha);
+		GLES20.glUniform2f(getPass().getParent().getProgram().getUniform("u_Specularity"), specularityExponent, specularityFactor);
 	}
 
 	@Override

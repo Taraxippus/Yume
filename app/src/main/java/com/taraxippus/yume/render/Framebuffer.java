@@ -66,6 +66,11 @@ public class Framebuffer
 		color.bind(texture);
 	}
 	
+	public void bindDepthTexture(int texture)
+	{
+		depth.bind(texture);
+	}
+	
 	public static void release(Renderer renderer)
 	{
 		GLES20.glViewport(0, 0, renderer.width, renderer.height);

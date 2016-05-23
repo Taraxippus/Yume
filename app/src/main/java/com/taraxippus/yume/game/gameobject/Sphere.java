@@ -13,11 +13,6 @@ public class Sphere extends SceneObject
 		super(world);
 	}
 	
-	public float getRadius()
-	{
-		return (float) Math.sqrt(scale.x * scale.x * 0.5 * 0.5 + scale.y * scale.y * 0.5 * 0.5 + scale.z * scale.z * 0.5 * 0.5);
-	}
-	
 	@Override
 	public Shape createShape()
 	{
@@ -48,10 +43,10 @@ public class Sphere extends SceneObject
 
 		offset = 0;
 
-		final short[] indices = new short[rings * sectors * 6];
+		final short[] indices = new short[(rings - 1) * (sectors - 1) * 6];
 
-		for (r = 0; r < rings; r++)
-			for (s = 0; s < sectors; s++)
+		for (r = 0; r < rings - 1; r++)
+			for (s = 0; s < sectors - 1; s++)
 			{
 				indices[offset++] = (short) (r * sectors + s);
 				indices[offset++] = (short) ((r + 1) * sectors + (s + 1));
