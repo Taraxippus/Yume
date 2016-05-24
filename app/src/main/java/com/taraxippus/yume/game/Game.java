@@ -5,11 +5,13 @@ import android.view.View;
 import com.taraxippus.yume.Main;
 import com.taraxippus.yume.game.gameobject.Box;
 import com.taraxippus.yume.game.gameobject.FullscreenQuad;
+import com.taraxippus.yume.game.gameobject.HexagonTube;
+import com.taraxippus.yume.game.gameobject.Player;
+import com.taraxippus.yume.game.gameobject.SceneObject;
 import com.taraxippus.yume.game.gameobject.Sphere;
 import com.taraxippus.yume.render.Pass;
 import com.taraxippus.yume.util.SimplexNoise;
 import com.taraxippus.yume.util.VectorF;
-import com.taraxippus.yume.game.gameobject.HexagonPlane;
 
 public class Game implements View.OnTouchListener
 {
@@ -17,6 +19,8 @@ public class Game implements View.OnTouchListener
 	public final SimplexNoise noiseGenerator = new SimplexNoise(1024, 0.75F, 0);
 	public final VectorF light = new VectorF(-0.25F, -1, 0.1F).normalize();
 
+	public SceneObject player;
+	
 	public Game(Main main)
 	{
 		this.main = main;
@@ -25,18 +29,22 @@ public class Game implements View.OnTouchListener
 	public void init()
 	{
 		main.camera.init();
-
-		main.world.add(new HexagonPlane(main.world).scale(10, 3, 10).translate(0, -2, 0));
-
-		main.world.add(new Box(main.world).scale(1, 1, 1).rotate(0, 45, 0).translate(5, 0, 5));
-		main.world.add(new Box(main.world).scale(1, 1, 1).translate(10, 0, 0));
-		main.world.add(new Box(main.world).scale(1, 1, 1).translate(0, 0, -10));
+		main.camera.position.set(0, 2, 0);
+		main.camera.update();
 		
-		main.world.add(new Sphere(main.world).scale(1, 1, 1).translate(5, 0, 10));
-		main.world.add(new Sphere(main.world).scale(2, 2, 2).translate(0, 0.5F, 0));
-		main.world.add(new Sphere(main.world).scale(3, 3, 3).translate(-5, 1F, 0));
-	
+		main.world.add(new HexagonTube(main.world).scale(50, 50, 50).translate(0, 0, 50));
+		main.world.add(new HexagonTube(main.world).scale(50, 50, 50));
+		main.world.add(new Box(main.world).scale(10, 1, 100).translate(0, 0, 25));
+		main.world.add(new Box(main.world).scale(1, 1, 100).translate(-5, 1, 25).setColor(0x00CCFF));
+		main.world.add(new Box(main.world).scale(1, 1, 100).translate(5, 1, 25).setColor(0x00CCFF));
+		
+		main.world.add(new Sphere(main.world).scale(1, 1, 1).translate(0, 2, 0));
+		
+		main.world.add(player = new Player(main.world).scale(1, 0.5F, 2).translate(0, 3, 25).setColor(0xFF8800));
+		
 		main.world.add(new FullscreenQuad(main.world, Pass.POST));
+		
+		main.camera.setTarget(player);
 	}
 	
 	public void update()
@@ -48,11 +56,10 @@ public class Game implements View.OnTouchListener
 	{
 		if (pointerRight != -1)
 		{
-			main.camera.position.add(VectorF.obtain()
+			player.position.add(VectorF.obtain()
 			.set(newXRight - lastXRight, 0, newYRight - lastYRight)
-			.rotateX(main.camera.rotation.x)
-			.rotateY(main.camera.rotation.y)
-			.multiplyBy(Main.FIXED_DELTA * 25)
+			.rotateY(player.rotation.y)
+			.multiplyBy(Main.FIXED_DELTA * 45)
 			.release());
 		}
 		
@@ -102,7 +109,7 @@ public class Game implements View.OnTouchListener
 				
 				if (index != -1)
 				{
-					main.camera.rotation.y += (lastXLeft - event.getX(index) / v.getWidth()) * 180;
+					player.rotation.y += (lastXLeft - event.getX(index) / v.getWidth()) * 180;
 					main.camera.rotation.x += (lastYLeft - event.getY(index) / v.getHeight()) * 180;
 					
 					lastXLeft = event.getX(index) / (float) v.getWidth();
@@ -128,7 +135,7 @@ public class Game implements View.OnTouchListener
 				if (pointer == pointerLeft)
 					pointerLeft = -1;
 					
-				else if (pointer == pointerRight)
+				if (pointer == pointerRight)
 					pointerRight = -1;
 					
 				break;

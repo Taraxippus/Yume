@@ -122,11 +122,10 @@ public class SceneObject extends GameObject
 	{
 		Matrix.setIdentityM(modelMatrix, 0);
 		Matrix.translateM(modelMatrix, 0, position.x, position.y, position.z);
-		Matrix.scaleM(modelMatrix, 0, scale.x, scale.y, scale.z);
-
 		Matrix.rotateM(modelMatrix, 0, rotation.y, 0, 1, 0);
 		Matrix.rotateM(modelMatrix, 0, rotation.x, 1, 0, 0);
 		Matrix.rotateM(modelMatrix, 0, rotation.z, 0, 0, 1);
+		Matrix.scaleM(modelMatrix, 0, scale.x, scale.y, scale.z);
 		
 		Matrix.invertM(invModelMatrix, 0, modelMatrix, 0);
 		

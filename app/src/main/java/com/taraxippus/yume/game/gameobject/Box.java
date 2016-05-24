@@ -235,4 +235,65 @@ public class Box extends SceneObject
 		
 		return shape;
 	}
+	
+	public static final float[] vertices_outline = new float[]
+	{
+		-0.5F, -0.5F, -0.5F,
+		-1, -1, -1,
+
+		0.5F, -0.5F, -0.5F,
+		1, -1, -1,
+
+		-0.5F, -0.5F, 0.5F,
+		-1, -1, 1,
+
+		0.5F, -0.5F, 0.5F,
+		1, -1, 1,
+
+
+		-0.5F, 0.5F, -0.5F,
+		-1, 1, -1,
+
+		0.5F, 0.5F, -0.5F,
+		1, 1, -1,
+
+		-0.5F, 0.5F, 0.5F,
+		-1, 1, 2,
+
+		0.5F, 0.5F, 0.5F,
+		1, 1, 1,
+
+	};
+	
+	
+	public static final short[] indices_outlline = new short[]
+	{
+		0, 1, 2,
+		1, 3, 2,
+
+		4, 6, 5,
+		5, 6, 7,
+
+		0, 4, 1,
+		1, 4, 5,
+		
+		1, 5, 3,
+		3, 5, 7,
+		
+		3, 7, 2,
+		2, 7, 6,
+		
+		2, 6, 0, 
+		0, 6, 4
+	};
+	
+	@Override
+	public Shape createOutlineShape()
+	{
+		Shape shape = new Shape();
+
+		shape.init(GLES20.GL_TRIANGLES, vertices_outline, indices_outlline, getPass().getAttributes());
+
+		return shape;
+	}
 }

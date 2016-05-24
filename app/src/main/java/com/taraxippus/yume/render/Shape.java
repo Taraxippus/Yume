@@ -2,6 +2,8 @@ package com.taraxippus.yume.render;
 
 import android.opengl.*;
 import java.nio.*;
+import java.util.Vector;
+import com.taraxippus.yume.util.VectorF;
 
 public class Shape
 {
@@ -194,5 +196,41 @@ public class Shape
 		
 		GLES20.glDeleteBuffers(hasIndices ? 2 : 1, vbo, 0);
 		vbo[0] = vbo[1] = 0;
+	}
+	
+	public static void generateNormals(float[] vertices, short indices[])
+	{
+		final VectorF tmp1 = VectorF.obtain(), tmp2 = VectorF.obtain(), tmp3 = VectorF.obtain(), tmp4 = VectorF.obtain();
+		final VectorF[] normals = new VectorF[vertices.length / 6];
+		
+		for (int i = 0; i < normals.length; i++)
+			normals[i] = VectorF.obtain();
+		
+		for (int i = 0; i < indices.length; i += 3)
+		{
+			tmp1.set(vertices, indices[i], 6, 0);
+			tmp2.set(vertices, indices[i + 1], 6, 0);
+			tmp3.set(vertices, indices[i + 2], 6, 0);
+			
+			normals[indices[i] & 0xffff].add(tmp4.set(tmp2).subtract(tmp1).cross(tmp3.subtract(tmp1)).normalize());
+			normals[indices[i + 1] & 0xffff].add(tmp4);
+			normals[indices[i + 2] & 0xffff].add(tmp4);
+		}
+		
+		for (int i = 0; i < normals.length; i++)
+		{
+			normals[i].normalize();
+			vertices[i * 6 + 3] = normals[i].x;
+			vertices[i * 6 + 4] = normals[i].y;
+			vertices[i * 6 + 5] = normals[i].z;
+		}
+		
+		for (int i = 0; i < normals.length; i++)
+			normals[i].release();
+		
+		tmp1.release();
+		tmp2.release();
+		tmp3.release();
+		tmp4.release();
 	}
 }

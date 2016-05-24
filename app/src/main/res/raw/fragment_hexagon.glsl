@@ -1,10 +1,11 @@
 #version 100
-precision highp float;
+precision mediump float;
 
 uniform vec4 u_Color;
 uniform vec2 u_Specularity;
 uniform vec3 u_Eye;
 uniform vec3 u_Light;
+uniform float u_Time;
 
 varying vec3 v_Normal;
 varying vec3 v_Position;
@@ -15,6 +16,15 @@ const float A = 0.1;
 const float B = 0.3;
 const float C = 0.6;
 const float D = 1.0;
+
+vec3 rotate(in vec3 vecIn, float z)
+{
+	vec3 vecOut = vec3(0, 0, vecIn.z);
+	vecOut.x = vecIn.x * cos(z) + vecIn.y * -sin(z);
+	vecOut.y = vecIn.x * -sin(z) + vecIn.y * cos(z);
+
+	return vecOut;
+}
 
 void main()
 {
@@ -40,6 +50,6 @@ void main()
     
     spec = step(0.25, spec) + max(0.0, spec - 0.25) * 0.75;
 	
-	gl_FragColor = vec4(u_Color.rgb * (c_Ambient + diff * (1.0 - c_Ambient) + spec * u_Specularity.y), u_Color.a);
+	gl_FragColor = vec4((rotate(normal, u_Time) * 0.5 + vec3(0.5)) * u_Color.rgb * (c_Ambient + diff * (1.0 - c_Ambient) + spec * u_Specularity.y), u_Color.a);
 }
 

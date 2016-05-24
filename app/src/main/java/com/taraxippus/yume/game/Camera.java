@@ -44,10 +44,13 @@ public class Camera
 		if (target != null)
 		{
 			this.position.multiplyBy(FOLLOW_SMOOTHNESS).add(target.position).divideBy(FOLLOW_SMOOTHNESS + 1);
+			this.rotation.y = (rotation.y * FOLLOW_SMOOTHNESS + target.rotation.y) / (FOLLOW_SMOOTHNESS + 1);
 		}
 			
 		this.rotation.x = Math.max(Math.min(270, rotation.x), -90);
-		this.rotation.y = (this.rotation.y + 180) % 360 - 180;
+		
+		if (target == null)
+			this.rotation.y = (this.rotation.y + 180) % 360 - 180;
 		
 		updateView();
 	}
@@ -68,7 +71,7 @@ public class Camera
 	{
 		if (target != null)
 		{
-			this.eye.set(0, 1, 0).multiplyBy(5 * zoom)
+			this.eye.set(0, 0.5F, 1).multiplyBy(5 * zoom)
 				.rotateX(rotation.x)
 				.rotateY(rotation.y)
 				.rotateZ(rotation.z)

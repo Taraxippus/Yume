@@ -414,6 +414,11 @@ public class VectorF
         return set(vector[0], vector[1], vector[2]);
     }
 
+	public VectorF set(float[] array, short index, int stride, int offset)
+    {
+        return set(array[(index & 0xffff) * stride + offset], array[(index & 0xffff) * stride + offset + 1], array[(index & 0xffff) * stride + offset + 2]);
+    }
+	
     public VectorF set(double x, double y, double z)
     {
         this.x = (float)x;
@@ -492,7 +497,7 @@ public class VectorF
         if (pool.isEmpty())
             return new VectorF();
         else
-            return pool.remove(0);
+            return pool.remove(0).set(0, 0, 0);
     }
 
     public static VectorF release(VectorF tmp)

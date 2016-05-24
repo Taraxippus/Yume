@@ -6,6 +6,8 @@ import java.util.*;
 
 public enum Pass
 {
+	HEXAGON_OUTLINE,
+	HEXAGON,
 	SCENE_OUTLINE,
 	SCENE,
 	PARTICLE,
@@ -26,6 +28,8 @@ public enum Pass
 		for (int i = 0; i < framebuffer.length; ++i)
 			framebuffer[i] = new Framebuffer();
 
+		attributes[HEXAGON_OUTLINE.ordinal()] = new int[] {3, 3};
+		attributes[HEXAGON.ordinal()] = new int[] {3, 3};
 		attributes[SCENE_OUTLINE.ordinal()] = new int[] {3, 3};
 		attributes[SCENE.ordinal()] = new int[] {3, 3};
 		attributes[PARTICLE.ordinal()] = new int[] {4, 4, 2};
@@ -34,6 +38,8 @@ public enum Pass
 	
 	public static void init(Main main)
 	{
+		programs[HEXAGON_OUTLINE.ordinal()].init(main, R.raw.vertex_hexagon_outline, R.raw.fragment_scene_outline, "a_Position", "a_Normal");
+		programs[HEXAGON.ordinal()].init(main, R.raw.vertex_hexagon, R.raw.fragment_hexagon, "a_Position", "a_Normal");
 		programs[SCENE_OUTLINE.ordinal()].init(main, R.raw.vertex_scene_outline, R.raw.fragment_scene_outline, "a_Position", "a_Normal");
 		programs[SCENE.ordinal()].init(main, R.raw.vertex_scene, R.raw.fragment_scene, "a_Position", "a_Normal");
 		programs[PARTICLE.ordinal()].init(main, R.raw.vertex_particle, R.raw.fragment_particle, "a_Position", "a_Color", "a_Direction");
@@ -72,7 +78,8 @@ public enum Pass
 			if (framebuffer.initialized())
 				framebuffer.delete();
 				
-		dither.delete();
+		if (dither.initialized())
+			dither.delete();
 	}
 	
 	public Program getProgram()
@@ -92,13 +99,16 @@ public enum Pass
 	
 	public boolean inOrder()
 	{
-		return this != SCENE_OUTLINE;
+		return this != SCENE_OUTLINE && this != HEXAGON_OUTLINE;
 	}
 	
 	public Pass getParent()
 	{
 		switch (this)
 		{
+			case HEXAGON_OUTLINE:
+				return HEXAGON;
+				
 			case SCENE_OUTLINE:
 				return SCENE;
 				
@@ -118,11 +128,17 @@ public enum Pass
 		
 		switch (this)
 		{
+			case HEXAGON:
+				GLES20.glUniform1f(getProgram().getUniform("u_Time"), (float) (renderer.main.world.time % (Math.PI * 2 * 10)));
 			case SCENE:
 				GLES20.glDepthMask(true);
 				GLES20.glUniform3fv(getProgram().getUniform("u_Eye"), 1, renderer.main.camera.eye.getVec40(), 0);
 				GLES20.glUniform3fv(getProgram().getUniform("u_Light"), 1, renderer.main.game.light.getVec40(), 0);
 
+				break;
+				
+			case HEXAGON_OUTLINE:
+				GLES20.glUniform1f(getProgram().getUniform("u_Time"), (float) (renderer.main.world.time % (Math.PI * 2 * 10)));
 				break;
 
 			case PARTICLE:
