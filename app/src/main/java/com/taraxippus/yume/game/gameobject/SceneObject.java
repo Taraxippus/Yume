@@ -1,17 +1,22 @@
 package com.taraxippus.yume.game.gameobject;
 
-import android.graphics.*;
-import android.opengl.*;
-import com.taraxippus.yume.game.*;
-import com.taraxippus.yume.render.*;
-import com.taraxippus.yume.util.*;
-
+import android.graphics.Color;
+import android.opengl.GLES20;
 import android.opengl.Matrix;
+import com.taraxippus.yume.game.World;
+import com.taraxippus.yume.game.model.Model;
+import com.taraxippus.yume.render.Pass;
+import com.taraxippus.yume.render.Renderer;
+import com.taraxippus.yume.render.Shape;
+import com.taraxippus.yume.util.VectorF;
 
 public class SceneObject extends GameObject
 {
+	public Model model;
+	
 	public final float[] modelMatrix = new float[16];
 	public final float[] invModelMatrix = new float[16];
+	public final float[] normalMatrix = new float[16];
 	
 	public final VectorF color = new VectorF(0xCC / 255F, 0xCC / 255F, 0xCC / 255F);
 	public float alpha = 1F;
@@ -31,11 +36,27 @@ public class SceneObject extends GameObject
 
 	public SceneObject(World world)
 	{
+		this(world, null);
+	}
+	
+	public SceneObject(World world, Model model)
+	{
 		super(world);
 		
 		this.setPass(Pass.SCENE_OUTLINE);
+		this.setModel(model);
 		this.updateMatrix();
 	}
+	
+	public SceneObject setModel(Model model)
+	{
+		this.model = model;
+		if (model != null)
+			this.setPass(model.pass);
+			
+		return this;
+	}
+	
 	
 	public SceneObject setColor(int rgb)
 	{
@@ -129,6 +150,11 @@ public class SceneObject extends GameObject
 		
 		Matrix.invertM(invModelMatrix, 0, modelMatrix, 0);
 		
+		Matrix.setIdentityM(normalMatrix, 0);
+		Matrix.rotateM(normalMatrix, 0, rotation.y, 0, 1, 0);
+		Matrix.rotateM(normalMatrix, 0, rotation.x, 1, 0, 0);
+		Matrix.rotateM(normalMatrix, 0, rotation.z, 0, 0, 1);
+		
 		this.radius = getRadius();
 	}
 	
@@ -144,10 +170,16 @@ public class SceneObject extends GameObject
 		
 		outlineShape = createOutlineShape();
 	}
+
+	@Override
+	public Shape createShape()
+	{
+		return model == null ? super.createShape() : model.getShape();
+	}
 	
 	public Shape createOutlineShape()
 	{
-		return shape;
+		return model == null ? null : model.getOutlineShape();
 	}
 	
 	@Override
@@ -158,7 +190,7 @@ public class SceneObject extends GameObject
 		
 		//GLES20.glDepthMask(this.alpha == 1);
 		
-		renderer.uniform(modelMatrix, getPass().getParent());
+		renderer.uniform(modelMatrix, invModelMatrix, getPass().getParent());
 		uniform();
 		super.render(renderer);
 		
@@ -170,7 +202,7 @@ public class SceneObject extends GameObject
 			getPass().onRender(renderer);
 
 			GLES20.glCullFace(GLES20.GL_FRONT);
-			renderer.uniform(modelMatrix, getPass());
+			renderer.uniform(modelMatrix, normalMatrix, getPass());
 			if (outlineShape != null)
 				outlineShape.render();
 			GLES20.glCullFace(GLES20.GL_BACK);
@@ -184,8 +216,8 @@ public class SceneObject extends GameObject
 	{
 		super.delete();
 		
-		if (outlineShape != null && outlineShape.initialized())
-			outlineShape.delete();
+		model.deleteShape();
+		model.deleteOutlineShape();
 	}
 	
 	

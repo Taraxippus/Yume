@@ -3,12 +3,15 @@ package com.taraxippus.yume.game;
 import android.view.MotionEvent;
 import android.view.View;
 import com.taraxippus.yume.Main;
-import com.taraxippus.yume.game.gameobject.Box;
 import com.taraxippus.yume.game.gameobject.FullscreenQuad;
 import com.taraxippus.yume.game.gameobject.HexagonTube;
 import com.taraxippus.yume.game.gameobject.Player;
 import com.taraxippus.yume.game.gameobject.SceneObject;
-import com.taraxippus.yume.game.gameobject.Sphere;
+import com.taraxippus.yume.game.model.Box;
+import com.taraxippus.yume.game.model.HexagonTubeModel;
+import com.taraxippus.yume.game.model.Model;
+import com.taraxippus.yume.game.model.PlayerModel;
+import com.taraxippus.yume.game.model.Sphere;
 import com.taraxippus.yume.render.Pass;
 import com.taraxippus.yume.util.SimplexNoise;
 import com.taraxippus.yume.util.VectorF;
@@ -21,6 +24,11 @@ public class Game implements View.OnTouchListener
 
 	public SceneObject player;
 	
+	public final Model playerModel = new PlayerModel();
+	public final Model hexagonTubeModel = new HexagonTubeModel(100, 10);
+	public final Model boxModel = new Box();
+	public final Model sphereModel = new Sphere(50, 50);
+	
 	public Game(Main main)
 	{
 		this.main = main;
@@ -32,15 +40,15 @@ public class Game implements View.OnTouchListener
 		main.camera.position.set(0, 2, 0);
 		main.camera.update();
 		
-		main.world.add(new HexagonTube(main.world).scale(50, 50, 50).translate(0, 0, 50));
-		main.world.add(new HexagonTube(main.world).scale(50, 50, 50));
-		main.world.add(new Box(main.world).scale(10, 0.1F, 100).translate(0, 0, 25).setAlpha(0.75F));
-		main.world.add(new Box(main.world).scale(1, 0.1F, 100).translate(-5, 1, 25).setAlpha(0.5F).setColor(0x00CCFF));
-		main.world.add(new Box(main.world).scale(1, 0.1F, 100).translate(5, 1, 25).setAlpha(0.5F).setColor(0x00CCFF));
+		main.world.add(new HexagonTube(main.world).setModel(hexagonTubeModel).scale(50, 50, 50).translate(0, 0, 50));
+		main.world.add(new HexagonTube(main.world).setModel(hexagonTubeModel).scale(50, 50, 50));
+		main.world.add(new SceneObject(main.world, boxModel).scale(10, 0.1F, 100).translate(0, 0, 25).setAlpha(0.75F));
+		main.world.add(new SceneObject(main.world, boxModel).scale(1, 0.1F, 100).translate(-5, 1, 25).setAlpha(0.5F).setColor(0x00CCFF));
+		main.world.add(new SceneObject(main.world, boxModel).scale(1, 0.1F, 100).translate(5, 1, 25).setAlpha(0.5F).setColor(0x00CCFF));
 		
-		main.world.add(new Sphere(main.world).scale(1, 1, 1).translate(0, 2, 0));
+		main.world.add(new SceneObject(main.world, sphereModel).scale(1, 1, 1).translate(0, 2, 0));
 		
-		main.world.add(player = new Player(main.world).translate(0, 1, 25).setColor(0xFF8800));
+		main.world.add(player = new Player(main.world).setModel(playerModel).translate(0, 1, 25).setColor(0xFF8800));
 		
 		main.world.add(new FullscreenQuad(main.world, Pass.POST));
 		

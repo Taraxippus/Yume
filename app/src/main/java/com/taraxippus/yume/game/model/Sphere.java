@@ -1,25 +1,31 @@
-package com.taraxippus.yume.game.gameobject;
+package com.taraxippus.yume.game.model;
+
 import android.opengl.*;
 import com.taraxippus.yume.game.*;
 import com.taraxippus.yume.render.*;
 
-public class Sphere extends SceneObject
+public class Sphere extends Model
 {
-	public static final int rings = 50;
-	public static final int sectors = 50;
-	
-	public Sphere(World world)
-	{
-		super(world);
-	}
-	
-	@Override
-	public Shape createShape()
-	{
-		final Shape shape = new Shape();
+	public final int rings;
+	public final int sectors;
 
-		final float[] vertices = new float[rings * sectors * 6];
+	public Sphere(int rings, int sectors)
+	{
+		super(Pass.SCENE_OUTLINE);
 		
+		this.rings = rings;
+		this.sectors = sectors;
+		
+		this.flatShape = false;
+		this.generateShapeNormals = false;
+		this.generateOutlineNormals = false;
+	}
+
+	@Override
+	public float[] getVertices()
+	{
+		final float[] vertices = new float[rings * sectors * 6];
+
 		final float R = 1.0F / (float) (rings - 1);
 		final float S = 1.0F / (float) (sectors - 1);
 		int r, s, offset = 0;
@@ -40,8 +46,14 @@ public class Sphere extends SceneObject
 				vertices[offset++] = y;
 				vertices[offset++] = z;
 			}
+			
+		return vertices;
+	}
 
-		offset = 0;
+	@Override
+	public short[] getIndices()
+	{
+		int r, s, offset = 0;
 
 		final short[] indices = new short[(rings - 1) * (sectors - 1) * 6];
 
@@ -51,14 +63,12 @@ public class Sphere extends SceneObject
 				indices[offset++] = (short) (r * sectors + s);
 				indices[offset++] = (short) ((r + 1) * sectors + (s + 1));
 				indices[offset++] = (short) (r * sectors + (s + 1));
-				
+
 				indices[offset++] = (short) (r * sectors + s);
 				indices[offset++] = (short) ((r + 1) * sectors + s);
 				indices[offset++] = (short) ((r + 1) * sectors + (s + 1));
 			}
-			
-		shape.init(GLES20.GL_TRIANGLES, vertices, indices, getPass().getAttributes());
-			
-		return shape;
+
+		return indices;
 	}
 }
