@@ -11,7 +11,6 @@ uniform mat4 u_VP;
 void main()
 {
 	vec3 normal = normalize(vec3(u_N * vec4(a_Normal, 0.0)));
-	normal *= (u_VP * u_M * a_Position).w * 0.0075;
+	normal *= max((u_VP * u_M * a_Position).w, 1.0) * 0.006;
 	gl_Position = u_VP * (u_M * a_Position + vec4(normal, 0.0));
-	gl_Position.z += 0.0075;
 }

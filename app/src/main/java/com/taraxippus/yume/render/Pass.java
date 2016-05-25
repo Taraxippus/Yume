@@ -28,8 +28,8 @@ public enum Pass
 		for (int i = 0; i < framebuffer.length; ++i)
 			framebuffer[i] = new Framebuffer();
 
-		attributes[HEXAGON_OUTLINE.ordinal()] = new int[] {3, 3};
-		attributes[HEXAGON.ordinal()] = new int[] {3, 3};
+		attributes[HEXAGON_OUTLINE.ordinal()] = new int[] {3, 3, 2};
+		attributes[HEXAGON.ordinal()] = new int[] {3, 3, 2};
 		attributes[SCENE_OUTLINE.ordinal()] = new int[] {3, 3};
 		attributes[SCENE.ordinal()] = new int[] {3, 3};
 		attributes[PARTICLE.ordinal()] = new int[] {4, 4, 2};
@@ -38,8 +38,8 @@ public enum Pass
 	
 	public static void init(Main main)
 	{
-		programs[HEXAGON_OUTLINE.ordinal()].init(main, R.raw.vertex_hexagon_outline, R.raw.fragment_scene_outline, "a_Position", "a_Normal");
-		programs[HEXAGON.ordinal()].init(main, R.raw.vertex_hexagon, R.raw.fragment_hexagon, "a_Position", "a_Normal");
+		programs[HEXAGON_OUTLINE.ordinal()].init(main, R.raw.vertex_hexagon_outline, R.raw.fragment_scene_outline, "a_Position", "a_Normal", "a_Direction");
+		programs[HEXAGON.ordinal()].init(main, R.raw.vertex_hexagon, R.raw.fragment_hexagon, "a_Position", "a_Normal", "a_Direction");
 		programs[SCENE_OUTLINE.ordinal()].init(main, R.raw.vertex_scene_outline, R.raw.fragment_scene_outline, "a_Position", "a_Normal");
 		programs[SCENE.ordinal()].init(main, R.raw.vertex_scene, R.raw.fragment_scene, "a_Position", "a_Normal");
 		programs[PARTICLE.ordinal()].init(main, R.raw.vertex_particle, R.raw.fragment_particle, "a_Position", "a_Color", "a_Direction");

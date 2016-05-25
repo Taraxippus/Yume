@@ -34,13 +34,13 @@ public class Game implements View.OnTouchListener
 		
 		main.world.add(new HexagonTube(main.world).scale(50, 50, 50).translate(0, 0, 50));
 		main.world.add(new HexagonTube(main.world).scale(50, 50, 50));
-		main.world.add(new Box(main.world).scale(10, 1, 100).translate(0, 0, 25));
-		main.world.add(new Box(main.world).scale(1, 1, 100).translate(-5, 1, 25).setColor(0x00CCFF));
-		main.world.add(new Box(main.world).scale(1, 1, 100).translate(5, 1, 25).setColor(0x00CCFF));
+		main.world.add(new Box(main.world).scale(10, 0.1F, 100).translate(0, 0, 25).setAlpha(0.75F));
+		main.world.add(new Box(main.world).scale(1, 0.1F, 100).translate(-5, 1, 25).setAlpha(0.5F).setColor(0x00CCFF));
+		main.world.add(new Box(main.world).scale(1, 0.1F, 100).translate(5, 1, 25).setAlpha(0.5F).setColor(0x00CCFF));
 		
 		main.world.add(new Sphere(main.world).scale(1, 1, 1).translate(0, 2, 0));
 		
-		main.world.add(player = new Player(main.world).scale(1, 0.5F, 2).translate(0, 3, 25).setColor(0xFF8800));
+		main.world.add(player = new Player(main.world).translate(0, 1, 25).setColor(0xFF8800));
 		
 		main.world.add(new FullscreenQuad(main.world, Pass.POST));
 		

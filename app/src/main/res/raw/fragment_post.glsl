@@ -62,6 +62,6 @@ void main()
     else
         gl_FragColor.rgb = rgbB;
 
-	gl_FragColor.rgb *= texture2D(u_Dither, v_UV).r * 0.05 + 0.5 * (1.0 - u_VignetteFactor * length(v_UV * 2.0 - vec2(1.0, 1.0))) + 0.45;
+	gl_FragColor.rgb *= texture2D(u_Dither, v_UV).r * 0.025 + 0.5 * (1.0 - u_VignetteFactor * length(v_UV * 2.0 - vec2(1.0, 1.0))) + 0.475;
     gl_FragColor.a = 1.0;
 }

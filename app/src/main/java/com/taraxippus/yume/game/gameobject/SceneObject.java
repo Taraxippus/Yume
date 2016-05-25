@@ -156,7 +156,11 @@ public class SceneObject extends GameObject
 		if (!enabled || !world.main.camera.insideFrustum(position, radius))
 			return;
 		
-		GLES20.glDepthMask(this.alpha == 1);
+		//GLES20.glDepthMask(this.alpha == 1);
+		
+		renderer.uniform(modelMatrix, getPass().getParent());
+		uniform();
+		super.render(renderer);
 		
 		if (renderer.currentPass != getPass())
 		{
@@ -173,10 +177,6 @@ public class SceneObject extends GameObject
 			
 			getPass().getParent().onRender(renderer);
 		}
-		
-		renderer.uniform(modelMatrix, getPass().getParent());
-		uniform();
-		super.render(renderer);
 	}
 
 	@Override

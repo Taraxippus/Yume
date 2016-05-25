@@ -1,9 +1,11 @@
 package com.taraxippus.yume.render;
 
-import android.opengl.*;
-import java.nio.*;
-import java.util.Vector;
+import android.opengl.GLES20;
 import com.taraxippus.yume.util.VectorF;
+import com.taraxippus.yume.util.Vertex;
+import java.nio.FloatBuffer;
+import java.nio.ShortBuffer;
+import java.util.ArrayList;
 
 public class Shape
 {
@@ -18,6 +20,102 @@ public class Shape
 	public Shape()
 	{
 		
+	}
+	
+	public void initGenerateNormals(int type, float[] vertices, short indices[], int... attributes)
+	{
+		int stride = 0;
+		for (int i : attributes)
+			stride += i;
+			
+		final VectorF tmp1 = VectorF.obtain(), tmp2 = VectorF.obtain(), tmp3 = VectorF.obtain(), tmp4 = VectorF.obtain();
+		final VectorF[] normals = new VectorF[vertices.length / stride];
+
+		for (int i = 0; i < normals.length; i++)
+			normals[i] = VectorF.obtain();
+
+		for (int i = 0; i < indices.length; i += 3)
+		{
+			tmp1.set(vertices, indices[i], stride, 0);
+			tmp2.set(vertices, indices[i + 1], stride, 0);
+			tmp3.set(vertices, indices[i + 2], stride, 0);
+
+			normals[indices[i] & 0xffff].add(tmp4.set(tmp2).subtract(tmp1).cross(tmp3.subtract(tmp1)).normalize());
+			normals[indices[i + 1] & 0xffff].add(tmp4);
+			normals[indices[i + 2] & 0xffff].add(tmp4);
+		}
+
+		for (int i = 0; i < normals.length; i++)
+		{
+			normals[i].normalize();
+			vertices[i * stride + 3] = normals[i].x;
+			vertices[i * stride + 4] = normals[i].y;
+			vertices[i * stride + 5] = normals[i].z;
+		}
+
+		for (int i = 0; i < normals.length; i++)
+			normals[i].release();
+
+		tmp1.release();
+		tmp2.release();
+		tmp3.release();
+		tmp4.release();
+		
+		init(type, vertices, indices, attributes);
+	}
+	
+	public void initGenerateFlatNormals(int type, float[] vertices, short indices[], int... attributes)
+	{
+		int stride = 0;
+		for (int i : attributes)
+			stride += i;
+
+		final VectorF tmp1 = VectorF.obtain(), tmp2 = VectorF.obtain(), tmp3 = VectorF.obtain(), tmp4;
+		final ArrayList<Vertex> vertexObjects = new ArrayList<Vertex>();
+		final ArrayList<Float> vertices2 = new ArrayList<Float>();
+		final ArrayList<Short> indices2 = new ArrayList<Short>();
+		final ArrayList<VectorF> normals = new ArrayList<VectorF>();
+		
+		for (float f : vertices)
+			vertices2.add(f);
+			
+		for (short s : indices)
+			indices2.add(s);
+			
+		for (int i = 0; i < vertices.length; i += stride)
+			vertexObjects.add(new Vertex(vertices, stride, i));
+		
+		for (int i = 0; i < indices.length; i += 3)
+		{
+			tmp1.set(vertices, indices[i], stride, 0);
+			tmp2.set(vertices, indices[i + 1], stride, 0);
+			tmp3.set(vertices, indices[i + 2], stride, 0);
+			
+			tmp4 = VectorF.obtain();
+			normals.add(tmp4);
+			tmp4.set(tmp2).subtract(tmp1).cross(tmp3.subtract(tmp1)).normalize();
+
+			vertexObjects.get(indices[i] & 0xffff).add(vertices2, indices2, i, tmp4);
+			vertexObjects.get(indices[i + 1] & 0xffff).add(vertices2, indices2, i + 1, tmp4);
+			vertexObjects.get(indices[i + 2] & 0xffff).add(vertices2, indices2, i + 2, tmp4);
+		}
+
+		for (int i = 0; i < normals.size(); i++)
+			normals.get(i).release();
+
+		tmp1.release();
+		tmp2.release();
+		tmp3.release();
+		
+		FloatBuffer vertices3 = FloatBuffer.allocate(vertices2.size());
+		for (int i = 0; i < vertices2.size(); ++i)
+			vertices3.put(vertices2.get(i));
+		
+		ShortBuffer indices3 = ShortBuffer.allocate(indices2.size());
+		for (int i = 0; i < indices2.size(); ++i)
+			indices3.put(indices2.get(i));
+			
+		init(type, vertices3, indices3, false, attributes);
 	}
 	
 	public void init(int type, float[] vertices, short[] indices,  int... attributes)
@@ -196,41 +294,5 @@ public class Shape
 		
 		GLES20.glDeleteBuffers(hasIndices ? 2 : 1, vbo, 0);
 		vbo[0] = vbo[1] = 0;
-	}
-	
-	public static void generateNormals(float[] vertices, short indices[])
-	{
-		final VectorF tmp1 = VectorF.obtain(), tmp2 = VectorF.obtain(), tmp3 = VectorF.obtain(), tmp4 = VectorF.obtain();
-		final VectorF[] normals = new VectorF[vertices.length / 6];
-		
-		for (int i = 0; i < normals.length; i++)
-			normals[i] = VectorF.obtain();
-		
-		for (int i = 0; i < indices.length; i += 3)
-		{
-			tmp1.set(vertices, indices[i], 6, 0);
-			tmp2.set(vertices, indices[i + 1], 6, 0);
-			tmp3.set(vertices, indices[i + 2], 6, 0);
-			
-			normals[indices[i] & 0xffff].add(tmp4.set(tmp2).subtract(tmp1).cross(tmp3.subtract(tmp1)).normalize());
-			normals[indices[i + 1] & 0xffff].add(tmp4);
-			normals[indices[i + 2] & 0xffff].add(tmp4);
-		}
-		
-		for (int i = 0; i < normals.length; i++)
-		{
-			normals[i].normalize();
-			vertices[i * 6 + 3] = normals[i].x;
-			vertices[i * 6 + 4] = normals[i].y;
-			vertices[i * 6 + 5] = normals[i].z;
-		}
-		
-		for (int i = 0; i < normals.length; i++)
-			normals[i].release();
-		
-		tmp1.release();
-		tmp2.release();
-		tmp3.release();
-		tmp4.release();
 	}
 }

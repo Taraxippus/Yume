@@ -258,7 +258,7 @@ public class Box extends SceneObject
 		1, 1, -1,
 
 		-0.5F, 0.5F, 0.5F,
-		-1, 1, 2,
+		-1, 1, 1,
 
 		0.5F, 0.5F, 0.5F,
 		1, 1, 1,
