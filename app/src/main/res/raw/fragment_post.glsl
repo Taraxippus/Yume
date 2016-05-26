@@ -13,9 +13,9 @@ varying vec2 v_UV_NE;
 varying vec2 v_UV_SW;
 varying vec2 v_UV_SE;
 
-const float FXAA_SPAN_MAX = 16.0;
-const float FXAA_REDUCE_MUL = 1.0 / 16.0;
-const float FXAA_REDUCE_MIN = 1.0 / 256.0;
+const float FXAA_SPAN_MAX = 8.0;
+const float FXAA_REDUCE_MUL = 1.0 / 8.0;
+const float FXAA_REDUCE_MIN = 1.0 / 128.0;
 const vec3 luma = vec3(0.299, 0.587, 0.114);
 
 void main()
@@ -61,7 +61,7 @@ void main()
 
     else
         gl_FragColor.rgb = rgbB;
-
-	gl_FragColor.rgb *= texture2D(u_Dither, v_UV).r * 0.025 + 0.5 * (1.0 - u_VignetteFactor * length(v_UV * 2.0 - vec2(1.0, 1.0))) + 0.475;
+        
+	gl_FragColor.rgb *= texture2D(u_Dither, v_UV).r * 0.025 + 0.6 * (1.0 - u_VignetteFactor * length(v_UV * 2.0 - vec2(1.0, 1.0))) + 0.375;
     gl_FragColor.a = 1.0;
 }

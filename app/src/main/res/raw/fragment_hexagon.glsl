@@ -7,7 +7,7 @@ uniform vec3 u_Eye;
 uniform vec3 u_Light;
 uniform float u_Time;
 
-varying vec3 v_Normal;
+varying vec4 v_Normal;
 varying vec3 v_Position;
 
 const float c_Ambient = 0.5;
@@ -17,18 +17,16 @@ const float B = 0.3;
 const float C = 0.6;
 const float D = 1.0;
 
-vec3 rotate(in vec3 vecIn, float z)
+vec3 hsv2rgb(vec3 c)
 {
-	vec3 vecOut = vec3(0, 0, vecIn.z);
-	vecOut.x = vecIn.x * cos(z) + vecIn.y * -sin(z);
-	vecOut.y = vecIn.x * -sin(z) + vecIn.y * cos(z);
-
-	return vecOut;
+    vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
+    vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
+    return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
 }
 
 void main()
 {
-	vec3 normal = normalize(v_Normal);
+	vec3 normal = normalize(v_Normal.xyz);
 
 	float diff = max(0.0, dot(normal, -u_Light));
 	float diff2 = max(0.0, dot(normal, u_Light));
@@ -50,6 +48,6 @@ void main()
     
     spec = step(0.25, spec) + max(0.0, spec - 0.25) * 0.75;
 	
-	gl_FragColor = vec4((rotate(normal, u_Time) * 0.5 + vec3(0.5)) * u_Color.rgb * (c_Ambient + diff * (1.0 - c_Ambient) + spec * u_Specularity.y), u_Color.a);
+	gl_FragColor = vec4(hsv2rgb(vec3(v_Normal.w + u_Time * 0.1, 1.0, 1.0)) * u_Color.rgb * (c_Ambient + diff * (1.0 - c_Ambient) + spec * u_Specularity.y), u_Color.a);
 }
 

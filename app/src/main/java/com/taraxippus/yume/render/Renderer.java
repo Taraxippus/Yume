@@ -133,25 +133,25 @@ public class Renderer implements GLSurfaceView.Renderer
 			case HEXAGON_OUTLINE:
 			case SCENE_OUTLINE:
 				GLES20.glUniformMatrix4fv(pass.getProgram().getUniform("u_VP"), 1, false, main.camera.projectionViewMatrix, 0);
-
 				GLES20.glUniformMatrix4fv(pass.getProgram().getUniform("u_N"), 1, false, normalMatrix, 0);
-
 				GLES20.glUniformMatrix4fv(pass.getProgram().getUniform("u_M"), 1, false, modelMatrix, 0);
 				break;
 				
 			case PARTICLE:
 				Matrix.multiplyMM(mvpMatrix, 0, main.camera.viewMatrix, 0, modelMatrix, 0);
 				GLES20.glUniformMatrix4fv(pass.getProgram().getUniform("u_MV"), 1, false, mvpMatrix, 0);
-
 				GLES20.glUniformMatrix4fv(pass.getProgram().getUniform("u_P"), 1, false, main.camera.projectionMatrix, 0);
 				break;
 
+			case HEXAGON:
+				GLES20.glUniformMatrix4fv(pass.getProgram().getUniform("u_VP"), 1, false, main.camera.projectionViewMatrix, 0);
+				GLES20.glUniformMatrix4fv(pass.getProgram().getUniform("u_N"), 1, true, normalMatrix, 0);
+				GLES20.glUniformMatrix4fv(pass.getProgram().getUniform("u_M"), 1, false, modelMatrix, 0);
+				break;
 			default:
 				Matrix.multiplyMM(mvpMatrix, 0, main.camera.projectionViewMatrix, 0, modelMatrix, 0);
 				GLES20.glUniformMatrix4fv(pass.getProgram().getUniform("u_MVP"), 1, false, mvpMatrix, 0);
-
 				GLES20.glUniformMatrix4fv(pass.getProgram().getUniform("u_N"), 1, true, normalMatrix, 0);
-
 				GLES20.glUniformMatrix4fv(pass.getProgram().getUniform("u_M"), 1, false, modelMatrix, 0);
 				break;
 		}

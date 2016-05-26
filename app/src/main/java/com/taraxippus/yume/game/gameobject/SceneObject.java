@@ -45,7 +45,6 @@ public class SceneObject extends GameObject
 		
 		this.setPass(Pass.SCENE_OUTLINE);
 		this.setModel(model);
-		this.updateMatrix();
 	}
 	
 	public SceneObject setModel(Model model)
@@ -168,6 +167,8 @@ public class SceneObject extends GameObject
 	{
 		super.init();
 		
+		this.updateMatrix();
+		
 		outlineShape = createOutlineShape();
 	}
 
@@ -191,7 +192,7 @@ public class SceneObject extends GameObject
 		//GLES20.glDepthMask(this.alpha == 1);
 		
 		renderer.uniform(modelMatrix, invModelMatrix, getPass().getParent());
-		uniform();
+		uniformParent();
 		super.render(renderer);
 		
 		if (renderer.currentPass != getPass())
@@ -203,6 +204,7 @@ public class SceneObject extends GameObject
 
 			GLES20.glCullFace(GLES20.GL_FRONT);
 			renderer.uniform(modelMatrix, normalMatrix, getPass());
+			uniformChild();
 			if (outlineShape != null)
 				outlineShape.render();
 			GLES20.glCullFace(GLES20.GL_BACK);
@@ -220,13 +222,16 @@ public class SceneObject extends GameObject
 		model.deleteOutlineShape();
 	}
 	
-	
-	public void uniform()
+	public void uniformParent()
 	{
 		GLES20.glUniform4f(getPass().getParent().getProgram().getUniform("u_Color"), color.x, color.y, color.z, alpha);
 		GLES20.glUniform2f(getPass().getParent().getProgram().getUniform("u_Specularity"), specularityExponent, specularityFactor);
 	}
 
+	public void uniformChild()
+	{
+	}
+	
 	@Override
 	public float getDepth()
 	{

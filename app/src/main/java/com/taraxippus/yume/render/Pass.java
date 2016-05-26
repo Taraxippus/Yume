@@ -154,7 +154,7 @@ public enum Pass
 				dither.bind(2);
 				
 				GLES20.glUniform2f(getProgram().getUniform("u_InvResolution"), 1F / SCENE.getFramebuffer().width, 1F / SCENE.getFramebuffer().height);
-				GLES20.glUniform1f(getProgram().getUniform("u_VignetteFactor"), 0.6F + 0.2F / renderer.main.timeFactor);
+				GLES20.glUniform1f(getProgram().getUniform("u_VignetteFactor"), 0.8F + 0.2F / renderer.main.timeFactor);
 				
 				break;
 		}

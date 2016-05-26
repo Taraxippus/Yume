@@ -13,7 +13,7 @@ varying vec3 v_Position;
 
 void main()
 {
-	v_Normal = normalize(vec3(u_N * vec4(a_Normal, 0.0)));
+	v_Normal = vec3(u_N * vec4(a_Normal, 0.0));
 	v_Position = vec3(u_M * a_Position);
 
 	gl_Position = u_MVP * a_Position;
