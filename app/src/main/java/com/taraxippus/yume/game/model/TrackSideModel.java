@@ -1,8 +1,8 @@
 package com.taraxippus.yume.game.model;
 
+import android.opengl.Matrix;
 import com.taraxippus.yume.render.Pass;
 import com.taraxippus.yume.util.VectorF;
-import android.opengl.GLES20;
 
 public class TrackSideModel extends Model
 {
@@ -17,7 +17,13 @@ public class TrackSideModel extends Model
 	{
 		super(Pass.SCENE_OUTLINE);
 
-		this.modelMatrix = modelMatrix;
+		if (modelMatrix != null)
+			this.modelMatrix = modelMatrix;
+		else
+		{
+			this.modelMatrix = new float[16];
+			Matrix.setIdentityM(this.modelMatrix, 0);
+		}
 		this.intersectionsX = intersectionsX;
 		this.intersectionsZ = intersectionsZ;
 	}

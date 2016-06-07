@@ -1,12 +1,9 @@
 package com.taraxippus.yume.game;
 
-import android.opengl.Matrix;
 import android.view.MotionEvent;
 import android.view.View;
 import com.taraxippus.yume.Main;
-import com.taraxippus.yume.game.gameobject.Collectable;
 import com.taraxippus.yume.game.gameobject.FullscreenQuad;
-import com.taraxippus.yume.game.gameobject.HexagonTube;
 import com.taraxippus.yume.game.gameobject.Player;
 import com.taraxippus.yume.game.gameobject.SceneObject;
 import com.taraxippus.yume.game.model.BoxModel;
@@ -15,8 +12,7 @@ import com.taraxippus.yume.game.model.Model;
 import com.taraxippus.yume.game.model.PlayerModel;
 import com.taraxippus.yume.game.model.SpeedPadModel;
 import com.taraxippus.yume.game.model.SphereModel;
-import com.taraxippus.yume.game.model.TrackModel;
-import com.taraxippus.yume.game.model.TrackSideModel;
+import com.taraxippus.yume.game.track.Track;
 import com.taraxippus.yume.render.Pass;
 import com.taraxippus.yume.util.SimplexNoise;
 import com.taraxippus.yume.util.VectorF;
@@ -48,42 +44,11 @@ public class Game implements View.OnTouchListener
 		main.camera.position.set(0, 2, 0);
 		main.camera.update();
 		
-		
 //		for (int i = 0; i < 10; ++i)
 //			main.world.add(new Collectable(main.world).setModel(boxModel).scale(0.5F, 0.5F, 0.5F).translate(0, 0, -i * 5 + 25));
-//		
-//		main.world.add(new SceneObject(main.world, speedPadModel).scale(1.0F, 0.1F, 0.75F).translate(-3, 0.2F, 2).setAlpha(0.75F).setColor(0x00CCFF));
-//		main.world.add(new SceneObject(main.world, speedPadModel).scale(1.0F, 0.1F, 0.75F).translate(0, 0.2F, 2).setAlpha(0.75F).setColor(0x00CCFF));
-//		main.world.add(new SceneObject(main.world, speedPadModel).scale(1.0F, 0.1F, 0.75F).translate(3, 0.2F, 2).setAlpha(0.75F).setColor(0x00CCFF));
-//		
-		main.world.add(player = new Player(main.world).setModel(playerModel).translate(0, 0.5F, 25).setColor(0xFF8800));
-		
-		float[] matrix = new float[16];
-		
-		Matrix.setIdentityM(matrix, 0);
-		Model trackModel = new TrackModel(matrix, 1, 1);
-		Model trackSideModel = new TrackSideModel(matrix, 1, 1);
-		main.world.add(new SceneObject(main.world, trackModel).scale(10.0F, 10.0F, 50.0F).translate(0, 0, -50));
-		main.world.add(new SceneObject(main.world, trackSideModel).scale(10.0F, 10.0F, 50.0F).translate(0, 0, -50).setColor(0x00CCFF));
-		main.world.add(new HexagonTube(main.world, false).setModel(hexagonTubeModel).translate(0, 0, -50).scale(50, 50, 50));
-		
-		float[] matrix1 = new float[16];
 
-		Matrix.setIdentityM(matrix1, 0);
-		Matrix.rotateM(matrix1, 0, 90, 0, 0, 1);
-		Model trackModel1 = new TrackModel(matrix1, 5, 20);
-		Model trackSideModel1 = new TrackSideModel(matrix1, 5, 20);
-		main.world.add(new SceneObject(main.world, trackModel1).scale(10.0F, 10.0F, 50.0F).translate(0, 0, 0));
-		main.world.add(new SceneObject(main.world, trackSideModel1).scale(10.0F, 10.0F, 50.0F).translate(0, 0, 0).setColor(0x00CCFF));
-		main.world.add(new HexagonTube(main.world, false).setModel(hexagonTubeModel).translate(0, 0, 0).scale(50, 50, 50));
-		
-		main.world.add(new SceneObject(main.world, trackModel1).scale(10.0F, 10.0F, 50.0F).rotate(0, 0, 90).translate(0, 0, 50));
-		main.world.add(new SceneObject(main.world, trackSideModel1).scale(10.0F, 10.0F, 50.0F).rotate(0, 0, 90).translate(0, 0, 50).setColor(0x00CCFF));
-		main.world.add(new HexagonTube(main.world, false).setModel(hexagonTubeModel).translate(0, 0, 50).scale(50, 50, 50));
-		
-		main.world.add(new SceneObject(main.world, trackModel).scale(10.0F, 10.0F, 50.0F).rotate(0, 0, 180).translate(0, 0, 100));
-		main.world.add(new SceneObject(main.world, trackSideModel).scale(10.0F, 10.0F, 50.0F).rotate(0, 0, 180).translate(0, 0, 100).setColor(0x00CCFF));
-		main.world.add(new HexagonTube(main.world, false).setModel(hexagonTubeModel).translate(0, 0, 100).scale(50, 50, 50));
+		Track first = Track.createTrack(main.world);
+		main.world.add(player = new Player(main.world, first).setModel(playerModel).translate(0, 0.5F, 0).setColor(0xFF8800));
 		
 		main.world.add(new FullscreenQuad(main.world, Pass.POST));
 		
@@ -108,7 +73,7 @@ public class Game implements View.OnTouchListener
 				.multiplyBy(Main.FIXED_DELTA * 45)
 				.release());
 			else
-				player.position.add(VectorF.obtain()
+				player.translate(VectorF.obtain()
 									.set(newXRight - lastXRight, 0, newYRight - lastYRight)
 									.rotateY(player.rotation.y)
 									.multiplyBy(Main.FIXED_DELTA * 45)

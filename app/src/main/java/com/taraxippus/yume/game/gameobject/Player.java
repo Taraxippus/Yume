@@ -1,18 +1,17 @@
 package com.taraxippus.yume.game.gameobject;
 
-import android.opengl.GLES20;
 import com.taraxippus.yume.Main;
 import com.taraxippus.yume.game.World;
-import com.taraxippus.yume.render.Shape;
+import com.taraxippus.yume.game.track.Track;
 import com.taraxippus.yume.util.VectorF;
 
-public class Player extends SceneObject
+public class Player extends OnTrackObject
 {
 	public static final float DURATION = 1F;
 	
-	public Player(World world)
+	public Player(World world, Track track)
 	{
-		super(world);
+		super(world, track);
 		
 		scale(1.5F, 0.4F, 2.5F);
 		setTouchable(true);

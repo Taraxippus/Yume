@@ -367,6 +367,15 @@ public class VectorF
         return this;
     }
 
+	public VectorF setEuler(float[] matrix)
+	{
+		this.x = (float) Math.atan2(matrix[10], matrix[6]);
+		this.y = (float) Math.atan2(-matrix[2], Math.sqrt(matrix[6] * matrix[6] + matrix[10] * matrix[10]));
+		this.z = (float) Math.atan2(matrix[1], matrix[0]);
+		
+		return this;
+	}
+	
     public float[] getVec41()
     {
         return new float[] {x, y, z, 1};

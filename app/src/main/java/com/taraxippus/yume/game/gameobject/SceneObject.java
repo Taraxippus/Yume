@@ -111,6 +111,11 @@ public class SceneObject extends GameObject
 		return this;
 	}
 	
+	public SceneObject translate(VectorF translation)
+	{
+		return translate(translation.x, translation.y, translation.z);
+	}
+	
 	public SceneObject translate(float x, float y, float z)
 	{
 		this.position.add(x, y, z);
