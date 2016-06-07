@@ -20,6 +20,7 @@ public class Camera
 	public final float[] projectionMatrix = new float[16];
 	public final float[] projectionViewMatrix = new float[16];
 	public final float[] invProjectionViewMatrix = new float[16];
+	public final float[] prevProjectionViewMatrix = new float[16];
 	
 	public float zoom = 1;
 	
@@ -41,6 +42,8 @@ public class Camera
 	
 	public void update()
 	{
+		System.arraycopy(projectionViewMatrix, 0, prevProjectionViewMatrix, 0, 16);
+		
 		if (target != null)
 		{
 			this.position.multiplyBy(FOLLOW_SMOOTHNESS).add(target.position).divideBy(FOLLOW_SMOOTHNESS + 1);
@@ -57,8 +60,12 @@ public class Camera
 	
 	public void setTarget(SceneObject target)
 	{
+		if (target == null && this.target != null)
+			this.position.set(eye);
+		else if (target != null)
+			this.position.set(target.position);
+			
 		this.target = target;
-		this.position.set(target.position);
 	}
 	
 	public void onResize(int width, int height)

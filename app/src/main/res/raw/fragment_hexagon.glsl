@@ -1,7 +1,6 @@
 #version 100
 precision mediump float;
 
-uniform vec4 u_Color;
 uniform vec2 u_Specularity;
 uniform vec3 u_Eye;
 uniform vec3 u_Light;
@@ -9,6 +8,7 @@ uniform float u_Time;
 
 varying vec4 v_Normal;
 varying vec3 v_Position;
+varying vec4 v_Color;
 
 const float c_Ambient = 0.5;
 
@@ -48,6 +48,6 @@ void main()
     
     spec = step(0.25, spec) + max(0.0, spec - 0.25) * 0.75;
 	
-	gl_FragColor = vec4(hsv2rgb(vec3(v_Normal.w + u_Time * 0.1, 1.0, 1.0)) * u_Color.rgb * (c_Ambient + diff * (1.0 - c_Ambient) + spec * u_Specularity.y), u_Color.a);
+	gl_FragColor = vec4(v_Color.rgb * (c_Ambient + diff * (1.0 - c_Ambient) + spec * u_Specularity.y), v_Color.a);
 }
 

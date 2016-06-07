@@ -2,9 +2,9 @@ package com.taraxippus.yume.game.model;
 
 import com.taraxippus.yume.render.Pass;
 
-public class Box extends Model
+public class BoxModel extends Model
 {
-	public Box()
+	public BoxModel()
 	{
 		super(Pass.SCENE_OUTLINE);
 		

@@ -14,6 +14,7 @@ public abstract class Model
 	private int usesShape, usesOutline;
 	boolean flatShape = true, generateShapeNormals = true, generateOutlineNormals = true;
 	boolean freeSpace = true;
+	int shapeType = GLES20.GL_TRIANGLES;
 	
 	public Model(Pass pass)
 	{
@@ -73,10 +74,10 @@ public abstract class Model
 		init();
 		
 		if (flatShape)
-			shape.initGenerateFlatNormals(GLES20.GL_TRIANGLES, vertices, indices, pass.getAttributes());
+			shape.initGenerateFlatNormals(shapeType, vertices, indices, pass.getAttributes());
 		
 		else if (generateShapeNormals)
-			shape.initGenerateNormals(GLES20.GL_TRIANGLES, vertices, indices, pass.getAttributes());
+			shape.initGenerateNormals(shapeType, vertices, indices, pass.getAttributes());
 		
 		else
 			shape.init(GLES20.GL_TRIANGLES, vertices, indices, pass.getAttributes());
@@ -95,10 +96,10 @@ public abstract class Model
 		init();
 		
 		if (generateOutlineNormals)
-			outlineShape.initGenerateNormals(GLES20.GL_TRIANGLES, verticesOutline, indicesOutline, pass.getAttributes());
+			outlineShape.initGenerateNormals(shapeType, verticesOutline, indicesOutline, pass.getAttributes());
 		
 		else
-			outlineShape.init(GLES20.GL_TRIANGLES, verticesOutline, indicesOutline, pass.getAttributes());
+			outlineShape.init(shapeType, verticesOutline, indicesOutline, pass.getAttributes());
 		
 		if (freeSpace)
 		{

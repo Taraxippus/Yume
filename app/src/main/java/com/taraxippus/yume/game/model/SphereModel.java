@@ -4,12 +4,12 @@ import android.opengl.*;
 import com.taraxippus.yume.game.*;
 import com.taraxippus.yume.render.*;
 
-public class Sphere extends Model
+public class SphereModel extends Model
 {
 	public final int rings;
 	public final int sectors;
 
-	public Sphere(int rings, int sectors)
+	public SphereModel(int rings, int sectors)
 	{
 		super(Pass.SCENE_OUTLINE);
 		

@@ -432,6 +432,15 @@ public class VectorF
     {
         return offset == 0 ? x : (offset == 1 ? y : z);
     }
+	
+	public VectorF put(float[] array, int offset)
+    {
+		array[offset] = x;
+		array[offset + 1] = y;
+		array[offset + 2] = z;
+		
+        return this;
+    }
 
     public VectorF load(ByteBuffer buffer)
     {
