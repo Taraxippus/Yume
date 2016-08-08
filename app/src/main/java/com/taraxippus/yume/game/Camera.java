@@ -8,27 +8,28 @@ import android.widget.*;
 
 public class Camera
 {
-	public static final float Z_NEAR = 1F;
-	public static final float Z_FAR = 200;
+	public static final float Z_NEAR = 1.5F;
+	public static final float Z_FAR = 75;
+	public static final float Z_FAR_DEBUG = 1000;
 	public static final float FOV = 60;
 	
-	public static final float FOLLOW_SMOOTHNESS = 5;
+	public static final float FOLLOW_SMOOTHNESS = 1F;
 
 	public final Main main;
 	
+	public final float[] tmpMatrix = new float[16];
 	public final float[] viewMatrix = new float[16];
 	public final float[] projectionMatrix = new float[16];
 	public final float[] projectionViewMatrix = new float[16];
 	public final float[] invProjectionViewMatrix = new float[16];
-	public final float[] prevProjectionViewMatrix = new float[16];
 	
-	public float zoom = 1;
+	public float zoom = 4;
 	
 	public final VectorF position = new VectorF();
 	public final VectorF rotation = new VectorF(-5, 180, 0);
 	public final VectorF eye = new VectorF();
-
-	public SceneObject target;
+	
+	public Player target;
 	
 	public Camera(Main main)
 	{
@@ -42,8 +43,6 @@ public class Camera
 	
 	public void update()
 	{
-		System.arraycopy(projectionViewMatrix, 0, prevProjectionViewMatrix, 0, 16);
-		
 		if (target != null)
 		{
 			this.position.multiplyBy(FOLLOW_SMOOTHNESS).add(target.position).divideBy(FOLLOW_SMOOTHNESS + 1);
@@ -56,36 +55,57 @@ public class Camera
 			this.rotation.y = (this.rotation.y + 180) % 360 - 180;
 		
 		updateView();
+		updateProjection();
+		this.updateViewProjection();
 	}
 	
-	public void setTarget(SceneObject target)
+	public void setTarget(Player target)
 	{
 		if (target == null && this.target != null)
 			this.position.set(eye);
+			
 		else if (target != null)
 			this.position.set(target.position);
 			
 		this.target = target;
 	}
 	
+	float ratio;
+	
 	public void onResize(int width, int height)
 	{
-		Matrix.perspectiveM(projectionMatrix, 0, FOV, (float) width / height, Z_NEAR, Z_FAR);
+		this.ratio = width / (float) height;
+		
+		this.updateProjection();
 		this.updateViewProjection();
 	}
 
+	public void updateProjection()
+	{
+		if (target != null)
+			Matrix.perspectiveM(projectionMatrix, 0, FOV * Math.min(2, target.velocity.lengthSquared() / 2.0F + 1), ratio, Z_NEAR, Z_FAR);
+		
+			else
+			Matrix.perspectiveM(projectionMatrix, 0, FOV, ratio, Z_NEAR, main.game.DEBUG_CAMERA ? Z_FAR_DEBUG : Z_FAR);
+	}
+	
 	public void updateView()
 	{
 		if (target != null)
 		{
-			this.eye.set(0, 0.5F, 1).multiplyBy(5 * zoom)
+			this.eye.set(0, 0, zoom)
 				.rotateX(rotation.x)
 				.rotateY(rotation.y)
-				.rotateZ(rotation.z)
-				.add(position);
+				.rotateZ(rotation.z);
 
-			Matrix.setLookAtM(viewMatrix, 0, eye.x, eye.y, eye.z, position.x, position.y, position.z, 0, 1, 0);
+			Matrix.setIdentityM(viewMatrix, 0);
+			Matrix.translateM(viewMatrix, 0, position.x, position.y, position.z);
+			target.track.rotate(target.trackPosition, viewMatrix);
+			Matrix.invertM(viewMatrix, 0, viewMatrix, 0);
+			Matrix.setLookAtM(tmpMatrix, 0, eye.x, eye.y, eye.z, 0, 0, 0, 0, 1, 0);
+			Matrix.multiplyMM(viewMatrix, 0, tmpMatrix, 0, viewMatrix, 0);
 			
+			this.eye.add(position);
 		}
 		else
 		{
@@ -98,8 +118,6 @@ public class Camera
 			Matrix.rotateM(viewMatrix, 0, -rotation.y, 0, 1, 0);
 			Matrix.translateM(viewMatrix, 0, -position.x, -position.y, -position.z);
 		}
-		
-		this.updateViewProjection();
 	}
 	
 	public void updateViewProjection()

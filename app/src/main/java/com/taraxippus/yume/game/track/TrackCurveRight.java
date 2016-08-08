@@ -6,16 +6,36 @@ import com.taraxippus.yume.game.gameobject.TrackObject;
 import com.taraxippus.yume.game.model.Model;
 import com.taraxippus.yume.game.model.TrackModel;
 import com.taraxippus.yume.game.model.TrackSideModel;
-import com.taraxippus.yume.game.gameobject.Collectable;
+import android.opengl.Matrix;
 
-public class TrackStraight extends Track
+public class TrackCurveRight extends Track
 {
-	public static final Model trackModel = new TrackModel(null, 1, 1);
-	public static final Model trackSideModel = new TrackSideModel(null, 1, 1);
-	
-	public TrackStraight(World world, float z)
+	public static final Model trackModel; 
+	public static final Model trackSideModel;
+
+	static
+	{
+		float[] matrix = new float[16];
+
+		Matrix.setIdentityM(matrix, 0);
+		Matrix.rotateM(matrix, 0, -90, 0, 1, 0);
+
+		trackModel = new TrackModel(matrix, 1, 50);
+		trackSideModel = new TrackSideModel(matrix, 1, 50);
+	}
+
+	public TrackCurveRight(World world, float z)
 	{
 		super(world, z);
+	}
+
+	@Override
+	public void create()
+	{
+		super.create();
+
+		Matrix.rotateM(nextMatrix, 0, -90, 0, 1, 0);
+		nextRotation.multiplyRightByAngleAxis((float) -Math.PI / 2F, 0, 1, 0);
 	}
 
 	@Override

@@ -17,6 +17,23 @@ public class BoxModel extends Model
 		return new float[]
 		{
 			-0.5F, -0.5F, -0.5F,
+			0.5F, -0.5F, -0.5F,
+			-0.5F, -0.5F, 0.5F,
+			0.5F, -0.5F, 0.5F,
+			-0.5F, 0.5F, -0.5F,
+			0.5F, 0.5F, -0.5F,
+			-0.5F, 0.5F, 0.5F,
+			0.5F, 0.5F, 0.5F
+		};
+	}
+
+
+	@Override
+	public float[] getOutlineVertices()
+	{
+		return new float[]
+		{
+			-0.5F, -0.5F, -0.5F,
 			-1, -1, -1,
 
 			0.5F, -0.5F, -0.5F,
@@ -43,7 +60,7 @@ public class BoxModel extends Model
 
 		};
 	}
-
+	
 	@Override
 	public short[] getIndices()
 	{

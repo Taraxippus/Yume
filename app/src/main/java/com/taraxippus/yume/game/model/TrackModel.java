@@ -1,17 +1,17 @@
 package com.taraxippus.yume.game.model;
 
+import android.opengl.Matrix;
+import com.taraxippus.yume.game.track.Track;
 import com.taraxippus.yume.render.Pass;
 import com.taraxippus.yume.util.VectorF;
-import android.opengl.GLES20;
-import android.opengl.Matrix;
 
 public class TrackModel extends Model
 {
 	final int intersectionsX, intersectionsZ;
 	final float[] modelMatrix;
 	
-	private static final float HEIGHT = 0.05F;
-	private static final float WIDTH = 0.9F;
+	private static final float HEIGHT = 0.0125F * Track.WIDTH;
+	private static final float WIDTH = 0.85F * Track.WIDTH;
 	
 	public TrackModel(float[] modelMatrix, int intersectionsX, int intersectionsZ)
 	{
@@ -31,7 +31,7 @@ public class TrackModel extends Model
 	@Override
 	public float[] getVertices()
 	{
-		float[] vertices = new float[6 * (intersectionsX + 1) * (intersectionsZ + 1) * 2];
+		float[] vertices = new float[3 * (intersectionsX + 1) * (intersectionsZ + 1) * 2];
 		
 		int offset = 0;
 		float delta;
@@ -44,7 +44,7 @@ public class TrackModel extends Model
 			{
 				for (z = 0; z <= intersectionsZ; ++z)
 				{
-					delta = 1F / (1 + (float) Math.pow(Math.E, 6 - 12 * ((float) z / intersectionsZ)));
+					delta = Track.getDelta((float) z / intersectionsZ);
 					
 					tmp.set((-0.5F + (float) x / intersectionsX) * WIDTH, (-0.5F + y) * HEIGHT, -0.5F + (float) z / intersectionsZ)
 					.multiplyBy(modelMatrix)
@@ -53,7 +53,7 @@ public class TrackModel extends Model
 					(-0.5F + y) * HEIGHT * (1F - delta), 
 					(-0.5F + (float) z / intersectionsZ) * (1F - delta));
 					tmp.put(vertices, offset);
-					offset += 6;
+					offset += 3;
 				}
 			}
 		}
@@ -63,6 +63,41 @@ public class TrackModel extends Model
 		return vertices;
 	}
 
+	@Override
+	public float[] getOutlineVertices()
+	{
+		float[] vertices = new float[6 * (intersectionsX + 1) * (intersectionsZ + 1) * 2];
+
+		int offset = 0;
+		float delta;
+		VectorF tmp = VectorF.obtain();
+
+		int x, y, z;
+		for (y = 0; y < 2; ++y)
+		{
+			for (x = 0; x <= intersectionsX; ++x)
+			{
+				for (z = 0; z <= intersectionsZ; ++z)
+				{
+					delta = Track.getDelta((float) z / intersectionsZ);
+					
+					tmp.set((-0.5F + (float) x / intersectionsX) * WIDTH, (-0.5F + y) * HEIGHT, -0.5F + (float) z / intersectionsZ)
+						.multiplyBy(modelMatrix)
+						.multiplyBy(delta)
+						.add((-0.5F + (float) x / intersectionsX) * WIDTH * (1F - delta), 
+							 (-0.5F + y) * HEIGHT * (1F - delta), 
+							 (-0.5F + (float) z / intersectionsZ) * (1F - delta));
+					tmp.put(vertices, offset);
+					offset += 6;
+				}
+			}
+		}
+
+		tmp.release();
+
+		return vertices;
+	}
+	
 	@Override
 	public short[] getIndices()
 	{
@@ -78,20 +113,25 @@ public class TrackModel extends Model
 				indices[offset++] = (short) (x * (intersectionsZ + 1) + z);
 				indices[offset++] = (short) ((x + 1) * (intersectionsZ + 1) + z);
 				indices[offset++] = (short) (x * (intersectionsZ + 1) + z + 1);
-				
+
 				indices[offset++] = (short) (x * (intersectionsZ + 1) + z + 1);
 				indices[offset++] = (short) ((x + 1) * (intersectionsZ + 1) + z);
 				indices[offset++] = (short) ((x + 1) * (intersectionsZ + 1) + z + 1);
-				
-				
+			}
+		}
+		
+		for (x = 0; x < intersectionsX; ++x)
+		{
+			for (z = 0; z < intersectionsZ; ++z)
+			{
 				indices[offset++] = (short) ((intersectionsX + 1) * (intersectionsZ + 1) + x * (intersectionsZ + 1) + z);
 				indices[offset++] = (short) ((intersectionsX + 1) * (intersectionsZ + 1) + x * (intersectionsZ + 1) + z + 1);
 				indices[offset++] = (short) ((intersectionsX + 1) * (intersectionsZ + 1) + (x + 1) * (intersectionsZ + 1) + z);
-				
+
 				indices[offset++] = (short) ((intersectionsX + 1) * (intersectionsZ + 1) + x * (intersectionsZ + 1) + z + 1);
 				indices[offset++] = (short) ((intersectionsX + 1) * (intersectionsZ + 1) + (x + 1) * (intersectionsZ + 1) + z + 1);
 				indices[offset++] = (short) ((intersectionsX + 1) * (intersectionsZ + 1) + (x + 1) * (intersectionsZ + 1) + z);
-				
+
 			}
 		}
 		

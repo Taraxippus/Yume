@@ -30,7 +30,7 @@ public class Main extends Activity implements View.OnTouchListener
 {
 	public static final String FILENAME = "save.save";
 	
-	public static final float FIXED_DELTA = 1 / 120F;
+	public static final float FIXED_DELTA = 1 / 60F;
 	public float timeFactor = 1;
 	
 	public final ResourceHelper resourceHelper = new ResourceHelper(this);
@@ -69,7 +69,7 @@ public class Main extends Activity implements View.OnTouchListener
 		
 		textView = new TextView(this);
 		textView.setTextColor(0xFFFFFFFF);
-		textView.setShadowLayer(padding, -1, -1, 0xFF000000);
+		textView.setShadowLayer(24, -1, -1, 0xFF000000);
 		textView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 24);
 		textView.setText("60");
 		textView.setPadding(padding, padding / 2, padding, padding);

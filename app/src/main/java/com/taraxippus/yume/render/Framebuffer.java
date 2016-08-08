@@ -27,10 +27,10 @@ public class Framebuffer
 			
 		GLES20.glGenFramebuffers(1, framebuffer, 0);
 		
-		color.init(width, height, GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE, GLES20.GL_RGBA, GLES20.GL_NEAREST, GLES20.GL_NEAREST, GLES20.GL_CLAMP_TO_EDGE);
+		color.init(width, height, GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE, GLES20.GL_RGBA, GLES20.GL_LINEAR, GLES20.GL_LINEAR, GLES20.GL_CLAMP_TO_EDGE);
 		
 		if (hasDepth)
-			depth.init(width, height, GLES20.GL_DEPTH_COMPONENT, GLES20.GL_UNSIGNED_SHORT, GLES20.GL_DEPTH_COMPONENT, GLES20.GL_NEAREST, GLES20.GL_NEAREST, GLES20.GL_CLAMP_TO_EDGE);
+			depth.init(width, height, GLES20.GL_DEPTH_COMPONENT, GLES20.GL_UNSIGNED_INT, GLES20.GL_DEPTH_COMPONENT, GLES20.GL_NEAREST, GLES20.GL_NEAREST, GLES20.GL_CLAMP_TO_EDGE);
 		
 		GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, framebuffer[0]);
 		
@@ -52,13 +52,19 @@ public class Framebuffer
 	
 	public void bind()
 	{
+		bind(true);
+	}
+		
+	public void bind(boolean clear)
+	{
 		if (!initialized())
 			throw new RuntimeException("Tried to bind an uninitialized, deleted or corrupt framebuffer");
 
 		GLES20.glViewport(0, 0, width, height);
 		GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, framebuffer[0]);
-		
-		GLES20.glClear(hasDepth ? GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT : GLES20.GL_COLOR_BUFFER_BIT);
+	
+		if (clear)
+			GLES20.glClear(hasDepth ? GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT : GLES20.GL_COLOR_BUFFER_BIT);
 	}
 	
 	public void bindTexture(int texture)

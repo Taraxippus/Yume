@@ -291,6 +291,11 @@ public class VectorF
         return this;
     }
 
+	public VectorF rotateXYZ(VectorF rotation)
+    {
+		return rotateX(rotation.x).rotateY(rotation.y).rotateZ(rotation.z);
+	}
+		
     public VectorF rotateX(float x1)
     {
 		x1 = (float) Math.toRadians(x1);
@@ -373,7 +378,7 @@ public class VectorF
 		this.y = (float) Math.atan2(-matrix[2], Math.sqrt(matrix[6] * matrix[6] + matrix[10] * matrix[10]));
 		this.z = (float) Math.atan2(matrix[1], matrix[0]);
 		
-		return this;
+		return this.multiplyBy(180 / (float) Math.PI);
 	}
 	
     public float[] getVec41()
@@ -440,6 +445,20 @@ public class VectorF
     public float get(int offset)
     {
         return offset == 0 ? x : (offset == 1 ? y : z);
+    }
+	
+	public VectorF set(int offset, float value)
+    {
+        if (offset == 0)
+			x = value;
+			
+		else if (offset == 1)
+			y = value;
+			
+		else if (offset == 2)
+			z = value;
+			
+		return this;
     }
 	
 	public VectorF put(float[] array, int offset)

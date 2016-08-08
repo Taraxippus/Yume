@@ -16,6 +16,27 @@ public class SpeedPadModel extends Model
 		return new float[]
 		{
 			-0.5F, 0.5F, -0.5F,
+			0.5F, 0.5F, -0.5F,
+			0.0F, 0.5F, 0.5F,
+			-0.25F, 0.5F, -0.5F,
+			0.25F, 0.5F, -0.5F,
+			0.0F, 0.5F, -0.25F,
+			
+			-0.5F, -0.5F, -0.5F,
+			0.5F, -0.5F, -0.5F,
+			0.0F, -0.5F, 0.5F,
+			-0.25F, -0.5F, -0.5F,
+			0.25F, -0.5F, -0.5F,
+			0.0F, -0.5F, -0.25F
+		};
+	}
+
+	@Override
+	public float[] getOutlineVertices()
+	{
+		return new float[]
+		{
+			-0.5F, 0.5F, -0.5F,
 			0, 0, 0,
 			0.5F, 0.5F, -0.5F,
 			0, 0, 0,
@@ -27,7 +48,7 @@ public class SpeedPadModel extends Model
 			0, 0, 0,
 			0.0F, 0.5F, -0.25F,
 			0, 0, 0,
-			
+
 			-0.5F, -0.5F, -0.5F,
 			0, 0, 0,
 			0.5F, -0.5F, -0.5F,
@@ -42,7 +63,7 @@ public class SpeedPadModel extends Model
 			0, 0, 0,
 		};
 	}
-
+	
 	@Override
 	public short[] getIndices()
 	{

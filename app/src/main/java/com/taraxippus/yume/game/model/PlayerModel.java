@@ -15,6 +15,22 @@ public class PlayerModel extends Model
 		return new float[]
 		{
 			0, 0, -0.5F,
+			-0.15F, 0.5F, 0.2F, 
+			0.15F, 0.5F, 0.2F,
+			-0.5F, -0.2F, 0.4F,
+			0.5F, -0.2F, 0.4F,
+			-0.3F, 0, 0.5F,
+			0.3F, 0, 0.5F,
+			0, -0.2F, 0.4F,
+		};
+	}
+
+	@Override
+	public float[] getOutlineVertices()
+	{
+		return new float[]
+		{
+			0, 0, -0.5F,
 			0, 0, 0,
 			-0.15F, 0.5F, 0.2F, 
 			0, 0, 0,
@@ -32,7 +48,7 @@ public class PlayerModel extends Model
 			0, 0, 0
 		};
 	}
-
+	
 	@Override
 	public short[] getIndices()
 	{

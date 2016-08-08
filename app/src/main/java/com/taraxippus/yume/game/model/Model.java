@@ -12,7 +12,7 @@ public abstract class Model
 	private float[] vertices, verticesOutline;
 	private short[] indices, indicesOutline;
 	private int usesShape, usesOutline;
-	boolean flatShape = true, generateShapeNormals = true, generateOutlineNormals = true;
+	boolean generateOutlineNormals = true;
 	boolean freeSpace = true;
 	int shapeType = GLES20.GL_TRIANGLES;
 	
@@ -46,6 +46,9 @@ public abstract class Model
 
 	public Shape getOutlineShape()
 	{
+		if (pass.getParent() == pass)
+			return null;
+		
 		if (!outlineShape.initialized())
 			createOutlineShape();
 
@@ -73,14 +76,7 @@ public abstract class Model
 	{
 		init();
 		
-		if (flatShape)
-			shape.initGenerateFlatNormals(shapeType, vertices, indices, pass.getAttributes());
-		
-		else if (generateShapeNormals)
-			shape.initGenerateNormals(shapeType, vertices, indices, pass.getAttributes());
-		
-		else
-			shape.init(GLES20.GL_TRIANGLES, vertices, indices, pass.getAttributes());
+		shape.init(shapeType, vertices, indices, pass.getParent().getAttributes());
 		
 			
 		if (freeSpace)

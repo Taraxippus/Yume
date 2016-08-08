@@ -37,6 +37,11 @@ public class GameObject implements Comparable<GameObject>
 			shape.render();
 	}
 	
+	public boolean renderPass(Pass pass)
+	{
+		return getPass().getParent() == pass;
+	}
+	
 	public Pass getPass()
 	{
 		return pass;

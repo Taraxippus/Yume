@@ -2,6 +2,8 @@
 precision mediump float;
 
 uniform sampler2D u_Texture;
+uniform sampler2D u_Bloom;
+uniform sampler2D u_Bloom2;
 uniform sampler2D u_Dither;
 
 uniform vec2 u_InvResolution;
@@ -62,6 +64,7 @@ void main()
     else
         gl_FragColor.rgb = rgbB;
         
-	gl_FragColor.rgb *= texture2D(u_Dither, v_UV).r * 0.025 + 0.6 * (1.0 - u_VignetteFactor * length(v_UV * 2.0 - vec2(1.0, 1.0))) + 0.375;
-    gl_FragColor.a = 1.0;
+    gl_FragColor += texture2D(u_Bloom, v_UV);
+    gl_FragColor += texture2D(u_Bloom2, v_UV);
+	gl_FragColor.rgb *= texture2D(u_Dither, v_UV).r * 0.025 + 0.3 * (1.5 - u_VignetteFactor * length(v_UV * 2.0 - vec2(1.0, 1.0))) + 0.675;
 }

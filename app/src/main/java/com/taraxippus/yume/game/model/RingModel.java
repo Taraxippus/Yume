@@ -1,0 +1,142 @@
+package com.taraxippus.yume.game.model;
+
+import android.opengl.*;
+import com.taraxippus.yume.game.*;
+import com.taraxippus.yume.render.*;
+
+public class RingModel extends Model
+{
+	public final float WIDTH = 0.025F;
+	
+	public final int sectors;
+	public final float percentage;
+
+	public RingModel(int sectors, float percentage)
+	{
+		super(Pass.SCENE_OUTLINE);
+
+		this.sectors = sectors;
+		this.percentage = percentage;
+	}
+
+	@Override
+	public float[] getVertices()
+	{
+		final float[] vertices = new float[sectors * 3 * 4];
+
+		final float S = (float) Math.PI * 2.0F * percentage / (percentage == 1 ? sectors : sectors - 1);
+		int r, s, offset = 0;
+		float x, y, z;
+		
+		for (s = 0; s < sectors; s++) 
+		{
+			for (r = 0; r < 4; ++r)
+			{
+				y = (float) (Math.sin(s * S));
+				x = (float) (Math.cos(s * S));
+				z = r / 2;
+				
+				vertices[offset++] = x * (0.5F - WIDTH * (r % 2));
+				vertices[offset++] = y * (0.5F - WIDTH * (r % 2));
+				vertices[offset++] = z * (0.5F - WIDTH * (r % 2));
+			}
+		}
+
+		return vertices;
+	}
+
+	@Override
+	public float[] getOutlineVertices()
+	{
+		final float[] vertices = new float[sectors * 6 * 4];
+
+		final float S = (float) Math.PI * 2.0F * percentage / (percentage == 1 ? sectors : sectors - 1);
+		int r, s, offset = 0;
+		float x, y, z;
+
+		for (s = 0; s < sectors; s++) 
+		{
+			for (r = 0; r < 4; ++r)
+			{
+				y = (float) (Math.sin(s * S));
+				x = (float) (Math.cos(s * S));
+				z = r / 2;
+
+				vertices[offset++] = x * (0.5F - WIDTH * (r % 2));
+				vertices[offset++] = y * (0.5F - WIDTH * (r % 2));
+				vertices[offset++] = z * (0.5F - WIDTH * (r % 2));
+				
+				offset += 3;
+			}
+		}
+
+		return vertices;
+	}
+
+	@Override
+	public short[] getIndices()
+	{
+		int s1, s, offset = 0;
+
+		final short[] indices = new short[sectors * 4 * 6 + (percentage != 1 ? 12 : -24)];
+		
+		for (s = 0; s < (percentage == 1 ? sectors - 1 : sectors); s++)
+		{
+			s1 = (s + 1) % (sectors - 1);
+				
+			indices[offset++] = (short) (s * 4 + 1);
+			indices[offset++] = (short) (s * 4 + 3);
+			indices[offset++] = (short) (s1 * 4 + 1);
+			
+			indices[offset++] = (short) (s * 4 + 3);
+			indices[offset++] = (short) (s1 * 4 + 3);
+			indices[offset++] = (short) (s1 * 4 + 1);
+			
+			indices[offset++] = (short) (s * 4 + 0);
+			indices[offset++] = (short) (s1 * 4 + 0);
+			indices[offset++] = (short) (s * 4 + 2);
+
+			indices[offset++] = (short) (s * 4 + 2);
+			indices[offset++] = (short) (s1 * 4 + 0);
+			indices[offset++] = (short) (s1 * 4 + 2);
+			
+			
+			indices[offset++] = (short) (s * 4 + 0);
+			indices[offset++] = (short) (s * 4 + 1);
+			indices[offset++] = (short) (s1 * 4 + 0);
+
+			indices[offset++] = (short) (s * 4 + 1);
+			indices[offset++] = (short) (s1 * 4 + 1);
+			indices[offset++] = (short) (s1 * 4 + 0);
+			
+			indices[offset++] = (short) (s * 4 + 2);
+			indices[offset++] = (short) (s1 * 4 + 2);
+			indices[offset++] = (short) (s * 4 + 3);
+
+			indices[offset++] = (short) (s * 4 + 3);
+			indices[offset++] = (short) (s1 * 4 + 2);
+			indices[offset++] = (short) (s1 * 4 + 3);
+		}
+		
+		if (percentage != 1)
+		{
+			indices[offset++] = 0;
+			indices[offset++] = 2;
+			indices[offset++] = 1;
+
+			indices[offset++] = 1;
+			indices[offset++] = 2;
+			indices[offset++] = 3;
+			
+			indices[offset++] = (short) ((sectors - 1) * 4);
+			indices[offset++] = (short) ((sectors - 1) * 4 + 1);
+			indices[offset++] = (short) ((sectors - 1) * 4 + 2);
+
+			indices[offset++] = (short) ((sectors - 1) * 4 + 1);
+			indices[offset++] = (short) ((sectors - 1) * 4 + 3);
+			indices[offset++] = (short) ((sectors - 1) * 4 + 2);
+		}
+
+		return indices;
+	}
+}

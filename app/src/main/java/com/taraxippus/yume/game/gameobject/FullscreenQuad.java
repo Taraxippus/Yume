@@ -1,18 +1,33 @@
 package com.taraxippus.yume.game.gameobject;
 
-import android.opengl.*;
-import com.taraxippus.yume.game.*;
-import com.taraxippus.yume.render.*;
+import android.opengl.GLES20;
+import com.taraxippus.yume.game.World;
+import com.taraxippus.yume.render.Pass;
+import com.taraxippus.yume.render.Shape;
+import java.util.Arrays;
 
 public class FullscreenQuad extends GameObject
 {
-	public FullscreenQuad(World world, Pass pass)
+	Pass[] passes;
+	
+	public FullscreenQuad(World world, Pass... passes)
 	{
 		super(world);
 		
-		this.setPass(pass);
+		this.passes = passes;
+		this.setPass(passes[0]);
 	}
 
+	@Override
+	public boolean renderPass(Pass pass)
+	{
+		for (Pass p : passes)
+			if (p == pass)
+				return true;
+			
+		return false;
+	}
+	
 	public static final float[] vertices = new float[] 
 	{
 		-1, -1,

@@ -20,8 +20,6 @@ public class SceneObject extends GameObject
 	
 	public final VectorF color = new VectorF(0xCC / 255F, 0xCC / 255F, 0xCC / 255F);
 	public float alpha = 1F;
-	public float specularityExponent = 20F;
-	public float specularityFactor = 0.1F;
 	
 	public final VectorF position = new VectorF();
 	public final VectorF scale = new VectorF(1, 1, 1);
@@ -29,10 +27,11 @@ public class SceneObject extends GameObject
 
 	public float radius;
 	
+	public boolean updateAlways = false, noUpdate = false;
 	public boolean touchable = false;
 	public boolean enabled = true;
 	
-	private Shape outlineShape;
+	protected Shape outlineShape;
 
 	public SceneObject(World world)
 	{
@@ -56,7 +55,6 @@ public class SceneObject extends GameObject
 		return this;
 	}
 	
-	
 	public SceneObject setColor(int rgb)
 	{
 		this.color.set(Color.red(rgb) / 255F, Color.green(rgb) / 255F, Color.blue(rgb) / 255F);
@@ -67,13 +65,6 @@ public class SceneObject extends GameObject
 	public SceneObject setAlpha(float alpha)
 	{
 		this.alpha = alpha;
-		return this;
-	}
-	
-	public SceneObject setSpecularity(float exponent, float factor)
-	{
-		this.specularityExponent = exponent;
-		this.specularityFactor = factor;
 		return this;
 	}
 	
@@ -192,8 +183,12 @@ public class SceneObject extends GameObject
 	public void render(Renderer renderer)
 	{
 		if (!enabled || !world.main.camera.insideFrustum(position, radius))
+		{
+			noUpdate = !updateAlways;
 			return;
-		
+		}
+			
+		noUpdate = false;
 		//GLES20.glDepthMask(this.alpha == 1);
 		
 		renderer.uniform(modelMatrix, invModelMatrix, getPass().getParent());
@@ -221,20 +216,24 @@ public class SceneObject extends GameObject
 	@Override
 	public void delete()
 	{
-		super.delete();
-		
-		model.deleteShape();
-		model.deleteOutlineShape();
+		if (model == null)
+			super.delete();
+			
+		else
+		{
+			model.deleteShape();
+			model.deleteOutlineShape();
+		}
 	}
 	
 	public void uniformParent()
 	{
 		GLES20.glUniform4f(getPass().getParent().getProgram().getUniform("u_Color"), color.x, color.y, color.z, alpha);
-		GLES20.glUniform2f(getPass().getParent().getProgram().getUniform("u_Specularity"), specularityExponent, specularityFactor);
 	}
 
 	public void uniformChild()
 	{
+		GLES20.glUniform4f(getPass().getProgram().getUniform("u_Color"), color.x * 0.5F, color.y * 0.5F, color.z * 0.5F, 1.0F);
 	}
 	
 	@Override

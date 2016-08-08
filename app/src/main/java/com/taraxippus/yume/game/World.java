@@ -42,7 +42,9 @@ public class World
 			return;
 			
 		gameObject.init();
-		gameObjects[gameObject.getPass().getParent().ordinal()].add(gameObject);
+		for (int i = 0; i < Pass.values().length; ++i)
+			if (gameObject.renderPass(Pass.values()[i]))
+				gameObjects[i].add(gameObject);
 		
 		if (gameObject instanceof SceneObject)
 			sceneObjects.add((SceneObject) gameObject);
@@ -59,7 +61,9 @@ public class World
 			return;
 		
 		gameObject.delete();
-		gameObjects[gameObject.getPass().getParent().ordinal()].remove(gameObject);
+		for (int i = 0; i < Pass.values().length; ++i)
+			if (gameObject.renderPass(Pass.values()[i]))
+				gameObjects[i].remove(gameObject);
 		
 		if (gameObject instanceof SceneObject)
 			sceneObjects.remove(gameObject);
@@ -71,7 +75,8 @@ public class World
 		
 		for (ArrayList<GameObject> list : gameObjects)
 			for (GameObject gameObject : list)
-				gameObject.update();
+				if (!(gameObject instanceof SceneObject && ((SceneObject) gameObject).noUpdate))
+					gameObject.update();
 	}
 
 	public void render(Renderer renderer, Pass pass)

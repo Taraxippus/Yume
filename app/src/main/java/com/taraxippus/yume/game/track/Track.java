@@ -5,25 +5,32 @@ import com.taraxippus.yume.game.World;
 import com.taraxippus.yume.game.model.HexagonTubeModel;
 import com.taraxippus.yume.game.model.Model;
 import com.taraxippus.yume.util.VectorF;
+import com.taraxippus.yume.util.Quaternion;
 
 public abstract class Track
 {
-	public static final float LENGTH = 50;	
-	public static final float WIDTH = 10;	
+	public static final float SIZE = 50;	
+	public static final float WIDTH = 0.2F;	
 	
-	public static final float TRACK_ALPHA = 1.0F;	
-	public static final float TRACK_SIDE_ALPHA = 1.0F;	
+	public static final float TRACK_ALPHA = 0.25F;	
+	public static final float TRACK_SIDE_ALPHA = 0.5F;	
 	
-	public static final int TRACK_COLOR = 0xFFFFFF;	
-	public static final int TRACK_SIDE_COLOR = 0x00CCFF;	
+	public static final int TRACK_COLOR = 0x00CCFF;	
+	public static final int TRACK_SOLID_COLOR = 0x888888;	
+	public static final int TRACK_SIDE_COLOR = 0x03CCFF;	
+	
+	public static final float TRACK_OFFSET = -1500;	
+	public static final float TRACK_SIDE_OFFSET = -1000;	
 	
 	public static final Model hexagonTubeModel = new HexagonTubeModel(100, 10);
 	
 	public final World world;
 	private Track lastPiece = this, nextPiece = this;	
-	private float z;
-	public float[] lastMatrix;
-	public float[] nextMatrix = new float[16];
+	float z;
+	public final float[] lastMatrix = new float[16];
+	public final float[] nextMatrix = new float[16];
+	public final Quaternion lastRotation = new Quaternion();
+	public final Quaternion nextRotation = new Quaternion();
 	
 	public Track(World world, float z)
 	{
@@ -35,58 +42,70 @@ public abstract class Track
 	{
 		if (lastPiece == this)
 		{
-			lastMatrix = new float[16];
 			Matrix.setIdentityM(lastMatrix, 0);
+			Matrix.scaleM(lastMatrix, 0, SIZE, SIZE, SIZE);
+			
+			lastRotation.set(Quaternion.identity);
 		}
 		else
-			lastMatrix = lastPiece.nextMatrix;
+		{
+			System.arraycopy(lastPiece.nextMatrix, 0, lastMatrix, 0, 16);
+			Matrix.translateM(lastMatrix, 0, 0, 0, 1);
+			lastRotation.set(lastPiece.nextRotation);
+		}
 			
 		System.arraycopy(lastMatrix, 0, nextMatrix, 0, 16);
-		Matrix.translateM(nextMatrix, 0, 0, 0, LENGTH);
+		nextRotation.set(lastRotation);
 	}
 	
 	public abstract void addGameObjects();
 	
-	public Track getLastPiece()
+	public static float getDistance(VectorF position, VectorF position1)
 	{
-		return lastPiece;
-	}
-	
-	public Track getNextPiece()
-	{
-		return nextPiece;
+		VectorF tmp = VectorF.obtain();
+		
+		tmp.set(position);
+		tmp.z = (tmp.z + trackLength) % trackLength;
+		tmp.subtract(position1.x, position1.y, (position1.z + trackLength) % trackLength);
+		tmp.y = 0;
+		
+		return tmp.release().length();
 	}
 	
 	public Track getPiece(VectorF position)
 	{
-		return position.z < z ? lastPiece : position.z > z + LENGTH ? nextPiece : this;
+		if (loop)
+			while (position.z < 0)
+				position.z += trackLength;
+				
+		return position.z % trackLength < z ? (lastPiece == this ? this : lastPiece.getPiece(position)) : position.z % trackLength > z + 1 ? (nextPiece == this ? this : nextPiece.getPiece(position)) : this;
 	}
 	
-	public VectorF getRotation(VectorF position, VectorF out)
+	public void rotate(VectorF position, float[] matrix)
 	{
-		out.set(position);
-		out.z -= z;
-		VectorF tmp = VectorF.obtain();
-		tmp.set(out);
-
-		float delta = 1F / (1 + (float) Math.pow(Math.E, 6 - 12 * (out.z)));
-		out.setEuler(lastMatrix);
-		tmp.setEuler(nextMatrix);
-
-		out.multiplyBy(1 - delta).add(tmp.multiplyBy(delta));
-
+		Quaternion tmp = new Quaternion();
+		float delta = getDelta(position.z % trackLength - z);
+		
+		tmp.slerp(lastRotation, nextRotation, delta).normalize();
+		
+		VectorF axis = VectorF.obtain();
+		float angle = tmp.angleAxis(axis);
+		Matrix.rotateM(matrix, 0, (float) (angle / Math.PI * 180), axis.x, axis.y, axis.z);
+		
+		axis.release();
 		tmp.release();
-		return out;
 	}
 	
 	public VectorF getPosition(VectorF position, VectorF out)
 	{
 		out.set(position);
-		out.z -= z;
+		out.z = out.z % trackLength;
+		out.z -= z + 0.5F;
 		VectorF tmp = VectorF.obtain();
 		tmp.set(out);
 		
-		float delta = 1F / (1 + (float) Math.pow(Math.E, 6 - 12 * (out.z)));
+		float delta = getDelta(out.z + 0.5F);
+		
 		out.multiplyBy(lastMatrix);
 		tmp.multiplyBy(nextMatrix);
 		
@@ -96,36 +115,66 @@ public abstract class Track
 		return out;
 	}
 	
+	public static final String track = "ssddrlrldlRr";
+	public static final boolean loop = true;
+	public static final float trackLength = loop ?  track.length() : Integer.MAX_VALUE;
+	
 	public static Track createTrack(World world)
 	{
-		Track piece, last = null;
-		for (int i = 0; i < 5; ++i)
+		Track piece, first = null, last = null;
+		for (int i = 0; i < track.length(); ++i)
 		{
-			if (i % 2 == 1)
-				piece = new TrackRollRight(world, i * LENGTH);
+			if (track.charAt(i) == 'r')
+				piece = new TrackCurveRight(world, i);
+			else if (track.charAt(i) == 'l')
+				piece = new TrackCurveLeft(world, i);
+			else if (track.charAt(i) == 'u')
+				piece = new TrackCurveUp(world, i);
+			else if (track.charAt(i) == 'd')
+				piece = new TrackCurveDown(world, i);
+			else if (track.charAt(i) == 'R')
+				piece = new TrackRollRight(world, i);
+			else if (track.charAt(i) == 'L')
+				piece = new TrackRollLeft(world, i);
 			else
-				piece = new TrackStraight(world, i * LENGTH);
-			
+				piece = new TrackStraight(world, i);
+				
 			if (last != null)
 			{
 				piece.lastPiece = last;
-				
 				last.nextPiece = piece;
 				last.create();
 			}
+			else
+				first = piece;
+				
 			last = piece;
 		}
 		
 		last.create();
 		
+		if (loop)
+		{
+			last.nextPiece = first;
+			first.lastPiece = last;
+		}
+		
 		while (last != null)
 		{
 			last.addGameObjects();
-			if (last.lastPiece == last)
+			if (last == first)
 				break;
 			last = last.lastPiece;
 		}
 		
-		return last;
+		return first;
+	}
+	
+	private static final float start = 1F / (1 + (float) Math.pow(Math.E, 6));
+	private static final float range = 1F / (1F / (1 + (float) Math.pow(Math.E, -6)) - start);
+	
+	public static float getDelta(float x)
+	{
+		return (1F / (1 + (float) Math.pow(Math.E, 6 - 12 * x)) - start) * range;
 	}
 }
