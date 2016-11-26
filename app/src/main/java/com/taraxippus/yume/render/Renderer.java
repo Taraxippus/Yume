@@ -132,6 +132,7 @@ public class Renderer implements GLSurfaceView.Renderer
 		{
 			case HEXAGON_OUTLINE:
 			case SCENE_OUTLINE:
+			case BARRIER:
 				GLES20.glUniformMatrix4fv(pass.getProgram().getUniform("u_VP"), 1, false, main.camera.projectionViewMatrix, 0);
 				GLES20.glUniformMatrix4fv(pass.getProgram().getUniform("u_N"), 1, false, normalMatrix, 0);
 				GLES20.glUniformMatrix4fv(pass.getProgram().getUniform("u_M"), 1, false, modelMatrix, 0);

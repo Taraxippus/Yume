@@ -62,41 +62,6 @@ public class TrackModel extends Model
 		
 		return vertices;
 	}
-
-	@Override
-	public float[] getOutlineVertices()
-	{
-		float[] vertices = new float[6 * (intersectionsX + 1) * (intersectionsZ + 1) * 2];
-
-		int offset = 0;
-		float delta;
-		VectorF tmp = VectorF.obtain();
-
-		int x, y, z;
-		for (y = 0; y < 2; ++y)
-		{
-			for (x = 0; x <= intersectionsX; ++x)
-			{
-				for (z = 0; z <= intersectionsZ; ++z)
-				{
-					delta = Track.getDelta((float) z / intersectionsZ);
-					
-					tmp.set((-0.5F + (float) x / intersectionsX) * WIDTH, (-0.5F + y) * HEIGHT, -0.5F + (float) z / intersectionsZ)
-						.multiplyBy(modelMatrix)
-						.multiplyBy(delta)
-						.add((-0.5F + (float) x / intersectionsX) * WIDTH * (1F - delta), 
-							 (-0.5F + y) * HEIGHT * (1F - delta), 
-							 (-0.5F + (float) z / intersectionsZ) * (1F - delta));
-					tmp.put(vertices, offset);
-					offset += 6;
-				}
-			}
-		}
-
-		tmp.release();
-
-		return vertices;
-	}
 	
 	@Override
 	public short[] getIndices()

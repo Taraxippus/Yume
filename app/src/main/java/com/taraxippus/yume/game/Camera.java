@@ -8,9 +8,9 @@ import android.widget.*;
 
 public class Camera
 {
-	public static final float Z_NEAR = 1.5F;
-	public static final float Z_FAR = 75;
-	public static final float Z_FAR_DEBUG = 1000;
+	public static final float Z_NEAR = 0.05F;
+	public static final float Z_FAR = 12F;
+	public static final float Z_FAR_DEBUG = 10;
 	public static final float FOV = 60;
 	
 	public static final float FOLLOW_SMOOTHNESS = 1F;
@@ -23,7 +23,7 @@ public class Camera
 	public final float[] projectionViewMatrix = new float[16];
 	public final float[] invProjectionViewMatrix = new float[16];
 	
-	public float zoom = 4;
+	public float zoom = 0.3F;
 	
 	public final VectorF position = new VectorF();
 	public final VectorF rotation = new VectorF(-5, 180, 0);
@@ -83,7 +83,7 @@ public class Camera
 	public void updateProjection()
 	{
 		if (target != null)
-			Matrix.perspectiveM(projectionMatrix, 0, FOV * Math.min(2, target.velocity.lengthSquared() / 2.0F + 1), ratio, Z_NEAR, Z_FAR);
+			Matrix.perspectiveM(projectionMatrix, 0, FOV * Math.min(2, target.velocity.lengthSquared() / 4.0F + 1), ratio, Z_NEAR, Z_FAR);
 		
 			else
 			Matrix.perspectiveM(projectionMatrix, 0, FOV, ratio, Z_NEAR, main.game.DEBUG_CAMERA ? Z_FAR_DEBUG : Z_FAR);

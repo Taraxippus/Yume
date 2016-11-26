@@ -10,6 +10,7 @@ public enum Pass
 	HEXAGON,
 	SCENE,
 	SCENE_OUTLINE,
+	BARRIER,
 	PARTICLE,
 	BLOOM1,
 	BLOOM2,
@@ -17,6 +18,8 @@ public enum Pass
 	BLOOM4,
 	BLOOM5,
 	BLOOM6,
+	COMBINE,
+	MOTION,
 	POST;
 
 	private static final Program[] programs = new Program[Pass.values().length];
@@ -34,10 +37,11 @@ public enum Pass
 		for (int i = 0; i < framebuffer.length; ++i)
 			framebuffer[i] = new Framebuffer();
 
-		attributes[HEXAGON_OUTLINE.ordinal()] = new int[] {3, 3, 2};
+		attributes[HEXAGON_OUTLINE.ordinal()] = new int[] {3, 2, 3};
 		attributes[HEXAGON.ordinal()] = new int[] {3, 2};
 		attributes[SCENE_OUTLINE.ordinal()] = new int[] {3, 3};
 		attributes[SCENE.ordinal()] = new int[] {3};
+		attributes[BARRIER.ordinal()] = new int[] {3, 3};
 		attributes[PARTICLE.ordinal()] = new int[] {4, 4, 2};
 		attributes[BLOOM1.ordinal()] = new int[] {2};
 		attributes[BLOOM2.ordinal()] = BLOOM1.getAttributes();
@@ -50,10 +54,11 @@ public enum Pass
 	
 	public static void init(Main main)
 	{
-		programs[HEXAGON_OUTLINE.ordinal()].init(main, R.raw.vertex_hexagon_outline, R.raw.fragment_scene, "a_Position", "a_Normal", "a_Direction");
+		programs[HEXAGON_OUTLINE.ordinal()].init(main, R.raw.vertex_hexagon_outline, R.raw.fragment_scene, "a_Position", "a_Direction", "a_Normal");
 		programs[HEXAGON.ordinal()].init(main, R.raw.vertex_hexagon, R.raw.fragment_hexagon, "a_Position", "a_Direction");
 		programs[SCENE_OUTLINE.ordinal()].init(main, R.raw.vertex_scene_outline, R.raw.fragment_scene, "a_Position", "a_Normal");
 		programs[SCENE.ordinal()].init(main, R.raw.vertex_scene, R.raw.fragment_scene, "a_Position");
+		programs[BARRIER.ordinal()].init(main, R.raw.vertex_barrier, R.raw.fragment_barrier, "a_Position", "a_Normal");
 		programs[PARTICLE.ordinal()].init(main, R.raw.vertex_particle, R.raw.fragment_particle, "a_Position", "a_Color", "a_Direction");
 		
 		programs[BLOOM1.ordinal()].init(main, R.raw.vertex_bloom, R.raw.fragment_bloom1, "a_Position");
@@ -177,6 +182,10 @@ public enum Pass
 				GLES20.glUniform1f(getProgram().getUniform("u_Time"), (float) (renderer.main.world.time % (Math.PI * 2 * 10)));
 			case SCENE:
 				GLES20.glDepthMask(true);
+				break;
+				
+			case BARRIER:
+				GLES20.glUniform1f(getProgram().getUniform("u_Time"), (float) (renderer.main.world.time * 15 % (Math.PI * 2)));
 				break;
 				
 			case HEXAGON_OUTLINE:

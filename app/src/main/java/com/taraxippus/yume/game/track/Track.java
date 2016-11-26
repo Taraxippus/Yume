@@ -4,12 +4,13 @@ import android.opengl.Matrix;
 import com.taraxippus.yume.game.World;
 import com.taraxippus.yume.game.model.HexagonTubeModel;
 import com.taraxippus.yume.game.model.Model;
-import com.taraxippus.yume.util.VectorF;
+import com.taraxippus.yume.game.model.TubeModel;
 import com.taraxippus.yume.util.Quaternion;
+import com.taraxippus.yume.util.VectorF;
 
 public abstract class Track
 {
-	public static final float SIZE = 50;	
+	public static final float SIZE = 7.5F;	
 	public static final float WIDTH = 0.2F;	
 	
 	public static final float TRACK_ALPHA = 0.25F;	
@@ -22,20 +23,22 @@ public abstract class Track
 	public static final float TRACK_OFFSET = -1500;	
 	public static final float TRACK_SIDE_OFFSET = -1000;	
 	
-	public static final Model hexagonTubeModel = new HexagonTubeModel(100, 10);
+	public static final Model hexagonTubeModel = new HexagonTubeModel(90, 10);
 	
 	public final World world;
 	private Track lastPiece = this, nextPiece = this;	
 	float z;
+	boolean tube;
 	public final float[] lastMatrix = new float[16];
 	public final float[] nextMatrix = new float[16];
 	public final Quaternion lastRotation = new Quaternion();
 	public final Quaternion nextRotation = new Quaternion();
 	
-	public Track(World world, float z)
+	public Track(World world, float z, boolean tube)
 	{
 		this.world = world;
 		this.z = z;
+		this.tube = tube;
 	}
 	
 	public void create()
@@ -115,29 +118,37 @@ public abstract class Track
 		return out;
 	}
 	
-	public static final String track = "ssddrlrldlRr";
+	public static final String track = "ssdsuusdrsrsssTsrsr";
 	public static final boolean loop = true;
-	public static final float trackLength = loop ?  track.length() : Integer.MAX_VALUE;
+	public static final float trackLength = loop ? track.replace("T", "").length() : Integer.MAX_VALUE;
 	
 	public static Track createTrack(World world)
 	{
 		Track piece, first = null, last = null;
+		boolean tube = true;
+		int offset = 0;
 		for (int i = 0; i < track.length(); ++i)
 		{
+			if (track.charAt(i) == 'T')
+			{
+				tube = !tube;
+				continue;
+			}
+			
 			if (track.charAt(i) == 'r')
-				piece = new TrackCurveRight(world, i);
+				piece = new TrackCurveRight(world, offset, tube);
 			else if (track.charAt(i) == 'l')
-				piece = new TrackCurveLeft(world, i);
+				piece = new TrackCurveLeft(world, offset, tube);
 			else if (track.charAt(i) == 'u')
-				piece = new TrackCurveUp(world, i);
+				piece = new TrackCurveUp(world, offset, tube);
 			else if (track.charAt(i) == 'd')
-				piece = new TrackCurveDown(world, i);
+				piece = new TrackCurveDown(world, offset, tube);
 			else if (track.charAt(i) == 'R')
-				piece = new TrackRollRight(world, i);
+				piece = new TrackRollRight(world, offset, tube);
 			else if (track.charAt(i) == 'L')
-				piece = new TrackRollLeft(world, i);
+				piece = new TrackRollLeft(world, offset, tube);
 			else
-				piece = new TrackStraight(world, i);
+				piece = new TrackStraight(world, offset, tube);
 				
 			if (last != null)
 			{
@@ -149,6 +160,7 @@ public abstract class Track
 				first = piece;
 				
 			last = piece;
+			offset++;
 		}
 		
 		last.create();

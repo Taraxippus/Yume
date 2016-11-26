@@ -63,7 +63,7 @@ public class GameObject implements Comparable<GameObject>
 	
 	public void delete()
 	{
-		if (shape != null)
+		if (shape != null && shape.initialized())
 			shape.delete();
 	}
 

@@ -38,9 +38,9 @@ public class Vertex
 		instances.add((short) (vertices.size() / vertexData.length));
 		indices.set(indicesIndex, instances.get(instances.size() - 1));
 		
-		vertexData[3] = normal.x;
-		vertexData[4] = normal.y;
-		vertexData[5] = normal.z;
+		vertexData[vertexData.length - 3] = normal.x;
+		vertexData[vertexData.length - 2] = normal.y;
+		vertexData[vertexData.length - 1] = normal.z;
 		
 		for (int i = 0; i < vertexData.length; ++i)
 			vertices.add(vertexData[i]);

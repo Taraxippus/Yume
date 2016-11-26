@@ -27,7 +27,7 @@ public class SceneObject extends GameObject
 
 	public float radius;
 	
-	public boolean updateAlways = false, noUpdate = false;
+	public boolean updateAlways = false, renderAlways = false, noUpdate = false;
 	public boolean touchable = false;
 	public boolean enabled = true;
 	
@@ -182,15 +182,14 @@ public class SceneObject extends GameObject
 	@Override
 	public void render(Renderer renderer)
 	{
-		if (!enabled || !world.main.camera.insideFrustum(position, radius))
+		if (!enabled || !renderAlways && !world.main.camera.insideFrustum(position, radius))
 		{
 			noUpdate = !updateAlways;
 			return;
 		}
 			
 		noUpdate = false;
-		//GLES20.glDepthMask(this.alpha == 1);
-		
+	
 		renderer.uniform(modelMatrix, invModelMatrix, getPass().getParent());
 		uniformParent();
 		super.render(renderer);

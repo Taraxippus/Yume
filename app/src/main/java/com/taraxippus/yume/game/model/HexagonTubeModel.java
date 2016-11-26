@@ -42,7 +42,6 @@ public class HexagonTubeModel extends Model
 				posZ = -0.5F + (3F * z + (x % 2) * 1.5F) * width;
 				scale = 1 -  heights[x * zCount + z] * 0.3F;
 			
-				offset0 = 14 * 5 * (x * zCount + z);
 				offset1 = offset0 + 7 * 5;
 				
 				vertices[offset0++] = (float) Math.cos(posX + height) * 0.5F * scale;
@@ -101,86 +100,8 @@ public class HexagonTubeModel extends Model
 				offset1 += 2;
 				vertices[offset0++] = posX + height;
 				vertices[offset0++] = posZ + width;
-			}
-
-		return vertices;
-	}
-	
-	@Override
-	public float[] getOutlineVertices()
-	{
-		final float[] vertices = new float[9 * (7 * 2) * xCount * zCount];
-
-		int offset0 = 0, offset1;
-		int x, z;
-		float posX, posZ, scale;
-		for (x = 0; x < xCount; ++x) 
-			for (z = 0; z < zCount; ++z) 
-			{
-				posX = x * height;
-				posZ = -0.5F + (3F * z + (x % 2) * 1.5F) * width;
-				scale = 1 -  heights[x * zCount + z] * 0.3F;
 				
-				offset0 = 14 * 8 * (x * zCount + z);
-				offset1 = offset0 + 7 * 8;
-
-				vertices[offset0++] = (float) Math.cos(posX + height) * 0.5F * scale;
-				vertices[offset1++] = (float) Math.cos(posX + height) * 0.5F;
-				vertices[offset0++] = (float) Math.sin(posX + height) * 0.5F * scale;
-				vertices[offset1++] = (float) Math.sin(posX + height) * 0.5F;
-				vertices[offset1++] = vertices[offset0++] = posZ + width;
-				offset0 += 3; offset1 += 5;
-				vertices[offset0++] = posX + height;
-				vertices[offset0++] = posZ + width;
-
-				vertices[offset0++] = (float) Math.cos(posX + height) * 0.5F * scale;
-				vertices[offset1++] = (float) Math.cos(posX + height) * 0.5F;
-				vertices[offset0++] = (float) Math.sin(posX + height) * 0.5F * scale;
-				vertices[offset1++] = (float) Math.sin(posX + height) * 0.5F;
-				vertices[offset1++] = vertices[offset0++] = posZ;
-				offset0 += 3; offset1 += 5;
-				vertices[offset0++] = posX + height;
-				vertices[offset0++] = posZ + width;
-				vertices[offset0++] = (float) Math.cos(posX + height * 2) * 0.5F * scale;
-				vertices[offset1++] = (float) Math.cos(posX + height * 2) * 0.5F;
-				vertices[offset0++] = (float) Math.sin(posX + height * 2) * 0.5F * scale;
-				vertices[offset1++] = (float) Math.sin(posX + height * 2) * 0.5F;
-				vertices[offset1++] = vertices[offset0++] = posZ + width / 2;
-				offset0 += 3; offset1 += 5;
-				vertices[offset0++] = posX + height;
-				vertices[offset0++] = posZ + width;
-				vertices[offset0++] = (float) Math.cos(posX + height * 2) * 0.5F * scale;
-				vertices[offset1++] = (float) Math.cos(posX + height * 2) * 0.5F;
-				vertices[offset0++] = (float) Math.sin(posX + height * 2) * 0.5F * scale;
-				vertices[offset1++] = (float) Math.sin(posX + height * 2) * 0.5F;
-				vertices[offset1++] = vertices[offset0++] = posZ + width / 2 * 3;
-				offset0 += 3; offset1 += 5;
-				vertices[offset0++] = posX + height;
-				vertices[offset0++] = posZ + width;
-				vertices[offset0++] = (float) Math.cos(posX + height) * 0.5F * scale;
-				vertices[offset1++] = (float) Math.cos(posX + height) * 0.5F;
-				vertices[offset0++] = (float) Math.sin(posX + height) * 0.5F * scale;
-				vertices[offset1++] = (float) Math.sin(posX + height) * 0.5F;
-				vertices[offset1++] = vertices[offset0++] = posZ + width * 2;
-				offset0 += 3; offset1 += 5;
-				vertices[offset0++] = posX + height;
-				vertices[offset0++] = posZ + width;
-				vertices[offset0++] = (float) Math.cos(posX) * 0.5F * scale;
-				vertices[offset1++] = (float) Math.cos(posX) * 0.5F;
-				vertices[offset0++] = (float) Math.sin(posX) * 0.5F * scale;
-				vertices[offset1++] = (float) Math.sin(posX) * 0.5F;
-				vertices[offset1++] = vertices[offset0++] = posZ + width / 2 * 3;
-				offset0 += 3; offset1 += 5;
-				vertices[offset0++] = posX + height;
-				vertices[offset0++] = posZ + width;
-				vertices[offset0++] = (float) Math.cos(posX) * 0.5F * scale;
-				vertices[offset1++] = (float) Math.cos(posX) * 0.5F;
-				vertices[offset0++] = (float) Math.sin(posX) * 0.5F * scale;
-				vertices[offset1++] = (float) Math.sin(posX) * 0.5F;
-				vertices[offset1++] = vertices[offset0++] = posZ + width / 2;
-				offset0 += 3; offset1 += 5;
-				vertices[offset0++] = posX + height;
-				vertices[offset0++] = posZ + width;
+				offset0 += 7 * 5;
 			}
 
 		return vertices;

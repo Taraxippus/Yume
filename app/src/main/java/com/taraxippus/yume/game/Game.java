@@ -6,6 +6,9 @@ import com.taraxippus.yume.Main;
 import com.taraxippus.yume.game.gameobject.Collectable;
 import com.taraxippus.yume.game.gameobject.FullscreenQuad;
 import com.taraxippus.yume.game.gameobject.Player;
+import com.taraxippus.yume.game.gameobject.Projectile;
+import com.taraxippus.yume.game.gameobject.Ring;
+import com.taraxippus.yume.game.gameobject.SceneObject;
 import com.taraxippus.yume.game.gameobject.SpeedPad;
 import com.taraxippus.yume.game.model.BoxModel;
 import com.taraxippus.yume.game.model.HexagonTubeModel;
@@ -16,27 +19,26 @@ import com.taraxippus.yume.game.model.SpeedPadModel;
 import com.taraxippus.yume.game.model.SphereModel;
 import com.taraxippus.yume.game.track.Track;
 import com.taraxippus.yume.render.Pass;
-import com.taraxippus.yume.util.SimplexNoise;
 import com.taraxippus.yume.util.VectorF;
-import com.taraxippus.yume.game.gameobject.OnTrackObject;
 
 public class Game implements View.OnTouchListener
 {
 	public boolean DEBUG_CAMERA = false;
+	public static final float GRAVITY = -9.81F;
 	
 	public final Main main;
-	public final SimplexNoise noiseGenerator = new SimplexNoise(1024, 0.75F, 0);
-	public final VectorF light = new VectorF(-0.25F, -1, 0.1F).normalize();
-	public final float FOG = 0.0001F;
+	public final float FOG = 0.01F;
 	
 	public Player player;
 	
 	public final Model playerModel = new PlayerModel();
-	public final Model hexagonTubeModel = new HexagonTubeModel(100, 10);
 	public final Model boxModel = new BoxModel();
 	public final Model sphereModel = new SphereModel(50, 50);
-	public final Model ringModel = new RingModel(50, 1.0F);
+	public final Model ringModel = new RingModel(10, 1.0F);
+	public final Model ringModel2 = new RingModel(8, 0.66F);
 	public final Model speedPadModel = new SpeedPadModel();
+
+	public Track first;
 	
 	public Game(Main main)
 	{
@@ -46,21 +48,22 @@ public class Game implements View.OnTouchListener
 	public void init()
 	{
 		main.camera.init();
-		main.camera.position.set(0, 2, 0);
+		main.camera.position.set(0, 0, 0);
 		main.camera.update();
 		
-		Track first = Track.createTrack(main.world);
+		first = Track.createTrack(main.world);
 		main.world.add(player = (Player) new Player(main.world, first).setModel(playerModel).setColor(0xFF8803));
 		
-		for (int i = 0; i < 10; ++i)
-			main.world.add(new Collectable(main.world, first).setModel(boxModel).translate(0, 0, i * 1.1F));
+		for (int i = 0; i < Track.trackLength; ++i)
+			main.world.add(new Collectable(main.world, first).setModel(boxModel).translate(0, 0, i + main.world.random.nextFloat()));
 		
-		for (int i = 0; i < 10; ++i)
-			main.world.add(new SpeedPad(main.world, first).setModel(speedPadModel).translate(main.world.random.nextFloat() * 0.125F - 0.0625F, 0.0625F / Track.SIZE, i * 1F + 0.5F));
+		for (int i = 0; i < Track.trackLength; ++i)
+			main.world.add(new SpeedPad(main.world, first).setModel(speedPadModel).translate(main.world.random.nextFloat() * 0.125F - 0.0625F, 0.00625F / Track.SIZE, i + 0.5F));
 		
-		main.world.add(new OnTrackObject(main.world, first).setModel(ringModel).translate(0, 0, 0).scale(Track.SIZE * 0.25F, Track.SIZE * 0.25F, 2).setColor(Track.TRACK_SIDE_COLOR).setAlpha(Track.TRACK_SIDE_ALPHA).setDepthOffset(-500));
-		
-		main.world.add(new FullscreenQuad(main.world, Pass.POST, Pass.BLOOM1, Pass.BLOOM2, Pass.BLOOM3, Pass.BLOOM4, Pass.BLOOM5, Pass.BLOOM6));
+		for (int i = 0; i < 4; ++i)
+			main.world.add(new Ring(main.world, first).setModel(i == 0 ? ringModel : ringModel2).translate(0, 0, i * Track.trackLength / 5F).rotate(0, 0, main.world.random.nextFloat() * 360));
+			
+		main.world.add(new FullscreenQuad(main.world, Pass.POST, Pass.BLOOM1, Pass.BLOOM2, Pass.BLOOM3, Pass.BLOOM4, Pass.BLOOM5, Pass.BLOOM6, Pass.COMBINE, Pass.MOTION));
 		
 		if (!DEBUG_CAMERA)
 			main.camera.setTarget(player);
@@ -75,7 +78,7 @@ public class Game implements View.OnTouchListener
 										 .set(newXRight - lastXRight, 0, newYRight - lastYRight)
 										 .rotateX(main.camera.rotation.x)
 										 .rotateY(main.camera.rotation.y)
-										 .multiplyBy(Main.FIXED_DELTA * 45)
+										 .multiplyBy(Main.FIXED_DELTA * 4.5F)
 										 .release());
 			else
 				player.velocity.add(VectorF.obtain()
@@ -97,6 +100,11 @@ public class Game implements View.OnTouchListener
 	public void delete()
 	{
 		main.world.delete();
+	}
+	
+	public void onTap()
+	{
+		main.world.addLater(new Projectile(main.world, first).setVelocity(VectorF.obtain().set(0, 0, -0.01F).rotateY(player.rotation.y).release()).setModel(sphereModel).translate(player.trackPosition));
 	}
 	
 	int pointerLeft = -1;
@@ -149,6 +157,7 @@ public class Game implements View.OnTouchListener
 						main.camera.rotation.y += (lastXLeft - event.getX(index) / v.getWidth()) * 180;
 					
 					player.rotation.y += (lastXLeft - event.getX(index) / v.getWidth()) * 180;
+					player.tilt += (lastXLeft - event.getX(index) / v.getWidth()) * 180;
 					main.camera.rotation.x += (lastYLeft - event.getY(index) / v.getHeight()) * 180;
 					
 					lastXLeft = event.getX(index) / (float) v.getWidth();

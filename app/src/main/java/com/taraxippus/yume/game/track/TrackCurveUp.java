@@ -24,9 +24,9 @@ public class TrackCurveUp extends Track
 		trackSideModel = new TrackSideModel(matrix, 1, 50);
 	}
 
-	public TrackCurveUp(World world, float z)
+	public TrackCurveUp(World world, float z, boolean tube)
 	{
-		super(world, z);
+		super(world, z, tube);
 	}
 
 	@Override
@@ -43,6 +43,8 @@ public class TrackCurveUp extends Track
 	{
 		world.add(new TrackObject(world, this).setModel(trackModel).setColor(TRACK_COLOR).setAlpha(TRACK_ALPHA).setDepthOffset(TRACK_OFFSET));
 		world.add(new TrackObject(world, this).setModel(trackSideModel).setColor(TRACK_SIDE_COLOR).setAlpha(TRACK_SIDE_ALPHA).setDepthOffset(TRACK_SIDE_OFFSET));
-		world.add(new HexagonTube(world, this).setModel(hexagonTubeModel));
+		
+		if (tube)
+			world.add(new HexagonTube(world, this).setModel(hexagonTubeModel));
 	}
 }

@@ -13,7 +13,7 @@ public class Collectable extends OnTrackObject
 		
 		setColor(0xFF8803);
 		setAlpha(0.75F);
-		scale(0.5F, 0.5F, 0.5F);
+		scale(0.05F, 0.05F, 0.05F);
 	}
 	
 	boolean collected = false;
@@ -40,7 +40,7 @@ public class Collectable extends OnTrackObject
 			trackPosition.add(tmp);
 			tmp.release();
 			distance = Math.min(0.5F, distance / 0.075F * 0.5F);
-			scale.set(distance, distance, distance);
+			scale.set(distance * 0.1F, distance * 0.1F, distance * 0.1F);
 		}
 		else
 			trackPosition.y = 0.02F + (float) Math.cos(world.time) * 0.005F;

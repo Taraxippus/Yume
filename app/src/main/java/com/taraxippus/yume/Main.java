@@ -218,7 +218,9 @@ public class Main extends Activity implements View.OnTouchListener
 			
 			if (touched != null)
 				touched.onTouch(viewRay.intersection, viewRay.normal);
-			
+			else
+				game.onTap();
+				
 			return true;
 		}
 		

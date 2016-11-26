@@ -14,8 +14,9 @@ public class SpeedPad extends OnTrackObject
 	{
 		super(world, track);
 		
+		updateAlways = true;
 		setColor(0xFF8803);
-		scale(1, 0.125F, 1);
+		scale(0.1F, 0.0125F, 0.1F);
 	}
 
 	@Override

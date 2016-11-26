@@ -317,7 +317,7 @@ public class Quaternion
         if (pool.isEmpty())
             return new Quaternion();
         else
-            return pool.remove(0).set(0, 0, 0, 0);
+            return pool.remove(0).set(0, 0, 0, 1);
     }
 
     public static Quaternion release(Quaternion tmp)

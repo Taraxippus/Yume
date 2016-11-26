@@ -1,5 +1,6 @@
 #version 100
 precision mediump float;
+precision mediump int;
 
 uniform float u_Fog;
 varying vec4 v_Color;

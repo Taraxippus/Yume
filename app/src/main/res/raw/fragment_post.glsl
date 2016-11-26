@@ -1,5 +1,6 @@
 #version 100
 precision mediump float;
+precision mediump int;
 
 uniform sampler2D u_Texture;
 uniform sampler2D u_Bloom;

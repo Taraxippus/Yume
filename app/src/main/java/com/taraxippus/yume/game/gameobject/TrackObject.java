@@ -6,6 +6,7 @@ import com.taraxippus.yume.game.World;
 import com.taraxippus.yume.game.track.Track;
 import com.taraxippus.yume.render.Pass;
 import com.taraxippus.yume.render.Renderer;
+import java.util.Arrays;
 
 public class TrackObject extends SceneObject
 {

@@ -469,6 +469,15 @@ public class VectorF
 		
         return this;
     }
+	
+	public VectorF put(FloatBuffer buffer)
+    {
+		buffer.put(x);
+		buffer.put(y);
+		buffer.put(z);
+		
+		return this;
+	}
 
     public VectorF load(ByteBuffer buffer)
     {
@@ -483,6 +492,11 @@ public class VectorF
 
         return this;
     }
+	
+	public boolean isNaN()
+	{
+		return x != x || y != y || z != z;
+	}
 
     @Override
     public String toString()

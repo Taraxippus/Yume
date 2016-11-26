@@ -12,8 +12,6 @@ import java.util.*;
 
 public class World
 {
-	public static final float GRAVITY = -9.81F;
-	
 	public final Main main;
 	public final Random random = new Random();
 	public final ArrayList<GameObject>[] gameObjects = new ArrayList[Pass.values().length];
@@ -23,7 +21,8 @@ public class World
 	public final List<GameObject> gameObjects_remove = Collections.synchronizedList(new ArrayList<GameObject>());
 	
 	public float time = 0;
-
+	public int update = 0;
+	
 	public World(Main main)
 	{
 		this.main = main;
@@ -72,6 +71,7 @@ public class World
 	public void update()
 	{
 		time += Main.FIXED_DELTA;
+		update++;
 		
 		for (ArrayList<GameObject> list : gameObjects)
 			for (GameObject gameObject : list)

@@ -22,7 +22,20 @@ public class Shape
 		
 	}
 	
-	public void initGenerateNormals(int type, float[] vertices, short indices[], int... attributes)
+	public static final float[] addNormals(float[] vertices, int... attributes)
+	{
+		int stride = 0;
+		for (int i : attributes)
+			stride += i;
+			
+		float[] vertices1 = new float[vertices.length / (stride - 3) * stride];
+		for (int i = 0; i < vertices.length; i += stride - 3)
+			System.arraycopy(vertices, i, vertices1, i / (stride - 3) * stride, stride - 3);
+	
+		return vertices1;
+	}
+	
+	public void initGenerateNormals(int type, float[] vertices, short indices[], boolean weight, int... attributes)
 	{
 		int stride = 0;
 		for (int i : attributes)
@@ -40,17 +53,25 @@ public class Shape
 			tmp2.set(vertices, indices[i + 1], stride, 0);
 			tmp3.set(vertices, indices[i + 2], stride, 0);
 
-			normals[indices[i] & 0xffff].add(tmp4.set(tmp2).subtract(tmp1).cross(tmp3.subtract(tmp1)).normalize());
-			normals[indices[i + 1] & 0xffff].add(tmp4);
-			normals[indices[i + 2] & 0xffff].add(tmp4);
+			tmp4.set(tmp2).subtract(tmp1).cross(tmp3.subtract(tmp1));
+			
+			if (!weight)
+				tmp4.normalize();
+			
+			if (!tmp4.isNaN())
+			{
+				normals[indices[i] & 0xffff].add(tmp4);
+				normals[indices[i + 1] & 0xffff].add(tmp4);
+				normals[indices[i + 2] & 0xffff].add(tmp4);
+			}
 		}
 
 		for (int i = 0; i < normals.length; i++)
 		{
 			normals[i].normalize();
-			vertices[i * stride + 3] = normals[i].x;
-			vertices[i * stride + 4] = normals[i].y;
-			vertices[i * stride + 5] = normals[i].z;
+			vertices[i * stride + stride - 3] = normals[i].x;
+			vertices[i * stride + stride - 2] = normals[i].y;
+			vertices[i * stride + stride - 1] = normals[i].z;
 		}
 
 		for (int i = 0; i < normals.length; i++)

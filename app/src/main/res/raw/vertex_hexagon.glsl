@@ -1,5 +1,6 @@
 #version 100
 precision mediump float;
+precision mediump int;
 
 attribute vec4 a_Position;
 attribute vec2 a_Direction;
